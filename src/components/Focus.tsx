@@ -8,7 +8,7 @@ import {
   minutesLabel,
   type Ranked,
 } from "../lib/engine";
-import { CategoryBadge, Chip, ScoreBar } from "./ui";
+import { CategoryBadge, ScoreBar } from "./ui";
 import {
   IconBlock,
   IconCheck,
@@ -16,7 +16,6 @@ import {
   IconClock,
   IconDots,
   IconReticle,
-  IconSquiggle,
   IconTarget,
   IconTimer,
 } from "./icons";
@@ -130,107 +129,97 @@ export function NextAction({
   const isBlockedView = !next && !!blockedTop;
 
   return (
-    <AnimatePresence mode="wait">
-      <motion.section
-        key={task.id + (isBlockedView ? "-blocked" : "")}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -14 }}
-        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="card-dark relative overflow-hidden p-5 sm:p-6"
-      >
-        {/* ambient life */}
-        <div
-          aria-hidden
-          className="anim-breathe pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(47,209,138,0.14) 0%, rgba(47,209,138,0.04) 45%, transparent 70%)",
-          }}
-        />
-        <IconReticle
-          aria-hidden
-          size={150}
-          className="pointer-events-none absolute -top-8 -right-8 text-fog/[0.045]"
-        />
-
-        <div className="relative">
-          <div className="flex flex-wrap items-center gap-3">
-            <span className="sticker -rotate-2 inline-flex items-center gap-1.5 bg-canvas px-2.5 py-1 font-mono text-[10px] font-bold tracking-[0.18em] text-ink uppercase">
-              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint" />
-              {isBlockedView ? "all blocked" : "do this now"}
-            </span>
-            <span className="ml-auto flex items-center gap-2">
-              <span className="label-mono text-fog-faint">signal</span>
-              <span
-                className={`rounded-lg border-2 px-2 py-0.5 font-mono text-sm font-bold ${
-                  r.score >= 65
-                    ? "border-mint/60 bg-mint/15 text-mint"
-                    : "border-fog/25 text-fog-dim"
-                }`}
-              >
-                {r.score}
-              </span>
+    <div>
+      <p className="label-mono mb-2 flex items-center gap-2 text-ink/55">
+        <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-mint" />
+        {isBlockedView ? "all blocked — everything's parked" : "your next action"}
+      </p>
+      <AnimatePresence mode="wait">
+        <motion.section
+          key={task.id + (isBlockedView ? "-blocked" : "")}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -14 }}
+          transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+          className="card-dark relative overflow-hidden p-4 sm:p-5"
+        >
+          <div className="flex items-center gap-2">
+            <CategoryBadge category={r.category} />
+            <span
+              title="Priority score"
+              className={`ml-auto rounded-md border px-2 py-0.5 font-mono text-[11px] font-bold ${
+                r.score >= 65
+                  ? "border-mint/60 bg-mint/15 text-mint"
+                  : "border-fog/25 text-fog-dim"
+              }`}
+            >
+              score {r.score}
             </span>
           </div>
 
-          <h1 className="mt-3 max-w-2xl font-display text-[clamp(1.3rem,3.2vw,1.9rem)] leading-[1.1] font-extrabold tracking-tight text-balance break-words text-paper">
+          <h1 className="mt-2.5 font-display text-xl leading-[1.15] font-extrabold tracking-tight text-balance break-words text-paper sm:text-[1.35rem]">
             {task.title}
           </h1>
 
-          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-fog-dim">
-            <span className="font-bold text-mint">Why this? </span>
+          {/* one dense meta line — deadline · estimate · goal · flags */}
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[11px] font-medium text-fog-dim">
+            <IconClock size={11} className="shrink-0 text-fog-faint" />
+            {task.deadline != null ? (
+              <span className={r.overdue ? "font-bold text-coral" : ""}>
+                {r.overdue
+                  ? `overdue · ${deadlinePhrase(task.deadline, Date.now())}`
+                  : `due ${deadlinePhrase(task.deadline, Date.now())}`}
+              </span>
+            ) : (
+              <span>no deadline</span>
+            )}
+            <span className="text-fog-faint">·</span>
+            <span>{minutesLabel(task.estMinutes)}</span>
+            {goal && (
+              <>
+                <span className="text-fog-faint">·</span>
+                <span className="inline-flex min-w-0 max-w-[52vw] items-center gap-1 sm:max-w-[300px]">
+                  <IconTarget size={11} className="shrink-0 text-mint" />
+                  <span className="truncate" title={goal.title}>
+                    {goal.title}
+                  </span>
+                </span>
+              </>
+            )}
+            {task.postponeCount > 0 && (
+              <>
+                <span className="text-fog-faint">·</span>
+                <span className="text-honey">postponed ×{task.postponeCount}</span>
+              </>
+            )}
+            {budget !== "any" && !r.fitsWindow && (
+              <>
+                <span className="text-fog-faint">·</span>
+                <span className="font-bold text-coral">bigger than your window</span>
+              </>
+            )}
+          </p>
+
+          <p className="mt-1.5 text-[13px] leading-snug text-fog-dim line-clamp-2">
             {isBlockedView
-              ? `It's blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
+              ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
               : r.reason}
           </p>
 
-          <div className="mt-3 flex flex-wrap items-center gap-1.5">
-            <CategoryBadge category={r.category} />
-            {task.deadline != null && (
-              <Chip
-                tone={r.overdue ? "coral" : "paper"}
-                icon={<IconClock size={11} />}
-                title="Deadline"
-              >
-                {r.overdue ? "overdue · " : "due "}
-                {deadlinePhrase(task.deadline, Date.now())}
-              </Chip>
-            )}
-            <Chip tone="paper" icon={<IconTimer size={11} />} title="Estimated duration">
-              {minutesLabel(task.estMinutes)}
-            </Chip>
-            {goal && (
-              <Chip tone="mint" icon={<IconTarget size={11} />} title="Matched goal">
-                {goal.title}
-              </Chip>
-            )}
-            {task.postponeCount > 0 && (
-              <Chip tone="paper" icon={<IconClock size={11} />} title="Times postponed">
-                postponed ×{task.postponeCount}
-              </Chip>
-            )}
-            {budget !== "any" && !r.fitsWindow && (
-              <Chip tone="coral" icon={<IconTimer size={11} />}>
-                bigger than your window
-              </Chip>
-            )}
-          </div>
-
-          <div className="mt-4 flex flex-wrap items-center gap-2.5">
+          <div className="mt-3.5 flex flex-wrap items-center gap-2">
             {isBlockedView ? (
-              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-5 py-2.5 text-sm font-bold">
-                <IconBlock size={15} /> Unblock it
+              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-4 py-2 text-[13px] font-bold">
+                <IconBlock size={14} /> Unblock it
               </button>
             ) : (
               <button
                 onClick={(e) => onComplete(task.id, e.currentTarget)}
-                className="btn-yellow px-5 py-2.5 text-sm font-bold"
+                className="btn-yellow px-4 py-2 text-[13px] font-bold"
               >
-                <IconCheck size={15} /> Complete
+                <IconCheck size={14} /> Complete
               </button>
             )}
-            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-4 py-2.5 text-sm">
+            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-3.5 py-2 text-[13px]">
               Not now
             </button>
             <button
@@ -239,9 +228,9 @@ export function NextAction({
               className="label-mono ml-auto cursor-pointer text-fog-faint transition-colors hover:text-fog"
             >
               <span className="inline-flex items-center gap-1">
-                why this score
+                why this?
                 <IconChevron
-                  size={13}
+                  size={12}
                   className={`transition-transform duration-300 ${showWhy ? "rotate-90" : ""}`}
                 />
               </span>
@@ -257,7 +246,12 @@ export function NextAction({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mt-4 space-y-2.5 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-3.5">
+                <div className="mt-3 space-y-2 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-3">
+                  <p className="border-b border-fog/10 pb-2 text-xs leading-relaxed text-fog-dim">
+                    {isBlockedView
+                      ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
+                      : r.reason}
+                  </p>
                   <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-mint" />
                   <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-cobalt" delay={0.05} />
                   <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-coral" delay={0.1} />
@@ -278,9 +272,9 @@ export function NextAction({
               </motion.div>
             )}
           </AnimatePresence>
-        </div>
-      </motion.section>
-    </AnimatePresence>
+        </motion.section>
+      </AnimatePresence>
+    </div>
   );
 }
 
@@ -297,12 +291,12 @@ export function UpNext({
 }) {
   if (items.length === 0) return null;
   return (
-    <section className="mt-9">
+    <section className="mt-7">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-xl font-extrabold tracking-tight">Up next</h2>
+        <h2 className="font-display text-lg font-extrabold tracking-tight">Up next</h2>
         <span className="label-mono text-ink/45">same score · ranked live</span>
       </div>
-      <div className="card mt-3 overflow-hidden">
+      <div className="card mt-2.5 overflow-hidden">
         <AnimatePresence initial={false}>
           {items.map((r, i) => (
             <motion.div
@@ -312,9 +306,9 @@ export function UpNext({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -36 }}
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className={`group flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
+              className={`group flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
             >
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-ink bg-canvas font-mono text-xs font-bold shadow-hard-xs">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-ink bg-canvas font-mono text-[11px] font-bold shadow-hard-xs">
                 {i + 2}
               </span>
               <div className="min-w-0 flex-1">

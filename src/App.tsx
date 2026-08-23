@@ -405,7 +405,7 @@ function Shell() {
               <Capture />
             </div>
 
-            <div className="mt-5">
+            <div className="mt-4">
               <BudgetBar
                 budget={state.budget}
                 onChange={(b) => dispatch({ type: "SET_BUDGET", budget: b })}
@@ -437,7 +437,7 @@ function Shell() {
               )}
             </AnimatePresence>
 
-            <div className="mt-5">
+            <div className="mt-4">
               <NextAction
                 next={next}
                 blockedTop={blockedTop}
