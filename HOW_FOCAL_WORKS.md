@@ -53,20 +53,25 @@ Focal replaces the 20-item checklist with **a single recommendation card**:
 
 Every task in Focal receives a deterministic priority score between $0$ and $100$:
 
-$$\text{Priority Score} = \text{clamp}\Big(\text{Goal Fit} + \text{Impact} + \text{Urgency} + \text{Time Fit} + \text{Recency} + \text{Blocked Penalty} + \text{Postpone Penalty}, \; 0, \; 100\Big)$$
+$$\text{Priority Score} = \text{clamp}\Big(\text{Strategic Value (Layer A)} + \text{Execution Context (Layer B)} - \text{Temporary Postpone Penalty}, \; 0, \; 100\Big)$$
 
 ```text
 ┌──────────────────────────────────────────────────────────────┐
-│  Max Positive Points (Sum = 100):                            │
-│  • Goal Relevance & Primary Boost :  max 32 pts              │
+│  Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts):           │
+│  • Goal Relevance & Primary Boost :  max 35 pts              │
 │  • Estimated Impact               :  max 20 pts              │
-│  • Urgency & Deadline Proximity   :  max 30 pts              │
-│  • Time Budget Window Fit         :  max 12 pts              │
-│  • Task Freshness / Recency       :  max  6 pts              │
 │                                                              │
-│  Penalties:                                                  │
-│  • Blocked Penalty                : −70 pts                  │
+│  Layer B: EXECUTION CONTEXT (Dynamic, Max 45 pts):           │
+│  • Urgency & Deadline Proximity   :  max 30 pts              │
+│  • Time Budget Window Fit         :  max 15 pts              │
+│  • Unprocessed Raw Capture Grace  :  max  5 pts (temp only)  │
+│  • Energy Context                 :  max  0 pts (neutral)    │
+│                                                              │
+│  Friction / Postpone:                                        │
 │  • Postpone Penalty               : −7 pts per skip (max −21)│
+│                                                              │
+│  Candidate Filtering (Non-Executable Exclusion):             │
+│  • Blocked tasks: Filtered out from #1 Focus candidate pool  │
 └──────────────────────────────────────────────────────────────┘
 ```
 
@@ -74,26 +79,26 @@ $$\text{Priority Score} = \text{clamp}\Big(\text{Goal Fit} + \text{Impact} + \te
 
 ## 4. Component-by-Component Weight Breakdown
 
-### 1. Goal Fit (Max 32 points)
+### 1. Goal Fit (Max 35 points)
 Measures how directly the task moves the needle on the user's active goals:
 
-$$\text{Goal Score} = \text{relevance} \times \text{boost} \times (0.82)^{\text{decayCount}} \times 32$$
+$$\text{Goal Score} = \text{relevance} \times \text{boost} \times 35$$
 
 - $\text{relevance} \in [0, 1]$: Degree of topical and contextual alignment.
 - $\text{boost}$:
   - **$1.0$** if aligned with the user's **Primary Goal** (highest leverage).
   - **$0.85$** if aligned with a **Secondary Goal**.
-  - **$0.0$** if unrelated to any defined goal.
-- $(0.82)^{\text{decayCount}}$: Reduces priority if the task is repeatedly skipped over time.
+  - **$0.0$** if unrelated to any defined goal (or when no goals exist).
+- *Pure & Decoupled*: Never multiplied by decay or postponement counters.
 
 ---
 
 ### 2. Estimated Impact (Max 20 points)
 Measures the payoff of completing this task relative to its effort:
 
-$$\text{Impact Score} = \text{impact} \times (0.82)^{\text{decayCount}} \times 20$$
+$$\text{Impact Score} = \text{impact} \times 20$$
 
-- $\text{impact} \in [0, 1]$: Estimated leverage (e.g. submitting a final application has high impact $\approx 0.9$, while organizing desktop folders has low impact $\approx 0.2$).
+- $\text{impact} \in [0, 1]$: Estimated leverage (e.g. submitting an application has high impact $\approx 0.9$, while organizing desktop folders has low impact $\approx 0.2$).
 
 ---
 
@@ -115,37 +120,30 @@ $$\text{Time Remaining} = \text{deadline} - \text{current\_time}$$
 
 ---
 
-### 4. Time Budget Window Fit (Max 12 points)
+### 4. Time Budget Window Fit (Max 15 points)
 Adjusts dynamically when the user selects a time budget (`5m`, `15m`, `30m`, `60m`, `any`):
 
 - **Budget = `any`**:
-  - Grants a neutral $+8\text{ pts}$.
+  - Grants a neutral $+10\text{ pts}$, `fitsWindow: true`.
 - **Task Estimate $\le$ Selected Budget**:
-  - If estimate fills $\ge 30\%$ of the budget: **$+12\text{ pts}$** (optimal time fill).
-  - If estimate is smaller: **$+9\text{ pts}$**.
+  - If estimate fills $\ge 30\%$ of the budget: **$+15\text{ pts}$** (optimal time fill).
+  - If estimate is smaller: **$+10\text{ pts}$**.
 - **Task Estimate $>$ Selected Budget**:
-  - Applies a hard **$-45\text{ pts}$** penalty so tasks that cannot fit into the available window are filtered down without deleting them.
+  - Receives **$0\text{ pts}$** time bonus and **`fitsWindow: false`**.
+  - Excluded from the current small window's candidate pool without applying destructive negative scores to the task's intrinsic strategic value.
 
 ---
 
-### 5. Recency / Freshness (Max 6 points)
-Gives new incoming tasks an immediate boost using exponential decay:
-
-$$\text{Recency Score} = 6 \times e^{-\frac{\text{age in days}}{6}}$$
-
-- Day 0 (just added): $+6.0\text{ pts}$
-- Day 3: $+3.6\text{ pts}$
-- Day 6: $+2.2\text{ pts}$
-- Day 14: $+0.6\text{ pts}$
+### 5. Reduced Recency Bias & Unprocessed Boost (Max 5 points)
+Newly added tasks receive a brief $+5\text{ pt}$ unprocessed grace period while awaiting AI classification. Once classified, the boost drops to $0$, ensuring older high-value tasks are never outranked by newer low-value chores purely because they are new.
 
 ---
 
-### 6. Penalties
-
-- **Blocked Penalty ($-70$ points)**:
-  - When a task is marked blocked by a dependency, it drops $-70$ points, ensuring it never appears as the primary focus action until the blocker is resolved.
-- **Postpone Penalty ($-7$ points per skip, capped at $-21$)**:
-  - When a user clicks *"Not now"*, a $-7\text{ pt}$ penalty is applied to prevent the queue from getting clogged with avoided tasks.
+### 6. Candidate Filtering & Blocked Tasks
+Blocked tasks (`task.blocked === true`) are treated as **non-executable candidates**:
+- Filtered out from `#1 Focus Card` selection.
+- Preserved in task list and history with blocker notes.
+- When all tasks in the queue are blocked, Focal displays an explicit **Unblock** prompt rather than surfacing a false, low-value "Do Now" task.
 
 ---
 

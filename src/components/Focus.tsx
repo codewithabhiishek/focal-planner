@@ -252,19 +252,18 @@ export function NextAction({
                       ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
                       : r.reason}
                   </p>
-                  <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-primary" />
-                  <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-info" delay={0.05} />
+                  <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.strategicGoal} color="bg-primary" />
+                  <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.strategicImpact} color="bg-info" delay={0.05} />
                   <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-warning" delay={0.1} />
-                  <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.time} color="bg-later" delay={0.15} />
-                  <ScoreBar label="freshness" value={r.parts.recency} max={WEIGHTS.recency} color="bg-ink/30" delay={0.2} />
-                  {r.parts.postpone < 0 && (
-                    <ScoreBar label="postponed" value={r.parts.postpone} max={21} negative delay={0.25} />
+                  <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.timeFit} color="bg-later" delay={0.15} />
+                  {r.parts.unprocessed > 0 && (
+                    <ScoreBar label="new capture" value={r.parts.unprocessed} max={WEIGHTS.unprocessedBoost} color="bg-ink/30" delay={0.2} />
                   )}
-                  {r.parts.blocked < 0 && (
-                    <ScoreBar label="blocked" value={r.parts.blocked} max={70} negative delay={0.3} />
+                  {r.parts.postpone < 0 && (
+                    <ScoreBar label="postponed" value={r.parts.postpone} max={WEIGHTS.maxPostponePenalty} negative delay={0.25} />
                   )}
                   <p className="pt-1 font-mono text-[10px] leading-relaxed text-ink-faint">
-                    {meta.label} = goal fit + impact + urgency + time fit − penalties. Language
+                    {meta.label} = strategic value (goal + impact) + execution context (urgency + time fit) − postpone. Language
                     reading by {task.analysis.source === "ai" ? "the Groq LLM" : "built-in heuristics"} —
                     the math is always deterministic.
                   </p>

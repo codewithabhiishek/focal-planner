@@ -2,38 +2,53 @@ import { formatDistanceToNowStrict } from "date-fns";
 import type { Category, Goal, Task, TimeBudget } from "../types";
 
 /* ------------------------------------------------------------------ */
-/* The deterministic core.                                             */
+/* The deterministic 2-Layer Scoring Engine.                           */
 /*                                                                     */
-/* priority_score =                                                    */
-/*     goal_impact        (relevance × primary boost)     max 32       */
-/*   + estimated_impact                                 max 20       */
-/*   + urgency / deadline proximity                     max 30       */
-/*   + available-time fit                               max 12       */
-/*   + recency                                          max  6       */
-/*   − blocked penalty                                     −70       */
-/*   − excessive-postponement penalty                     −7 × n     */
+/* Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts)                   */
+/*   • goalContribution   (goal relevance × primary boost)   max 35   */
+/*   • impactContribution (estimated payoff/leverage)         max 20   */
 /*                                                                     */
-/* AI only supplies goal_impact / impact estimates and language;       */
-/* every hard constraint below is plain, inspectable arithmetic.       */
+/* Layer B: EXECUTION CONTEXT (Dynamic, Max 45 pts)                   */
+/*   • urgencyContribution  (deadline proximity)             max 30   */
+/*   • timeFitContribution  (fit with active time budget)    max 15   */
+/*   • unprocessedBoost     (temporary raw capture grace)    max  5   */
+/*   • energyContext        (neutral stub for future stage)  max  0   */
+/*                                                                     */
+/* Final Priority (0–100 normalized):                                  */
+/*   priority = clamp(strategicValue + executionScore − postpone, 0, 100) */
+/*                                                                     */
+/* Blocked tasks are non-executable candidates — filtered out of      */
+/* the #1 focus pool rather than being penalized with magic numbers.  */
 /* ------------------------------------------------------------------ */
 
 export const WEIGHTS = {
-  goal: 32,
-  impact: 20,
+  /** Max points for alignment with active goals (Layer A) */
+  strategicGoal: 35,
+  /** Max points for estimated leverage/payoff (Layer A) */
+  strategicImpact: 20,
+  /** Max points for imminent/overdue hard deadlines (Layer B) */
   urgency: 30,
-  time: 12,
-  recency: 6,
-  blockedPenalty: 70,
+  /** Max points for fitting the user's selected time budget (Layer B) */
+  timeFit: 15,
+  /** Temporary grace boost for freshly added unclassified tasks (Layer B) */
+  unprocessedBoost: 5,
+  /** Temporary postpone penalty per postponement (capped at 21) */
   postponePenalty: 7,
+  maxPostponePenalty: 21,
 } as const;
 
 export interface ScoreParts {
+  /** Intrinsic Goal contribution (0..35) */
   goal: number;
+  /** Intrinsic Impact contribution (0..20) */
   impact: number;
+  /** Deadline urgency contribution (0..30) */
   urgency: number;
+  /** Time budget window fit (0..15) */
   time: number;
-  recency: number;
-  blocked: number;
+  /** Temporary unclassified boost (0..5) */
+  unprocessed: number;
+  /** Temporary postponement penalty (-21..0) */
   postpone: number;
 }
 
@@ -41,6 +56,7 @@ export interface Ranked {
   task: Task;
   score: number;
   strategicValue: number;
+  executionScore: number;
   frictionScore: number;
   parts: ScoreParts;
   /** final decision bucket shown on badges */
@@ -68,6 +84,19 @@ export function deadlinePhrase(deadline: number, now: number): string {
   return diff <= 0 ? `${human} overdue` : `in ${human}`;
 }
 
+/**
+ * Phase 3: Blocked and snoozed tasks are NOT score candidates for the Focus Card.
+ * Returns only tasks currently executable.
+ */
+export function getExecutableTasks(tasks: Task[], now = Date.now()): Task[] {
+  return tasks.filter(
+    (t) =>
+      t.status === "active" &&
+      !t.blocked &&
+      !(t.snoozedUntil && t.snoozedUntil > now)
+  );
+}
+
 function urgencyOf(
   task: Task,
   now: number
@@ -84,15 +113,33 @@ function urgencyOf(
   return { u: u + task.analysis.urgencyHint * 2, overdue: false, label };
 }
 
+/**
+ * Phase 7: Non-destructive Time Budgeting.
+ * When a task does not fit the active time budget, it is not penalized with
+ * a destructive negative score; it simply receives 0 time bonus and fitsWindow: false.
+ */
 function timeFitOf(task: Task, budget: TimeBudget): { t: number; fits: boolean } {
-  if (budget === "any") return { t: 8, fits: true };
+  if (budget === "any") return { t: 10, fits: true };
   const est = task.estMinutes;
-  if (est == null) return { t: 4, fits: true };
+  if (est == null) return { t: 8, fits: true };
   if (est <= budget) {
-    // reward a good fill of the window, mildly
-    return { t: est >= budget * 0.3 ? WEIGHTS.time : 9, fits: true };
+    // reward a good fill of the window
+    return { t: est >= budget * 0.3 ? WEIGHTS.timeFit : 10, fits: true };
   }
-  return { t: -45, fits: false };
+  return { t: 0, fits: false };
+}
+
+/**
+ * Phase 6: Reduce Recency Bias.
+ * Replaces exponential age decay with a small temporary boost (+5) that ONLY
+ * applies before classification/analysis is complete. Once classified, boost is 0.
+ */
+function unprocessedBoostOf(task: Task, now: number): number {
+  if (task.analysis.source === "heuristic" && (!task.analysis.analyzedAt || now - task.analysis.analyzedAt < 3000)) {
+    const ageSeconds = (now - task.createdAt) / 1000;
+    return ageSeconds < 15 ? WEIGHTS.unprocessedBoost : 0;
+  }
+  return 0;
 }
 
 export function scoreTask(
@@ -103,19 +150,25 @@ export function scoreTask(
 ): Ranked {
   const a = task.analysis;
   const goal = a.goalId ? goals.find((g) => g.id === a.goalId) : null;
-  // Case 9 handling: if no goals or no goalId match, boost is 0
+  // Case 9: Graceful fallback when no goals exist in the system
   const primaryBoost = goal ? (goal.isPrimary ? 1 : 0.85) : 0;
 
-  // Intrinsic strategic importance (pure, uncorrupted by avoidance/postpones)
-  const goalScore = (a.goalRelevance || 0) * primaryBoost * WEIGHTS.goal;
-  const impactScore = (a.impact || 0) * WEIGHTS.impact;
+  /* ---------------- Layer A: Strategic Value (Max 55) ---------------- */
+  const goalScore = (a.goalRelevance || 0) * primaryBoost * WEIGHTS.strategicGoal;
+  const impactScore = (a.impact || 0) * WEIGHTS.strategicImpact;
   const strategicValue = Math.round(goalScore + impactScore);
 
+  /* ---------------- Layer B: Execution Context (Max 45) ---------------- */
   const urgency = urgencyOf(task, now);
   const time = timeFitOf(task, budget);
-  const ageDays = (now - task.createdAt) / 864e5;
+  const unprocessed = unprocessedBoostOf(task, now);
+  const executionScore = Math.round(urgency.u + time.t + unprocessed);
 
-  const postponePenalty = -Math.min(task.postponeCount || 0, 3) * WEIGHTS.postponePenalty;
+  /* ---------------- Penalties & Friction ---------------- */
+  const postponePenalty = -Math.min(
+    (task.postponeCount || 0) * WEIGHTS.postponePenalty,
+    WEIGHTS.maxPostponePenalty
+  );
   const frictionScore = (task.postponeCount || 0) * WEIGHTS.postponePenalty;
 
   const parts: ScoreParts = {
@@ -123,14 +176,11 @@ export function scoreTask(
     impact: impactScore,
     urgency: urgency.u,
     time: time.t,
-    recency: 6 * Math.exp(-ageDays / 6),
-    blocked: task.blocked ? -WEIGHTS.blockedPenalty : 0,
+    unprocessed,
     postpone: postponePenalty,
   };
 
-  const raw =
-    parts.goal + parts.impact + parts.urgency + parts.time + parts.recency +
-    parts.blocked + parts.postpone;
+  const raw = strategicValue + executionScore + postponePenalty;
   const score = Math.round(clamp(raw, 0, 100));
 
   let category: Category;
@@ -144,6 +194,7 @@ export function scoreTask(
     task,
     score,
     strategicValue,
+    executionScore,
     frictionScore,
     parts,
     category,
@@ -173,20 +224,20 @@ export function buildReason(r: Ranked, goals: Goal[], budget: TimeBudget): strin
   else if (r.parts.goal >= 14 && goal) frags.push(`it contributes to “${goal.title}”`);
 
   if (r.parts.impact >= 14) frags.push("the payoff is high relative to the effort");
-  if (budget !== "any" && r.parts.time >= 9)
+  if (budget !== "any" && r.parts.time >= 10 && r.fitsWindow)
     frags.push(`it realistically fits the ${budget === 60 ? "1-hour" : `${budget}-minute`} window you have`);
-  if (r.task.blocked) frags.push("it's currently blocked — resolve the blocker and it returns to the top");
+  if (r.task.blocked) frags.push("it's currently blocked — resolve the blocker to make it executable");
 
   const head =
     frags.length > 0
       ? frags.slice(0, 3).join(", and ").replace(/^it's/, "It's").replace(/^it /, "It ")
-      : "It's the strongest mix of goal fit, impact, and timing in your queue right now";
+      : "It's the strongest mix of strategic value, impact, and timing in your queue right now";
 
   const sentence = head.endsWith(".") ? head : `${head}.`;
   return `${sentence} ${r.task.analysis.reason}`;
 }
 
-/** Rank every actionable task; the queue the whole UI reads from. */
+/** Rank every active task; the queue the whole UI reads from. */
 export function rankTasks(
   tasks: Task[],
   goals: Goal[],
@@ -208,9 +259,23 @@ export function rankTasks(
     });
 }
 
-/** The single recommendation: highest-scoring task that isn't blocked. */
-export function pickNext(ranked: Ranked[]): Ranked | null {
-  return ranked.find((r) => !r.task.blocked) ?? null;
+/**
+ * Phase 3 & 7: Focus Card Candidate Selection.
+ * Selects the #1 executable task that fits the active time window.
+ * Returns null if all high-priority tasks are blocked (triggering unblock state).
+ */
+export function pickNext(ranked: Ranked[], budget: TimeBudget = "any"): Ranked | null {
+  const executable = ranked.filter(
+    (r) => !r.task.blocked && !(r.task.snoozedUntil && r.task.snoozedUntil > Date.now())
+  );
+  if (executable.length === 0) return null;
+
+  if (budget !== "any") {
+    const fitting = executable.find((r) => r.fitsWindow);
+    if (fitting) return fitting;
+  }
+
+  return executable[0] ?? null;
 }
 
 /* ---- decision metadata shared by UI ---- */

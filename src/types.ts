@@ -81,6 +81,9 @@ export interface Task {
   timeStarved: boolean;
   avoidanceShown?: boolean;
 
+  /** epoch ms until which the task is snoozed from execution */
+  snoozedUntil?: number;
+
   /** set on subtasks created by the breakdown flow */
   originTitle?: string;
 

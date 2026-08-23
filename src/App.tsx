@@ -134,10 +134,10 @@ function Shell() {
     return () => window.clearInterval(id);
   }, []);
 
-  const next = pickNext(ranked);
-  const blockedTop = next === null && ranked.length > 0 ? ranked[0] : null;
+  const next = pickNext(ranked, state.budget);
+  const blockedTop = next === null && ranked.some((r) => r.task.blocked) ? ranked.find((r) => r.task.blocked) ?? null : null;
   const upNext = ranked
-    .filter((r) => !r.task.blocked && r.task.id !== next?.task.id)
+    .filter((r) => !r.task.blocked && r.task.id !== next?.task.id && (state.budget === "any" || r.fitsWindow))
     .slice(0, 4);
 
   /* avoidance: postponed 3+ times and never inspected */
