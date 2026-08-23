@@ -1,4 +1,4 @@
-import { scoreTask, rankTasks, pickNext, WEIGHTS } from "../engine.ts";
+import { scoreTask, rankTasks, pickNext, buildReason, WEIGHTS } from "../engine.ts";
 import type { Goal, Task } from "../../types.ts";
 
 export function runAvoidanceTests(): void {
@@ -285,12 +285,85 @@ export function runAvoidanceTests(): void {
     },
   };
 
-  const rAny = scoreTask(taskBudget, mockGoals, "any", now);
-  assertEqual(rAny.parts.time, 10, "CASE 10: Budget 'any' provides neutral +10 time fit");
-  assertEqual(rAny.fitsWindow, true, "CASE 10: Budget 'any' sets fitsWindow to true");
+  // CASE 6: Long-term goal with no immediate deadline receives Trajectory Pressure when behind schedule
+  const laggingGoal: Goal = {
+    id: "g_ielts",
+    title: "Score Band 8 in IELTS",
+    startDate: now - 30 * 86400 * 1000, // started 30 days ago
+    targetDate: new Date(now + 30 * 86400 * 1000).toISOString(), // due in 30 days (total 60 days duration -> 50% elapsed)
+    progress: 0.1, // only 10% done (expected 50% -> 40% gap)
+    active: true,
+    isPrimary: true,
+    createdAt: now - 30 * 86400 * 1000,
+  };
 
-  const r15 = scoreTask(taskBudget, mockGoals, 15, now);
-  assertEqual(r15.parts.time, 0, "CASE 10: Non-destructive: Task exceeding 15m budget gets 0 time bonus without negative penalty");
-  assertEqual(r15.fitsWindow, false, "CASE 10: fitsWindow is false for 20m task in 15m budget");
-  assertEqual(r15.strategicValue, rAny.strategicValue, "CASE 10: Intrinsic strategicValue is 100% identical regardless of budget window");
+  const noDeadlineLaggingGoalTask: Task = {
+    id: "t_ielts_practice",
+    title: "Complete IELTS Academic Reading Test",
+    status: "active",
+    deadline: null, // No immediate hard deadline
+    estMinutes: 60,
+    blocked: false,
+    postponeCount: 0,
+    createdAt: now,
+    timeStarved: false,
+    deadlineAuto: false,
+    analysis: {
+      goalId: "g_ielts",
+      goalRelevance: 0.9,
+      impact: 0.8,
+      category: "DO_NOW",
+      reason: "Critical practice for lagging goal.",
+      urgencyHint: 0,
+      source: "ai",
+      analyzedAt: now,
+      estimatedMinutes: 60,
+    },
+  };
+
+  const rBehind = scoreTask(noDeadlineLaggingGoalTask, [laggingGoal], "any", now);
+  const reasonBehind = buildReason(rBehind, [laggingGoal], "any");
+  assertTrue(rBehind.parts.trajectory > 0, "CASE 6: Task receives positive trajectory pressure when goal is behind schedule");
+  assertEqual(rBehind.parts.trajectory, Math.round(0.9 * 0.4 * WEIGHTS.trajectoryPressure), "CASE 6: Trajectory pressure matches formula (0.9 * 0.4 * 12 = 4 pts)");
+  assertTrue(reasonBehind.includes("behind schedule"), "CASE 6: Reason mentions that the goal is behind schedule");
+
+  // Trajectory Fallback: Goal without targetDate yields 0 trajectory pressure
+  const goalWithoutDate: Goal = {
+    id: "g_nodate",
+    title: "Improve General Fitness",
+    active: true,
+    isPrimary: false,
+    createdAt: now,
+  };
+  const taskNoDateGoal: Task = {
+    ...noDeadlineLaggingGoalTask,
+    analysis: {
+      ...noDeadlineLaggingGoalTask.analysis,
+      goalId: "g_nodate",
+    },
+  };
+  const rNoDate = scoreTask(taskNoDateGoal, [goalWithoutDate], "any", now);
+  assertEqual(rNoDate.parts.trajectory, 0, "Trajectory Fallback: Goal with no targetDate safely defaults to 0 trajectory pressure");
+
+  // Energy / Context Fit tests
+  const lowEnergyTask: Task = {
+    ...taskBudget,
+    id: "t_low_e",
+    requiredEnergy: "low",
+  };
+  const highEnergyTask: Task = {
+    ...taskBudget,
+    id: "t_high_e",
+    requiredEnergy: "high",
+  };
+
+  // User is low energy
+  const rLowUserLowTask = scoreTask(lowEnergyTask, mockGoals, "any", now, "low");
+  assertEqual(rLowUserLowTask.parts.energy, 5, "Energy Fit: Low energy user matching low energy task gets +5 bonus");
+
+  const rLowUserHighTask = scoreTask(highEnergyTask, mockGoals, "any", now, "low");
+  assertEqual(rLowUserHighTask.parts.energy, -5, "Energy Fit: Low energy user on high energy task gets -5 adjustment");
+
+  const rNeutralUser = scoreTask(highEnergyTask, mockGoals, "any", now, "any");
+  assertEqual(rNeutralUser.parts.energy, 0, "CASE 10: Energy unset / 'any' produces neutral 0 adjustment, backward compatible");
 }

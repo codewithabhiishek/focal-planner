@@ -60,12 +60,13 @@ $$\text{Priority Score} = \text{clamp}\Big(\text{Strategic Value (Layer A)} + \t
 │  Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts):           │
 │  • Goal Relevance & Primary Boost :  max 35 pts              │
 │  • Estimated Impact               :  max 20 pts              │
+│  • Goal Trajectory Pressure       :  max 12 pts (when lagging)
 │                                                              │
 │  Layer B: EXECUTION CONTEXT (Dynamic, Max 45 pts):           │
 │  • Urgency & Deadline Proximity   :  max 30 pts              │
 │  • Time Budget Window Fit         :  max 15 pts              │
+│  • Energy / Context Fit           :  ±5 pts (neutral: 0)     │
 │  • Unprocessed Raw Capture Grace  :  max  5 pts (temp only)  │
-│  • Energy Context                 :  max  0 pts (neutral)    │
 │                                                              │
 │  Friction / Postpone:                                        │
 │  • Postpone Penalty               : −7 pts per skip (max −21)│

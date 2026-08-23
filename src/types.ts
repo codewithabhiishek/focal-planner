@@ -9,12 +9,28 @@ export type TaskStatus = "active" | "done" | "dropped" | "delegated";
 
 export type AnalysisSource = "heuristic" | "ai";
 
+export type EnergyLevel = "low" | "medium" | "high";
+export type UserEnergyState = "low" | "normal" | "high" | "any";
+
+export interface GoalMilestone {
+  id: string;
+  title: string;
+  completed: boolean;
+  targetDate?: string | null;
+}
+
 export interface Goal {
   id: string;
   title: string;
   description?: string;
   /** ISO date (yyyy-mm-dd) or null */
   targetDate?: string | null;
+  /** epoch ms when goal was started */
+  startDate?: number;
+  /** 0..1 explicit progress estimate */
+  progress?: number;
+  /** optional milestones breakdown */
+  milestones?: GoalMilestone[];
   active: boolean;
   isPrimary: boolean;
   createdAt: number;
@@ -84,6 +100,9 @@ export interface Task {
   /** epoch ms until which the task is snoozed from execution */
   snoozedUntil?: number;
 
+  /** optional energy requirement: low, medium, high */
+  requiredEnergy?: EnergyLevel;
+
   /** set on subtasks created by the breakdown flow */
   originTitle?: string;
 
@@ -108,6 +127,7 @@ export interface AppState {
   goals: Goal[];
   tasks: Task[];
   budget: TimeBudget;
+  userEnergy?: UserEnergyState;
   settings: Settings;
 }
 

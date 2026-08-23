@@ -126,8 +126,8 @@ function Shell() {
 
   /* ---------- ranking ---------- */
   const ranked = useMemo(
-    () => rankTasks(state.tasks, state.goals, state.budget),
-    [state.tasks, state.goals, state.budget]
+    () => rankTasks(state.tasks, state.goals, state.budget, Date.now(), state.userEnergy),
+    [state.tasks, state.goals, state.budget, state.userEnergy]
   );
   useEffect(() => {
     const id = window.setInterval(() => setTick((t) => t + 1), 30_000);

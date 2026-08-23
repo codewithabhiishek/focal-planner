@@ -1,18 +1,19 @@
 import { formatDistanceToNowStrict } from "date-fns";
-import type { Category, Goal, Task, TimeBudget } from "../types";
+import type { Category, Goal, Task, TimeBudget, UserEnergyState } from "../types";
 
 /* ------------------------------------------------------------------ */
 /* The deterministic 2-Layer Scoring Engine.                           */
 /*                                                                     */
 /* Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts)                   */
-/*   • goalContribution   (goal relevance × primary boost)   max 35   */
-/*   • impactContribution (estimated payoff/leverage)         max 20   */
+/*   • goalContribution     (relevance × primary boost)      max 35   */
+/*   • impactContribution   (estimated payoff/leverage)      max 20   */
+/*   • trajectoryPressure   (behind-schedule boost)          max 12   */
 /*                                                                     */
 /* Layer B: EXECUTION CONTEXT (Dynamic, Max 45 pts)                   */
 /*   • urgencyContribution  (deadline proximity)             max 30   */
 /*   • timeFitContribution  (fit with active time budget)    max 15   */
+/*   • energyFit            (context/energy alignment)       ±5 pts   */
 /*   • unprocessedBoost     (temporary raw capture grace)    max  5   */
-/*   • energyContext        (neutral stub for future stage)  max  0   */
 /*                                                                     */
 /* Final Priority (0–100 normalized):                                  */
 /*   priority = clamp(strategicValue + executionScore − postpone, 0, 100) */
@@ -26,10 +27,14 @@ export const WEIGHTS = {
   strategicGoal: 35,
   /** Max points for estimated leverage/payoff (Layer A) */
   strategicImpact: 20,
+  /** Max points for goal trajectory pressure when behind schedule (Layer A) */
+  trajectoryPressure: 12,
   /** Max points for imminent/overdue hard deadlines (Layer B) */
   urgency: 30,
   /** Max points for fitting the user's selected time budget (Layer B) */
   timeFit: 15,
+  /** Small execution adjustment for energy/context match (Layer B) */
+  energyFit: 5,
   /** Temporary grace boost for freshly added unclassified tasks (Layer B) */
   unprocessedBoost: 5,
   /** Temporary postpone penalty per postponement (capped at 21) */
@@ -42,10 +47,14 @@ export interface ScoreParts {
   goal: number;
   /** Intrinsic Impact contribution (0..20) */
   impact: number;
+  /** Goal trajectory pressure when behind schedule (0..12) */
+  trajectory: number;
   /** Deadline urgency contribution (0..30) */
   urgency: number;
   /** Time budget window fit (0..15) */
   time: number;
+  /** Energy / context match adjustment (-5..+5) */
+  energy: number;
   /** Temporary unclassified boost (0..5) */
   unprocessed: number;
   /** Temporary postponement penalty (-21..0) */
@@ -82,6 +91,82 @@ export function deadlinePhrase(deadline: number, now: number): string {
   const abs = Math.abs(diff);
   const human = formatDistanceToNowStrict(deadline, { addSuffix: false });
   return diff <= 0 ? `${human} overdue` : `in ${human}`;
+}
+
+/**
+ * Phase 5: Goal Trajectory & Progress Pressure calculation.
+ * Computes expected progress vs. actual progress based on start date and target date.
+ */
+export function computeGoalTrajectory(
+  goal: Goal,
+  now = Date.now()
+): {
+  expectedProgress: number;
+  actualProgress: number;
+  trajectoryGap: number;
+  isBehind: boolean;
+  hasData: boolean;
+} {
+  if (!goal.targetDate) {
+    return { expectedProgress: 0, actualProgress: 0, trajectoryGap: 0, isBehind: false, hasData: false };
+  }
+
+  const targetEpoch =
+    typeof goal.targetDate === "number"
+      ? goal.targetDate
+      : new Date(goal.targetDate).getTime();
+
+  if (isNaN(targetEpoch)) {
+    return { expectedProgress: 0, actualProgress: 0, trajectoryGap: 0, isBehind: false, hasData: false };
+  }
+
+  const startEpoch = goal.startDate ?? goal.createdAt;
+  const totalDuration = targetEpoch - startEpoch;
+  if (totalDuration <= 0) {
+    return { expectedProgress: 0, actualProgress: 0, trajectoryGap: 0, isBehind: false, hasData: false };
+  }
+
+  const elapsed = now - startEpoch;
+  const expectedProgress = clamp(elapsed / totalDuration, 0, 1);
+
+  // Compute actual progress: from milestones or explicit progress
+  let actualProgress = goal.progress ?? 0;
+  if (goal.milestones && goal.milestones.length > 0) {
+    const doneCount = goal.milestones.filter((m) => m.completed).length;
+    actualProgress = doneCount / goal.milestones.length;
+  }
+  actualProgress = clamp(actualProgress, 0, 1);
+
+  const trajectoryGap = expectedProgress - actualProgress;
+  const isBehind = trajectoryGap > 0.05; // meaningful threshold
+
+  return {
+    expectedProgress,
+    actualProgress,
+    trajectoryGap: isBehind ? trajectoryGap : 0,
+    isBehind,
+    hasData: true,
+  };
+}
+
+/**
+ * Phase 9: Optional Energy / Context Fit.
+ * Lightweight adjustment (±5 pts). Neutral if unselected or 'any'.
+ */
+function energyFitOf(task: Task, userEnergy?: UserEnergyState): number {
+  if (!userEnergy || userEnergy === "any" || userEnergy === "normal" || !task.requiredEnergy) {
+    return 0;
+  }
+  if (userEnergy === "low") {
+    if (task.requiredEnergy === "low") return WEIGHTS.energyFit;
+    if (task.requiredEnergy === "high") return -WEIGHTS.energyFit;
+    return 0;
+  }
+  if (userEnergy === "high") {
+    if (task.requiredEnergy === "high") return WEIGHTS.energyFit;
+    return 0;
+  }
+  return 0;
 }
 
 /**
@@ -146,7 +231,8 @@ export function scoreTask(
   task: Task,
   goals: Goal[],
   budget: TimeBudget,
-  now = Date.now()
+  now = Date.now(),
+  userEnergy?: UserEnergyState
 ): Ranked {
   const a = task.analysis;
   const goal = a.goalId ? goals.find((g) => g.id === a.goalId) : null;
@@ -156,13 +242,26 @@ export function scoreTask(
   /* ---------------- Layer A: Strategic Value (Max 55) ---------------- */
   const goalScore = (a.goalRelevance || 0) * primaryBoost * WEIGHTS.strategicGoal;
   const impactScore = (a.impact || 0) * WEIGHTS.strategicImpact;
-  const strategicValue = Math.round(goalScore + impactScore);
+
+  // Phase 5: Goal Trajectory Pressure (boost strongly aligned tasks when behind schedule)
+  let trajectoryScore = 0;
+  if (goal && (a.goalRelevance || 0) >= 0.4) {
+    const traj = computeGoalTrajectory(goal, now);
+    if (traj.isBehind && traj.hasData) {
+      trajectoryScore = Math.round(
+        (a.goalRelevance || 0) * traj.trajectoryGap * WEIGHTS.trajectoryPressure
+      );
+    }
+  }
+
+  const strategicValue = Math.round(goalScore + impactScore + trajectoryScore);
 
   /* ---------------- Layer B: Execution Context (Max 45) ---------------- */
   const urgency = urgencyOf(task, now);
   const time = timeFitOf(task, budget);
+  const energy = energyFitOf(task, userEnergy);
   const unprocessed = unprocessedBoostOf(task, now);
-  const executionScore = Math.round(urgency.u + time.t + unprocessed);
+  const executionScore = Math.round(urgency.u + time.t + energy + unprocessed);
 
   /* ---------------- Penalties & Friction ---------------- */
   const postponePenalty = -Math.min(
@@ -174,8 +273,10 @@ export function scoreTask(
   const parts: ScoreParts = {
     goal: goalScore,
     impact: impactScore,
+    trajectory: trajectoryScore,
     urgency: urgency.u,
     time: time.t,
+    energy,
     unprocessed,
     postpone: postponePenalty,
   };
@@ -215,13 +316,17 @@ export function buildReason(r: Ranked, goals: Goal[], budget: TimeBudget): strin
   else if (r.parts.urgency >= 18 && r.task.deadline)
     frags.push(`it's time-sensitive (due ${deadlinePhrase(r.task.deadline, Date.now())})`);
 
-  if (r.parts.goal >= 22 && goal)
+  if (r.parts.trajectory >= 3 && goal) {
+    frags.push(`your “${goal.title}” goal is behind schedule, so this task is receiving additional priority`);
+  } else if (r.parts.goal >= 22 && goal) {
     frags.push(
       goal.isPrimary
         ? `it directly supports your primary goal “${goal.title}”`
         : `it supports “${goal.title}”`
     );
-  else if (r.parts.goal >= 14 && goal) frags.push(`it contributes to “${goal.title}”`);
+  } else if (r.parts.goal >= 14 && goal) {
+    frags.push(`it contributes to “${goal.title}”`);
+  }
 
   if (r.parts.impact >= 14) frags.push("the payoff is high relative to the effort");
   if (budget !== "any" && r.parts.time >= 10 && r.fitsWindow)
@@ -242,12 +347,13 @@ export function rankTasks(
   tasks: Task[],
   goals: Goal[],
   budget: TimeBudget,
-  now = Date.now()
+  now = Date.now(),
+  userEnergy?: UserEnergyState
 ): Ranked[] {
   return tasks
     .filter((t) => t.status === "active")
     .map((t) => {
-      const r = scoreTask(t, goals, budget, now);
+      const r = scoreTask(t, goals, budget, now, userEnergy);
       return { ...r, reason: buildReason(r, goals, budget) };
     })
     .sort((a, b) => {

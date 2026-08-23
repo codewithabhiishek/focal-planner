@@ -254,8 +254,14 @@ export function NextAction({
                   </p>
                   <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.strategicGoal} color="bg-primary" />
                   <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.strategicImpact} color="bg-info" delay={0.05} />
+                  {r.parts.trajectory > 0 && (
+                    <ScoreBar label="trajectory pressure" value={r.parts.trajectory} max={WEIGHTS.trajectoryPressure} color="bg-warning" delay={0.08} />
+                  )}
                   <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-warning" delay={0.1} />
                   <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.timeFit} color="bg-later" delay={0.15} />
+                  {r.parts.energy !== 0 && (
+                    <ScoreBar label="energy fit" value={r.parts.energy} max={WEIGHTS.energyFit} negative={r.parts.energy < 0} color="bg-cobalt" delay={0.18} />
+                  )}
                   {r.parts.unprocessed > 0 && (
                     <ScoreBar label="new capture" value={r.parts.unprocessed} max={WEIGHTS.unprocessedBoost} color="bg-ink/30" delay={0.2} />
                   )}
@@ -263,9 +269,7 @@ export function NextAction({
                     <ScoreBar label="postponed" value={r.parts.postpone} max={WEIGHTS.maxPostponePenalty} negative delay={0.25} />
                   )}
                   <p className="pt-1 font-mono text-[10px] leading-relaxed text-ink-faint">
-                    {meta.label} = strategic value (goal + impact) + execution context (urgency + time fit) − postpone. Language
-                    reading by {task.analysis.source === "ai" ? "the Groq LLM" : "built-in heuristics"} —
-                    the math is always deterministic.
+                    {meta.label} = strategic value (goal + impact + trajectory) + execution context (urgency + time fit ± energy) − postpone.
                   </p>
                 </div>
               </motion.div>
