@@ -305,7 +305,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="New goal… e.g. Pass IELTS, Learn a skill, Launch project"
+              placeholder="Add a goal…"
               aria-label="New goal title"
               className="field"
             />

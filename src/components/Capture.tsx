@@ -45,7 +45,7 @@ export function Capture() {
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder='Add a task… e.g. "send report before 5 pm"'
+          placeholder="Add a task…"
           aria-label="New task"
           className="min-w-0 flex-1 bg-transparent text-[13.5px] sm:text-sm font-normal text-ink outline-none placeholder:text-[13px] sm:placeholder:text-[13.5px] placeholder:text-placeholder"
         />
