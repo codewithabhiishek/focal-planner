@@ -207,23 +207,23 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     dispatch({ type: "PATCH_SETTINGS", patch: { theme: m } });
                     document.documentElement.setAttribute("data-theme", m);
                   }}
-                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all duration-150 ${
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all duration-200 hover:-translate-y-0.5 active:scale-95 ${
                     active
-                      ? "border-primary bg-primary/[0.07] text-ink shadow-hard-faint"
-                      : "border-line bg-surface text-ink-secondary hover:border-ink/30 hover:bg-surface-2"
+                      ? "border-primary bg-primary/[0.08] text-ink shadow-hard-faint ring-1 ring-primary/20 scale-[1.02]"
+                      : "border-line bg-surface text-ink-secondary hover:border-ink/40 hover:bg-surface-2 hover:shadow-hard-faint"
                   }`}
                 >
                   <span
-                    className={`grid h-8 w-8 place-items-center rounded-lg border ${
+                    className={`grid h-8 w-8 place-items-center rounded-lg border transition-transform duration-200 ${
                       lite
-                        ? "border-line bg-[#fdfcfa] text-[#23221e]"
-                        : "border-[#2b2b32] bg-[#1c1c21] text-[#f2f0e8]"
+                        ? "border-line bg-[#ffffff] text-[#0a0a0a]"
+                        : "border-[#262626] bg-[#0a0a0a] text-[#ffffff]"
                     }`}
                   >
                     {lite ? "☀️" : "🌙"}
                   </span>
                   <span className="font-display text-sm font-bold">
-                    {lite ? "Light · ivory" : "Dark · charcoal"}
+                    {lite ? "Light · snow" : "Dark · OLED black"}
                   </span>
                 </button>
               );
@@ -250,7 +250,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-sm font-bold">{g.title}</p>
                     {g.isPrimary && (
-                      <span className="chip -rotate-2 border-primary/40 bg-primary/10 text-primary">★ primary</span>
+                      <span className="chip border-primary/40 bg-primary/10 text-primary">★ primary</span>
                     )}
                     {!g.active && <span className="chip border-line bg-surface-2 text-ink-muted">paused</span>}
                   </div>
@@ -272,7 +272,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     onClick={() => {
                       if (!g.isPrimary) dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id });
                     }}
-                    className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border transition-all lg:h-7 lg:w-7 ${
+                    className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border transition-all duration-150 hover:scale-110 active:scale-90 lg:h-7 lg:w-7 ${
                       g.isPrimary
                         ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
                         : "border-line text-ink-muted hover:border-ink/40 hover:text-ink"
@@ -285,14 +285,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     onClick={() =>
                       dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
                     }
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all duration-150 hover:scale-110 hover:border-ink/40 hover:text-ink active:scale-90 lg:h-7 lg:w-7"
                   >
                     {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
                   </button>
                   <button
                     title="Delete goal"
                     onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all hover:border-danger hover:bg-danger/10 hover:text-danger lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all duration-150 hover:scale-110 hover:border-danger hover:bg-danger/10 hover:text-danger active:scale-90 lg:h-7 lg:w-7"
                   >
                     <IconTrash size={13} />
                   </button>

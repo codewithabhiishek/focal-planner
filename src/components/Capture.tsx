@@ -56,10 +56,10 @@ export function Capture() {
             aria-label="Add deadline"
             title="Add deadline"
             aria-pressed={expanded}
-            className={`grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all sm:h-8.5 sm:w-8.5 ${
+            className={`grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all duration-150 hover:scale-105 active:scale-95 sm:h-8.5 sm:w-8.5 ${
               expanded || deadline
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-line bg-surface-2/50 text-ink-muted hover:border-ink/30 hover:bg-surface-2 hover:text-ink"
+                ? "border-primary bg-primary/10 text-primary shadow-hard-faint"
+                : "border-line bg-surface-2/50 text-ink-muted hover:border-ink/40 hover:bg-surface-2 hover:text-ink"
             }`}
           >
             <IconCalendar size={15} />
@@ -69,10 +69,10 @@ export function Capture() {
             onClick={() => setExpanded((v) => !v)}
             aria-label="Set duration estimate"
             title="Set duration estimate"
-            className={`grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all sm:h-8.5 sm:w-8.5 ${
+            className={`grid h-8 w-8 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all duration-150 hover:scale-105 active:scale-95 sm:h-8.5 sm:w-8.5 ${
               est !== ""
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-line bg-surface-2/50 text-ink-muted hover:border-ink/30 hover:bg-surface-2 hover:text-ink"
+                ? "border-primary bg-primary/10 text-primary shadow-hard-faint"
+                : "border-line bg-surface-2/50 text-ink-muted hover:border-ink/40 hover:bg-surface-2 hover:text-ink"
             }`}
           >
             <IconTimer size={15} />
@@ -80,7 +80,7 @@ export function Capture() {
           <button
             type="submit"
             disabled={!title.trim()}
-            className="btn-ink h-8 shrink-0 rounded-lg px-3 text-xs font-bold transition-all disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:h-8.5 sm:px-3.5"
+            className="btn-ink h-8 shrink-0 rounded-lg px-3 text-xs font-bold transition-all duration-150 hover:scale-105 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40 disabled:scale-100 disabled:shadow-none sm:h-8.5 sm:px-3.5"
           >
             <IconPlus size={14} />
             <span>Add</span>

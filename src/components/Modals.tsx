@@ -35,9 +35,9 @@ function Option({
   return (
     <button
       onClick={onClick}
-      className="btn w-full justify-start gap-3 border-line bg-surface px-3.5 py-3 text-left text-ink shadow-hard-faint hover:-translate-y-0.5 hover:border-ink/30 hover:bg-surface-2 hover:shadow-hard-soft"
+      className="btn w-full justify-start gap-3 border-line bg-surface px-3.5 py-3 text-left text-ink shadow-hard-faint transition-all duration-200 hover:-translate-y-0.5 hover:translate-x-0.5 hover:border-ink/40 hover:bg-surface-2 hover:shadow-hard-soft active:scale-[0.98]"
     >
-      <span className={`sticker grid h-9 w-9 shrink-0 place-items-center ${cls}`}>{icon}</span>
+      <span className={`sticker grid h-9 w-9 shrink-0 place-items-center transition-transform group-hover:scale-105 ${cls}`}>{icon}</span>
       <span className="min-w-0">
         <span className="block text-sm font-bold text-ink">{label}</span>
         <span className="block font-mono text-[10px] text-ink-muted">{note}</span>

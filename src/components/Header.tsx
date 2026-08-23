@@ -23,7 +23,7 @@ export function Header({ onSettings }: { onSettings: () => void }) {
           onClick={onSettings}
           aria-label="Setup & settings"
           title="Setup — goals, signals, scoring"
-          className="flex h-8.5 w-8.5 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line bg-surface text-ink-secondary transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:rotate-45"
+          className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-xl border border-line bg-surface text-ink-secondary shadow-hard-faint transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:rotate-45 active:scale-95"
         >
           <IconGear size={17} />
         </button>

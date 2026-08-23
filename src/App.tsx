@@ -54,7 +54,7 @@ function GoalStrip({
       {active.length === 0 && (
         <button
           onClick={onManage}
-          className="chip cursor-pointer border-dashed border-line bg-surface text-ink-muted transition-colors hover:border-ink/40 hover:text-ink"
+          className="chip cursor-pointer border-dashed border-line bg-surface text-ink-muted transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink active:scale-95"
         >
           no goal yet — set one <span aria-hidden>→</span>
         </button>
@@ -66,10 +66,10 @@ function GoalStrip({
             if (!g.isPrimary) onPrimary(g.id);
           }}
           title={g.isPrimary ? "Primary goal" : "Make primary"}
-          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-xs font-bold transition-all duration-150 ${
+          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
             g.isPrimary
-              ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
-              : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
+              ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-105"
+              : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink active:scale-95"
           }`}
         >
           {g.isPrimary && <IconStarFilled size={11} className="shrink-0" />}
@@ -80,7 +80,7 @@ function GoalStrip({
         onClick={onManage}
         aria-label="Add a goal"
         title="Add / manage goals"
-        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ink-muted transition-all hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
+        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ink-muted transition-all duration-150 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink active:scale-90"
       >
         <IconPlus size={12} />
       </button>

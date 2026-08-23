@@ -48,10 +48,10 @@ export function BudgetBar({
               key={String(b.id)}
               onClick={() => onChange(b.id)}
               aria-pressed={active}
-              className={`cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
+              className={`cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-bold transition-all duration-200 sm:py-1 ${
                 active
-                  ? "border-primary/40 bg-primary text-primary-foreground shadow-hard-soft"
-                  : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
+                  ? "border-primary bg-primary text-primary-foreground shadow-hard-soft scale-105"
+                  : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:shadow-hard-faint active:scale-95"
               }`}
             >
               {b.label}
@@ -363,7 +363,7 @@ export function UpNext({
                     aria-label={`Complete ${r.task.title}`}
                     title="Complete"
                     onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-success hover:bg-success/10 hover:text-success"
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-success hover:bg-success/10 hover:text-success active:scale-90"
                   >
                     <IconCheck size={13} />
                   </button>
@@ -371,7 +371,7 @@ export function UpNext({
                     aria-label={`Not now: ${r.task.title}`}
                     title="Not now"
                     onClick={() => onNotNow(r.task.id)}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-ink/40 hover:text-ink"
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-ink/40 hover:text-ink active:scale-90"
                   >
                     <IconDots size={13} />
                   </button>

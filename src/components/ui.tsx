@@ -197,13 +197,13 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors duration-200 ${
-        checked ? "border-primary bg-primary" : "border-line bg-surface-2"
+      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-all duration-200 active:scale-95 ${
+        checked ? "border-primary bg-primary shadow-hard-faint" : "border-line bg-surface-2 hover:border-ink/40"
       }`}
     >
       <span
-        className={`absolute top-[3px] h-4 w-4 rounded-full bg-surface shadow-hard-xs transition-all duration-200 ${
-          checked ? "left-[23px]" : "left-[3px]"
+        className={`absolute top-[3px] h-4 w-4 rounded-full bg-surface shadow-hard-xs transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+          checked ? "left-[23px] bg-primary-foreground" : "left-[3px]"
         }`}
       />
     </button>

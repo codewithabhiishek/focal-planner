@@ -84,10 +84,10 @@ export function Inbox({
                 onClick={() => setFilter(f.id)}
                 className={`cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-105"
                     : n === 0
-                      ? "border-line bg-surface-2 text-ink-muted/80 hover:border-ink/30 hover:text-ink"
-                      : "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-ink/40"
+                      ? "border-line bg-surface-2 text-ink-muted/80 hover:border-ink/40 hover:text-ink active:scale-95"
+                      : "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-ink/40 active:scale-95"
                 }`}
               >
                 {f.label} {n > 0 ? n : ""}
@@ -201,7 +201,7 @@ export function Inbox({
                         });
                         pushToast({ title: "Unblocked — back in ranking", body: r.task.title, tone: "ok" });
                       }}
-                      className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-success hover:bg-success/10 hover:text-success"
+                      className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-success hover:bg-success/10 hover:text-success active:scale-90"
                     >
                       <IconUndo size={13} />
                     </button>
@@ -210,7 +210,7 @@ export function Inbox({
                       title="Complete"
                       aria-label="Complete task"
                       onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                      className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-success hover:bg-success/10 hover:text-success"
+                      className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-success hover:bg-success/10 hover:text-success active:scale-90"
                     >
                       <IconCheck size={13} />
                     </button>
@@ -219,7 +219,7 @@ export function Inbox({
                     title="Not now"
                     aria-label="Snooze / not now"
                     onClick={() => onNotNow(r.task.id)}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-ink/40 hover:text-ink"
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-ink/40 hover:text-ink active:scale-90"
                   >
                     <IconPostpone size={13} />
                   </button>
@@ -227,7 +227,7 @@ export function Inbox({
                     title="Drop"
                     aria-label="Drop task"
                     onClick={() => drop(r.task)}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-danger hover:bg-danger/10 hover:text-danger"
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all duration-150 hover:scale-110 hover:border-danger hover:bg-danger/10 hover:text-danger active:scale-90"
                   >
                     <IconTrash size={13} />
                   </button>
