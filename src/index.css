@@ -276,7 +276,7 @@
     background: var(--surface-2);
   }
   .field {
-    @apply w-full rounded-[9px] border border-line bg-surface px-3 py-2 text-[15px] font-medium text-ink placeholder:font-normal placeholder:text-placeholder transition-shadow;
+    @apply w-full rounded-[9px] border border-line bg-surface px-3 py-1.5 text-[13.5px] sm:text-sm font-normal text-ink placeholder:font-normal placeholder:text-[13px] placeholder:text-placeholder transition-shadow;
     color-scheme: light dark;
   }
   .field:focus {

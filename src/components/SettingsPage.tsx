@@ -310,8 +310,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
               aria-label="Target date (optional)"
               className="field w-auto"
             />
-            <button type="submit" disabled={!title.trim()} className="btn-ink px-4 text-sm disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
-              <IconPlus size={15} /> Add
+            <button type="submit" disabled={!title.trim()} className="btn-ink h-9 px-3.5 text-xs font-bold disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none">
+              <IconPlus size={14} /> Add
             </button>
           </form>
           <p className="label-mono mt-2 text-ink-faint">★ the primary goal gets the biggest weight in every score</p>
