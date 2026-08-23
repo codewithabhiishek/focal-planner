@@ -250,7 +250,7 @@ function Shell() {
           toast = { title: "Postponed", body: "It sinks a little and will resurface.", tone: "info" };
           break;
         case "unimportant":
-          patch.decayCount = t.decayCount + 1;
+          patch.decayCount = (t.decayCount ?? 0) + 1;
           patch.postponeCount = t.postponeCount + 1;
           patch.lastPostponedAt = Date.now();
           toast = { title: "Importance lowered", body: "The score decays — it'll sink.", tone: "info" };
@@ -300,23 +300,60 @@ function Shell() {
         case "big":
         case "how":
           void startBreakdown(t);
-          dispatch({ type: "PATCH_TASK", taskId: t.id, patch: { avoidanceShown: true } });
-          break;
-        case "time":
           dispatch({
             type: "PATCH_TASK",
             taskId: t.id,
-            patch: { timeStarved: true, avoidanceShown: true, postponeCount: 0 },
+            patch: { avoidanceShown: true, avoidanceState: "resolved" },
+          });
+          break;
+        case "blocked":
+          dispatch({
+            type: "PATCH_TASK",
+            taskId: t.id,
+            patch: {
+              blocked: true,
+              blockNote: "blocked by dependency",
+              avoidanceShown: true,
+              avoidanceState: "resolved",
+            },
           });
           pushToast({
-            title: "Noted — it needs a real time block",
-            body: "It'll surface when your window is bigger.",
+            title: "Marked blocked",
+            body: "Parked out of the way — unblock whenever you're ready.",
+            tone: "warn",
+          });
+          break;
+        case "notime":
+          dispatch({
+            type: "PATCH_TASK",
+            taskId: t.id,
+            patch: { timeStarved: true, avoidanceShown: true, avoidanceState: "resolved" },
+          });
+          pushToast({
+            title: "Saved for a dedicated block",
+            body: "We'll stop surfacing this in small gaps.",
             tone: "info",
           });
           break;
-        case "notimportant":
-          dispatch({ type: "PATCH_TASK", taskId: t.id, patch: { status: "dropped", avoidanceShown: true } });
+        case "unimportant":
+          dispatch({
+            type: "PATCH_TASK",
+            taskId: t.id,
+            patch: { status: "dropped", avoidanceShown: true, avoidanceState: "resolved" },
+          });
           pushToast({ title: "Dropped", body: "Queue re-ranked without it.", tone: "warn" });
+          break;
+        case "later":
+          dispatch({
+            type: "PATCH_TASK",
+            taskId: t.id,
+            patch: { avoidanceShown: true, avoidanceState: "resolved" },
+          });
+          pushToast({
+            title: "Snoozed",
+            body: "Task deferred — its intrinsic priority remains fully intact.",
+            tone: "info",
+          });
           break;
       }
     },

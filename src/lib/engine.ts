@@ -40,6 +40,8 @@ export interface ScoreParts {
 export interface Ranked {
   task: Task;
   score: number;
+  strategicValue: number;
+  frictionScore: number;
   parts: ScoreParts;
   /** final decision bucket shown on badges */
   category: Category;
@@ -101,21 +103,29 @@ export function scoreTask(
 ): Ranked {
   const a = task.analysis;
   const goal = a.goalId ? goals.find((g) => g.id === a.goalId) : null;
-  const primaryBoost = goal?.isPrimary ? 1 : 0.85;
-  const decay = Math.pow(0.82, task.decayCount);
+  // Case 9 handling: if no goals or no goalId match, boost is 0
+  const primaryBoost = goal ? (goal.isPrimary ? 1 : 0.85) : 0;
+
+  // Intrinsic strategic importance (pure, uncorrupted by avoidance/postpones)
+  const goalScore = (a.goalRelevance || 0) * primaryBoost * WEIGHTS.goal;
+  const impactScore = (a.impact || 0) * WEIGHTS.impact;
+  const strategicValue = Math.round(goalScore + impactScore);
 
   const urgency = urgencyOf(task, now);
   const time = timeFitOf(task, budget);
   const ageDays = (now - task.createdAt) / 864e5;
 
+  const postponePenalty = -Math.min(task.postponeCount || 0, 3) * WEIGHTS.postponePenalty;
+  const frictionScore = (task.postponeCount || 0) * WEIGHTS.postponePenalty;
+
   const parts: ScoreParts = {
-    goal: a.goalRelevance * primaryBoost * decay * WEIGHTS.goal,
-    impact: a.impact * decay * WEIGHTS.impact,
+    goal: goalScore,
+    impact: impactScore,
     urgency: urgency.u,
     time: time.t,
     recency: 6 * Math.exp(-ageDays / 6),
     blocked: task.blocked ? -WEIGHTS.blockedPenalty : 0,
-    postpone: -Math.min(task.postponeCount, 3) * WEIGHTS.postponePenalty,
+    postpone: postponePenalty,
   };
 
   const raw =
@@ -133,6 +143,8 @@ export function scoreTask(
   return {
     task,
     score,
+    strategicValue,
+    frictionScore,
     parts,
     category,
     reason: "", // filled by buildReason

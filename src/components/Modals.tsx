@@ -15,7 +15,7 @@ import {
 } from "./icons";
 
 export type NotNowReason = "later" | "unimportant" | "delegate" | "blocked" | "notime";
-export type AvoidReason = "big" | "how" | "time" | "notimportant";
+export type AvoidReason = "big" | "blocked" | "notime" | "unimportant" | "later" | "how";
 
 /* ---------------- option row ---------------- */
 
@@ -115,7 +115,7 @@ export function AvoidanceModal({
     <Modal
       open
       onClose={onClose}
-      kicker={`postponed ×${task.postponeCount} — no shame`}
+      kicker={`postponed ×${task.postponeCount} — friction detected`}
       title="What's stopping you?"
     >
       <p className="-mt-2 mb-4 rounded-lg border border-dashed border-line bg-surface-2/70 px-3 py-2 text-sm font-semibold text-ink">
@@ -125,30 +125,37 @@ export function AvoidanceModal({
         <Option
           icon={<IconSplit size={17} />}
           cls="bg-warning/12 text-warning"
-          label="The task is too big"
-          note="we'll break it into tiny, doable steps"
+          label="This is too big"
+          note="we'll break it down into smaller concrete next actions"
           onClick={() => onReason("big")}
         />
         <Option
-          icon={<IconInfo size={17} />}
-          cls="bg-cobalt/15 text-cobalt"
-          label="I don't know how to start"
-          note="we'll sketch a clear first step for you"
-          onClick={() => onReason("how")}
+          icon={<IconBlock size={17} />}
+          cls="bg-rose/15 text-rose"
+          label="I'm blocked"
+          note="mark as blocked until a dependency or person is ready"
+          onClick={() => onReason("blocked")}
         />
         <Option
           icon={<IconTimer size={17} />}
           cls="bg-lilac/15 text-lilac"
-          label="I don't have time"
-          note="we'll stop offering it in small windows"
-          onClick={() => onReason("time")}
+          label="I don't have enough time"
+          note="saved for a dedicated focus block without cluttering small gaps"
+          onClick={() => onReason("notime")}
         />
         <Option
           icon={<IconTrash size={17} />}
           cls="bg-surface-2 text-ink-muted"
-          label="It's not actually important"
-          note="drops it — the queue re-ranks without it"
-          onClick={() => onReason("notimportant")}
+          label="It isn't actually important"
+          note="offer to drop or delegate without hurting your priorities"
+          onClick={() => onReason("unimportant")}
+        />
+        <Option
+          icon={<IconClock size={17} />}
+          cls="bg-cobalt/15 text-cobalt"
+          label="Remind me later"
+          note="snooze and resurface later — intrinsic priority stays preserved"
+          onClick={() => onReason("later")}
         />
       </div>
     </Modal>

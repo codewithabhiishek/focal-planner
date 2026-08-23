@@ -71,8 +71,12 @@ export interface Task {
   /** "Not now" counter — drives avoidance detection */
   postponeCount: number;
   lastPostponedAt?: number;
-  /** "not important anymore" strikes — decays the score */
-  decayCount: number;
+  /** friction score tracking avoidance friction */
+  frictionScore?: number;
+  /** state of avoidance flow */
+  avoidanceState?: "normal" | "friction" | "resolved";
+  /** legacy field preserved for migration */
+  decayCount?: number;
   /** user said they lack time — prefer larger windows */
   timeStarved: boolean;
   avoidanceShown?: boolean;
