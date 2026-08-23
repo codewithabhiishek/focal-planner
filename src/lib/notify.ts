@@ -10,8 +10,25 @@
 /*    (saveSubscription → POST /api/push-subscriptions on a backend)   */
 /* ------------------------------------------------------------------ */
 
+export function isIOS(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
+  );
+}
+
+export function isStandalone(): boolean {
+  if (typeof window === "undefined") return false;
+  return (
+    window.matchMedia("(display-mode: standalone)").matches ||
+    (navigator as unknown as { standalone?: boolean }).standalone === true
+  );
+}
+
 export function notificationsSupported(): boolean {
-  return typeof window !== "undefined" && "Notification" in window;
+  if (typeof window === "undefined") return false;
+  return "Notification" in window;
 }
 
 export function swSupported(): boolean {
@@ -28,31 +45,41 @@ export async function registerServiceWorker(): Promise<ServiceWorkerRegistration
 }
 
 export async function enableNotifications(): Promise<"granted" | "denied" | "unsupported"> {
-  if (!notificationsSupported()) return "unsupported";
-  const permission = await Notification.requestPermission();
-  if (permission === "granted") {
-    // Warm the service worker so showNotification works even before a push.
-    await registerServiceWorker();
-    return "granted";
+  if (!notificationsSupported()) {
+    return "unsupported";
   }
-  return permission === "denied" ? "denied" : "unsupported";
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      await registerServiceWorker();
+      return "granted";
+    }
+    return permission === "denied" ? "denied" : "unsupported";
+  } catch {
+    return "unsupported";
+  }
 }
 
 export async function notify(title: string, body: string, tag?: string): Promise<void> {
   if (!notificationsSupported() || Notification.permission !== "granted") return;
   try {
-    const reg = await navigator.serviceWorker?.getRegistration();
-    if (reg) {
-      await reg.showNotification(title, { body, icon: "/icon.svg", badge: "/icon.svg", tag });
+    const reg = await navigator.serviceWorker?.ready;
+    if (reg && "showNotification" in reg) {
+      await reg.showNotification(title, {
+        body,
+        icon: "/icon.svg",
+        badge: "/icon.svg",
+        tag: tag || "focal",
+      });
       return;
     }
   } catch {
-    /* fall through to direct Notification */
+    /* fall through */
   }
   try {
     new Notification(title, { body, icon: "/icon.svg", tag });
   } catch {
-    /* older browsers — silently skip */
+    /* older browsers */
   }
 }
 

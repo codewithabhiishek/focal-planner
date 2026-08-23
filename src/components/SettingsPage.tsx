@@ -2,7 +2,13 @@ import { differenceInCalendarDays, format } from "date-fns";
 import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import type { Goal } from "../types";
 import { useStore } from "../lib/store";
-import { enableNotifications, notificationsSupported, notify } from "../lib/notify";
+import {
+  enableNotifications,
+  isIOS,
+  isStandalone,
+  notificationsSupported,
+  notify,
+} from "../lib/notify";
 import { Switch } from "./ui";
 import {
   IconBell,
@@ -94,10 +100,18 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
   const [notifOn, setNotifOn] = useState(s.notificationsEnabled);
   const toggleNudges = async (v: boolean) => {
     if (v) {
+      if (isIOS() && !isStandalone()) {
+        pushToast({
+          title: "Add to Home Screen first",
+          body: "On iPhone, tap Share (📤) → 'Add to Home Screen', then open Focal from your Home Screen to enable notifications.",
+          tone: "warn",
+        });
+        return;
+      }
       if (!notificationsSupported()) {
         pushToast({
-          title: "Notifications unavailable here",
-          body: "This browser context doesn't expose the Notification API. The push plumbing is still wired for production.",
+          title: "Notifications unavailable",
+          body: "This browser does not support the Web Notification API.",
           tone: "warn",
         });
         return;
@@ -106,7 +120,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
       if (res !== "granted") {
         pushToast({
           title: "Permission not granted",
-          body: "Allow notifications in your browser settings to get nudges.",
+          body: "Allow notifications in your browser or device settings.",
           tone: "warn",
         });
         return;
@@ -122,6 +136,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
     });
   };
   const testNudge = async () => {
+    if (isIOS() && !isStandalone()) {
+      pushToast({
+        title: "Add to Home Screen first",
+        body: "Open Focal from your Home Screen to test iPhone notifications.",
+        tone: "warn",
+      });
+      return;
+    }
     if (!notificationsSupported()) {
       pushToast({ title: "Unavailable here", body: "This context has no Notification API.", tone: "warn" });
       return;
@@ -304,20 +326,36 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         {/* 3 — signals */}
         <Section n={3} title="Signals" icon={<IconBell size={17} className="text-cobalt" />} sub="nudges, not noise">
           <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">Browser nudges</span>
+            <span className="text-sm font-semibold">Device & browser nudges</span>
             <span className="ml-auto">
               <Switch checked={notifOn} onChange={(v) => void toggleNudges(v)} label="Enable nudges" />
             </span>
           </div>
-          <p className="mt-2 font-mono text-[10px] leading-relaxed text-ink-muted">
-            {perm === "granted" && notifOn
-              ? "ready — nudges fire for overdue #1s, priority swaps & avoidance loops."
-              : perm === "denied"
-                ? "blocked in browser settings — the service worker is still registered for real push later."
-                : perm === "unsupported"
-                  ? "unavailable in this context — service worker + push subscription plumbing is wired for production."
+
+          {isIOS() && !isStandalone() ? (
+            <div className="mt-3 rounded-xl border border-primary/30 bg-primary/[0.07] p-3 text-xs leading-relaxed text-ink">
+              <p className="flex items-center gap-1.5 font-bold text-primary">
+                📱 iPhone & iPad Setup:
+              </p>
+              <p className="mt-1 text-ink-secondary">
+                Apple requires installing web apps to your Home Screen before enabling notifications:
+              </p>
+              <ol className="mt-2 list-decimal space-y-1 pl-4 font-medium text-ink">
+                <li>Tap the <strong>Share</strong> button (📤) in your Safari toolbar</li>
+                <li>Tap <strong>Add to Home Screen</strong> (➕)</li>
+                <li>Open <strong>Focal</strong> from your Home Screen to enable notifications</li>
+              </ol>
+            </div>
+          ) : (
+            <p className="mt-2 font-mono text-[10px] leading-relaxed text-ink-muted">
+              {perm === "granted" && notifOn
+                ? "ready — nudges fire for overdue #1s, priority swaps & avoidance loops."
+                : perm === "denied"
+                  ? "blocked in browser settings — enable notifications in your browser or device settings."
                   : "flip the switch to allow nudges."}
-          </p>
+            </p>
+          )}
+
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             {["overdue #1", "new #1", "avoidance loop"].map((r) => (
               <span key={r} className="chip border-line bg-surface-2 text-ink-muted">
