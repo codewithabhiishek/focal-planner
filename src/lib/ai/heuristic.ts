@@ -211,6 +211,31 @@ const clamp = (v: number, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
 
 /* ---- the analyzer itself ---- */
 
+export function isTaskBroad(title: string, estMinutes?: number | null): boolean {
+  const lower = title.toLowerCase();
+  if (estMinutes && estMinutes >= 45) return true;
+  const broadTriggers = [
+    "work on", "learn", "study", "prepare", "build", "finish",
+    "complete", "practice", "master", "develop", "plan", "research"
+  ];
+  return broadTriggers.some((t) => lower.startsWith(t) || lower.includes(` ${t} `));
+}
+
+export function suggestNextAction(title: string, maxMinutes?: number | null): SubtaskSuggestion {
+  const sig = dominantSignal(title) ?? "generic";
+  const templates = BREAKDOWN_TEMPLATES[sig] ?? BREAKDOWN_TEMPLATES.generic;
+  const first = templates[0] ?? { title: `First 10-minute slice of ${title}`, minutes: 10 };
+
+  if (maxMinutes && maxMinutes > 0 && (first.minutes == null || first.minutes > maxMinutes)) {
+    return {
+      title: `First ${maxMinutes}-min focused block on “${title}”`,
+      minutes: maxMinutes,
+    };
+  }
+
+  return first;
+}
+
 export function analyzeHeuristic(
   input: AnalyzeInput,
   goals: Goal[],
@@ -263,6 +288,9 @@ export function analyzeHeuristic(
   else reason = `No strong goal match — maintenance work, do it when energy is low.`;
   if (urgent) reason = `Time-sensitive. ${reason}`;
 
+  const isBroad = isTaskBroad(title, est);
+  const nextAction = isBroad ? suggestNextAction(title, 15).title : undefined;
+
   return {
     goalRelevance,
     impact,
@@ -271,6 +299,9 @@ export function analyzeHeuristic(
     goalId: goal?.id ?? null,
     estimatedMinutes: input.estMinutes ?? est,
     urgencyHint: extractDeadline(title, now).urgencyHint,
+    confidence: 0.9,
+    isBroad,
+    suggestedNextAction: nextAction,
     source: "heuristic",
     analyzedAt: now,
   };

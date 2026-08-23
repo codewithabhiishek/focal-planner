@@ -36,6 +36,31 @@ export interface Goal {
   createdAt: number;
 }
 
+export interface ScoreExplanationItem {
+  label: string;
+  points: number;
+  max?: number;
+  description: string;
+  positive: boolean;
+}
+
+export interface StructuredScore {
+  score: number;
+  strategicValue: number;
+  executionScore: number;
+  components: {
+    strategicGoal: number;
+    strategicImpact: number;
+    trajectory: number;
+    urgency: number;
+    timeFit: number;
+    energyFit: number;
+    unprocessed: number;
+    postpone: number;
+  };
+  explanations: ScoreExplanationItem[];
+}
+
 /**
  * Structured analysis of a task — produced by either the deterministic
  * heuristic engine or an LLM provider (Groq). Same shape either way.
@@ -54,6 +79,12 @@ export interface TaskAnalysis {
   estimatedMinutes: number | null;
   /** 0..1 — urgency implied by language ("asap", "urgent"…) */
   urgencyHint: number;
+  /** 0..1 — AI confidence in classification (falls back to deterministic if < 0.6) */
+  confidence?: number;
+  /** whether this task is a broad project needing decomposition into a next action */
+  isBroad?: boolean;
+  /** immediate concrete next action proposed by AI or heuristics */
+  suggestedNextAction?: string;
   source: AnalysisSource;
   analyzedAt: number;
 }
@@ -102,6 +133,13 @@ export interface Task {
 
   /** optional energy requirement: low, medium, high */
   requiredEnergy?: EnergyLevel;
+
+  /** parent task / project reference if derived or decomposed */
+  parentId?: string;
+  /** whether this task is marked as broad */
+  isBroad?: boolean;
+  /** source of task */
+  source?: "manual" | "ai" | "derived";
 
   /** set on subtasks created by the breakdown flow */
   originTitle?: string;

@@ -105,9 +105,27 @@ Keep "reason" under 20 words, second person, no quotes around goal names.`
         )) as Record<string, unknown>;
 
         const catRaw = String(data.recommended_category ?? "").toUpperCase();
+        const rawConfidence = typeof data.confidence === "number" ? clamp01(data.confidence) : 0.85;
+
+        // Phase 10: Confidence-based blending with deterministic heuristic
+        let goalRelevance = clamp01(data.goal_relevance);
+        let impact = clamp01(data.estimated_impact);
+
+        if (rawConfidence < 0.6) {
+          // Low confidence: blend 70% heuristic fallback + 30% AI to prevent wild AI hallucinations
+          goalRelevance = fallback.goalRelevance * 0.7 + goalRelevance * 0.3;
+          impact = fallback.impact * 0.7 + impact * 0.3;
+        }
+
+        const isBroad = typeof data.is_broad === "boolean" ? data.is_broad : fallback.isBroad;
+        const suggestedNextAction =
+          typeof data.suggested_next_action === "string" && data.suggested_next_action.trim()
+            ? data.suggested_next_action.trim().slice(0, 90)
+            : fallback.suggestedNextAction;
+
         return {
-          goalRelevance: clamp01(data.goal_relevance),
-          impact: clamp01(data.estimated_impact),
+          goalRelevance,
+          impact,
           category: CATEGORY_MAP[catRaw] ?? fallback.category,
           reason:
             typeof data.reason === "string" && data.reason.trim()
@@ -123,6 +141,9 @@ Keep "reason" under 20 words, second person, no quotes around goal names.`
               ? Math.round(data.estimated_minutes)
               : fallback.estimatedMinutes,
           urgencyHint: fallback.urgencyHint,
+          confidence: rawConfidence,
+          isBroad,
+          suggestedNextAction,
           source: "ai",
           analyzedAt: Date.now(),
         };

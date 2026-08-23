@@ -1,4 +1,5 @@
-import { scoreTask, rankTasks, pickNext, buildReason, WEIGHTS } from "../engine.ts";
+import { scoreTask, rankTasks, pickNext, buildReason, deriveNextAction, WEIGHTS } from "../engine.ts";
+import { analyzeHeuristic, suggestBreakdown } from "../ai/heuristic.ts";
 import type { Goal, Task } from "../../types.ts";
 
 export function runAvoidanceTests(): void {
@@ -366,4 +367,62 @@ export function runAvoidanceTests(): void {
 
   const rNeutralUser = scoreTask(highEnergyTask, mockGoals, "any", now, "any");
   assertEqual(rNeutralUser.parts.energy, 0, "CASE 10: Energy unset / 'any' produces neutral 0 adjustment, backward compatible");
+
+  // CASE 4: User has 15 minutes, highest-value task takes 60m -> deriveNextAction surfaces a 15m next action
+  const large60mTask: Task = {
+    id: "t_large_60",
+    title: "Write Complete Master's Thesis Literature Review",
+    status: "active",
+    deadline: null,
+    estMinutes: 60,
+    blocked: false,
+    postponeCount: 0,
+    createdAt: now,
+    timeStarved: false,
+    deadlineAuto: false,
+    analysis: {
+      goalId: "g1",
+      goalRelevance: 0.95,
+      impact: 0.9,
+      category: "DO_NOW",
+      reason: "High strategic value.",
+      urgencyHint: 0,
+      isBroad: true,
+      suggestedNextAction: "Outline 3 key sub-topics for literature review",
+      source: "ai",
+      analyzedAt: now,
+      estimatedMinutes: 60,
+    },
+  };
+
+  const nextAction15 = deriveNextAction(large60mTask, 15);
+  assertEqual(nextAction15.estMinutes, 15, "CASE 4: Derived next action fits within 15-minute window");
+  assertEqual(nextAction15.parentId, large60mTask.id, "CASE 4: Derived next action references parent task ID");
+  assertEqual(nextAction15.title, "Outline 3 key sub-topics for literature review", "CASE 4: Derived next action provides concrete actionable step");
+
+  const rNextAction = scoreTask(nextAction15, mockGoals, 15, now);
+  assertTrue(rNextAction.fitsWindow, "CASE 4: Derived action fits active 15m window and scores with positive time fit");
+
+  // CASE 7: Offline Mode / Heuristic fallback operates without network or API keys
+  const offlineAnalysis = analyzeHeuristic({
+    title: "Prepare IELTS Speaking Section 2 Cards",
+    deadline: null,
+    estMinutes: 20,
+    notes: undefined,
+  }, mockGoals, now);
+
+  assertEqual(offlineAnalysis.source, "heuristic", "CASE 7: Offline analysis executes deterministically using local heuristics");
+  assertEqual(offlineAnalysis.goalId, "g1", "CASE 7: Offline analysis recognizes relevance to primary IELTS goal");
+  assertTrue(offlineAnalysis.goalRelevance > 0.3, "CASE 7: Offline analysis assigns positive goal relevance");
+  assertTrue(offlineAnalysis.confidence !== undefined && offlineAnalysis.confidence >= 0.8, "CASE 7: Heuristic analysis sets high deterministic confidence");
+
+  const offlineBreakdown = suggestBreakdown("Prepare IELTS Speaking Section 2 Cards");
+  assertTrue(offlineBreakdown.length >= 3, "CASE 7: Offline breakdown generates actionable steps without network access");
+
+  // Phase 11: Full Score Explainability Structure
+  const scoredExplainable = scoreTask(large60mTask, mockGoals, "any", now);
+  assertTrue(scoredExplainable.structuredScore.explanations.length > 0, "Phase 11: Explanations array is populated with inspectable items");
+  const hasGoalExplanation = scoredExplainable.structuredScore.explanations.some(e => e.label.includes("goal alignment") || e.label.includes("Goal alignment"));
+  assertTrue(hasGoalExplanation, "Phase 11: Structured score itemizes goal alignment points");
+  assertEqual(scoredExplainable.structuredScore.score, scoredExplainable.score, "Phase 11: Structured score matches final priority score exactly (single source of truth)");
 }

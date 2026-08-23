@@ -1,8 +1,8 @@
 import { formatDistanceToNowStrict } from "date-fns";
-import type { Category, Goal, Task, TimeBudget, UserEnergyState } from "../types";
+import type { Category, Goal, ScoreExplanationItem, StructuredScore, Task, TimeBudget, UserEnergyState } from "../types";
 
 /* ------------------------------------------------------------------ */
-/* The deterministic 2-Layer Scoring Engine.                           */
+/* The deterministic 2-Layer Scoring Engine with Explainability.       */
 /*                                                                     */
 /* Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts)                   */
 /*   • goalContribution     (relevance × primary boost)      max 35   */
@@ -18,8 +18,8 @@ import type { Category, Goal, Task, TimeBudget, UserEnergyState } from "../types
 /* Final Priority (0–100 normalized):                                  */
 /*   priority = clamp(strategicValue + executionScore − postpone, 0, 100) */
 /*                                                                     */
-/* Blocked tasks are non-executable candidates — filtered out of      */
-/* the #1 focus pool rather than being penalized with magic numbers.  */
+/* Single Source of Truth: Ranking and the "Why this?" UI breakdown   */
+/* read from the identical StructuredScore data structure.             */
 /* ------------------------------------------------------------------ */
 
 export const WEIGHTS = {
@@ -68,6 +68,7 @@ export interface Ranked {
   executionScore: number;
   frictionScore: number;
   parts: ScoreParts;
+  structuredScore: StructuredScore;
   /** final decision bucket shown on badges */
   category: Category;
   /** composed explanation for the Next Best Action panel */
@@ -91,6 +92,42 @@ export function deadlinePhrase(deadline: number, now: number): string {
   const abs = Math.abs(diff);
   const human = formatDistanceToNowStrict(deadline, { addSuffix: false });
   return diff <= 0 ? `${human} overdue` : `in ${human}`;
+}
+
+/**
+ * Phase 8: Concrete Next Action derivation.
+ * Decomposes a broad or time-constrained task into a concrete, executable unit.
+ */
+export function deriveNextAction(task: Task, maxMinutes = 15): Task {
+  const nextMinutes = Math.min(task.estMinutes ?? maxMinutes, maxMinutes);
+  let title = task.analysis.suggestedNextAction;
+  if (!title) {
+    title = `First ${nextMinutes}-min session on “${task.title}”`;
+  }
+
+  return {
+    id: `${task.id}-sub-${Date.now()}`,
+    title,
+    notes: `Derived next action for ${task.title}`,
+    createdAt: Date.now(),
+    deadline: task.deadline,
+    deadlineAuto: false,
+    estMinutes: nextMinutes,
+    status: "active",
+    blocked: false,
+    postponeCount: 0,
+    timeStarved: false,
+    parentId: task.id,
+    originTitle: task.title,
+    source: "derived",
+    analysis: {
+      ...task.analysis,
+      isBroad: false,
+      estimatedMinutes: nextMinutes,
+      analyzedAt: Date.now(),
+      reason: `Actionable next step for “${task.title}”.`,
+    },
+  };
 }
 
 /**
@@ -240,8 +277,8 @@ export function scoreTask(
   const primaryBoost = goal ? (goal.isPrimary ? 1 : 0.85) : 0;
 
   /* ---------------- Layer A: Strategic Value (Max 55) ---------------- */
-  const goalScore = (a.goalRelevance || 0) * primaryBoost * WEIGHTS.strategicGoal;
-  const impactScore = (a.impact || 0) * WEIGHTS.strategicImpact;
+  const goalScore = Math.round((a.goalRelevance || 0) * primaryBoost * WEIGHTS.strategicGoal);
+  const impactScore = Math.round((a.impact || 0) * WEIGHTS.strategicImpact);
 
   // Phase 5: Goal Trajectory Pressure (boost strongly aligned tasks when behind schedule)
   let trajectoryScore = 0;
@@ -254,7 +291,7 @@ export function scoreTask(
     }
   }
 
-  const strategicValue = Math.round(goalScore + impactScore + trajectoryScore);
+  const strategicValue = goalScore + impactScore + trajectoryScore;
 
   /* ---------------- Layer B: Execution Context (Max 45) ---------------- */
   const urgency = urgencyOf(task, now);
@@ -284,6 +321,106 @@ export function scoreTask(
   const raw = strategicValue + executionScore + postponePenalty;
   const score = Math.round(clamp(raw, 0, 100));
 
+  /* ---------------- Phase 11: Structured Explanations (Single Source of Truth) ---------------- */
+  const explanations: ScoreExplanationItem[] = [];
+
+  if (goalScore > 0 && goal) {
+    explanations.push({
+      label: goal.isPrimary ? "Primary goal alignment" : "Goal alignment",
+      points: goalScore,
+      max: WEIGHTS.strategicGoal,
+      description: goal.isPrimary ? `Directly advances primary goal “${goal.title}”` : `Advances “${goal.title}”`,
+      positive: true,
+    });
+  }
+
+  if (impactScore > 0) {
+    explanations.push({
+      label: "Estimated impact",
+      points: impactScore,
+      max: WEIGHTS.strategicImpact,
+      description: "High leverage payoff relative to required effort",
+      positive: true,
+    });
+  }
+
+  if (trajectoryScore > 0 && goal) {
+    explanations.push({
+      label: "Goal behind schedule",
+      points: trajectoryScore,
+      max: WEIGHTS.trajectoryPressure,
+      description: `“${goal.title}” is behind schedule — receiving trajectory boost`,
+      positive: true,
+    });
+  }
+
+  if (urgency.u > 0) {
+    explanations.push({
+      label: urgency.overdue ? "Overdue deadline" : "Deadline urgency",
+      points: urgency.u,
+      max: WEIGHTS.urgency,
+      description: urgency.label ? `Due ${urgency.label}` : "Urgent timing",
+      positive: true,
+    });
+  }
+
+  if (time.t > 0) {
+    explanations.push({
+      label: budget === "any" ? "General time fit" : `Fits ${budget}m window`,
+      points: time.t,
+      max: WEIGHTS.timeFit,
+      description: budget === "any" ? "No time constraint active" : `Fits within your ${budget}-minute focus window`,
+      positive: true,
+    });
+  }
+
+  if (energy !== 0) {
+    explanations.push({
+      label: energy > 0 ? "Energy match" : "Energy mismatch",
+      points: energy,
+      max: WEIGHTS.energyFit,
+      description: energy > 0 ? "Matches your current energy level" : "Requires higher energy than currently selected",
+      positive: energy > 0,
+    });
+  }
+
+  if (unprocessed > 0) {
+    explanations.push({
+      label: "New capture grace",
+      points: unprocessed,
+      max: WEIGHTS.unprocessedBoost,
+      description: "Temporary grace period while classification settles",
+      positive: true,
+    });
+  }
+
+  if (postponePenalty < 0) {
+    explanations.push({
+      label: "Postponed penalty",
+      points: postponePenalty,
+      max: WEIGHTS.maxPostponePenalty,
+      description: `Deferred ×${task.postponeCount} in recent sessions`,
+      positive: false,
+    });
+  }
+
+  const structuredScore: StructuredScore = {
+    score,
+    strategicValue,
+    executionScore,
+    components: {
+      strategicGoal: goalScore,
+      strategicImpact: impactScore,
+      trajectory: trajectoryScore,
+      urgency: urgency.u,
+      timeFit: time.t,
+      energyFit: energy,
+      unprocessed,
+      postpone: postponePenalty,
+    },
+    explanations,
+  };
+
   let category: Category;
   if (task.status === "delegated") category = "DELEGATE";
   else if (task.status === "dropped") category = "DROP";
@@ -298,6 +435,7 @@ export function scoreTask(
     executionScore,
     frictionScore,
     parts,
+    structuredScore,
     category,
     reason: "", // filled by buildReason
     overdue: urgency.overdue,
