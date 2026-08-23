@@ -23,7 +23,8 @@ import {
 import { Toasts } from "./components/ui";
 import { IconPostpone, IconPlus, IconStarFilled } from "./components/icons";
 
-const CONFETTI = ["#0BA36B", "#FF4B3A", "#2E4CFF", "#9C6BFF", "#0FA3BF", "#F7FBF8"];
+const CONFETTI_LIGHT = ["#0BA36B", "#FF4B3A", "#2E4CFF", "#9C6BFF", "#0FA3BF", "#F7FBF8"];
+const CONFETTI_DARK = ["#2FD18A", "#FF6B5A", "#7D95FF", "#B79CFF", "#45C6DC", "#FFC65C"];
 
 /* ---------------- tiny hash router ---------------- */
 
@@ -148,6 +149,15 @@ function Shell() {
     void registerServiceWorker();
   }, []);
 
+  /* ---------- appearance: light spearmint / dark pine ---------- */
+  const theme = state.settings.theme === "dark" ? "dark" : "light";
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", theme);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", theme === "dark" ? "#0F1A14" : "#D9F0E3");
+  }, [theme]);
+
   /* ---------- rule-based nudges (no AI, throttled) ---------- */
   useEffect(() => {
     if (!state.settings.notificationsEnabled) return;
@@ -207,7 +217,7 @@ function Shell() {
         origin: r
           ? { x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height / 2) / window.innerHeight }
           : { y: 0.35 },
-        colors: CONFETTI,
+        colors: theme === "dark" ? CONFETTI_DARK : CONFETTI_LIGHT,
         scalar: 0.9,
         disableForReducedMotion: true,
       });
@@ -217,7 +227,7 @@ function Shell() {
         tone: "ok",
       });
     },
-    [dispatch, pushToast, state.tasks]
+    [dispatch, pushToast, state.tasks, theme]
   );
 
   const handleNotNow = useCallback(

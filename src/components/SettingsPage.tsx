@@ -6,11 +6,13 @@ import { enableNotifications, notificationsSupported, notify } from "../lib/noti
 import { Switch } from "./ui";
 import {
   IconBell,
+  IconCheck,
   IconChevron,
   IconInfo,
   IconPause,
   IconPlay,
   IconPlus,
+  IconReticle,
   IconSpark,
   IconStarFilled,
   IconTarget,
@@ -165,8 +167,66 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
       </div>
 
       <div className="mt-6 grid gap-5">
-        {/* 1 — goals */}
-        <Section n={1} title="Goals" icon={<IconTarget size={17} className="text-mint" />} sub="what everything gets scored against">
+        {/* 1 — appearance */}
+        <Section n={1} title="Appearance" icon={<IconReticle size={17} className="text-sky" />} sub="light or dark — applied instantly, remembered">
+          <div className="grid grid-cols-2 gap-3">
+            {(["light", "dark"] as const).map((m) => {
+              const active = s.theme === m;
+              const lite = m === "light";
+              return (
+                <button
+                  key={m}
+                  aria-pressed={active}
+                  onClick={() => {
+                    if (active) return;
+                    dispatch({ type: "PATCH_SETTINGS", patch: { theme: m } });
+                    pushToast({
+                      title: lite ? "Light mode on" : "Dark mode on",
+                      body: lite ? "Back to spearmint." : "Deep pine — easy on the eyes.",
+                      tone: "ok",
+                    });
+                  }}
+                  className={`card cursor-pointer p-3 text-left transition-all duration-150 ${
+                    active
+                      ? "border-ink shadow-hard-soft"
+                      : "opacity-65 hover:-translate-y-0.5 hover:opacity-100"
+                  }`}
+                >
+                  <span
+                    className="relative block h-16 overflow-hidden rounded-lg border-2 border-ink/15"
+                    style={{ background: lite ? "#d9f0e3" : "#0f1a14" }}
+                  >
+                    <span
+                      className="absolute top-2 left-2 block h-6 w-24 rounded-md border-2"
+                      style={{
+                        background: lite ? "#17251e" : "#1b2e23",
+                        borderColor: lite ? "#17251e" : "#35503f",
+                      }}
+                    />
+                    <span
+                      className="absolute bottom-2 left-2 block h-3.5 w-16 rounded border-[1.5px]"
+                      style={{
+                        background: lite ? "#f7fbf8" : "#16241c",
+                        borderColor: lite ? "#17251e" : "#e9f3ec",
+                      }}
+                    />
+                    <span
+                      className="absolute right-2 bottom-2 block h-3.5 w-8 rounded-full"
+                      style={{ background: lite ? "#0ba36b" : "#2fd18a" }}
+                    />
+                  </span>
+                  <span className="mt-2 flex items-center gap-1.5 text-sm font-bold">
+                    {active && <IconCheck size={13} className="text-mint" />}
+                    {lite ? "Light · spearmint" : "Dark · pine"}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </Section>
+
+        {/* 2 — goals */}
+        <Section n={2} title="Goals" icon={<IconTarget size={17} className="text-mint" />} sub="what everything gets scored against">
           {state.goals.length === 0 && (
             <p className="rounded-lg border-2 border-dashed border-ink/20 px-3 py-4 text-center text-sm text-ink/50">
               No goals yet — tasks score fine, but a goal makes the ranking personal.
@@ -257,8 +317,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           <p className="label-mono mt-2 text-ink/35">★ the primary goal gets the biggest weight in every score</p>
         </Section>
 
-        {/* 2 — AI provider */}
-        <Section n={2} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="optional — meaning reading, not math">
+        {/* 3 — AI provider */}
+        <Section n={3} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="optional — meaning reading, not math">
           <p className="text-xs leading-relaxed text-ink/60">
             Without a key, Focal runs on its built-in heuristic engine — fully functional, fully
             offline. With a Groq key, an LLM reads task <em>meaning</em>, goal fit and impact.
@@ -293,8 +353,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
         </Section>
 
-        {/* 3 — signals */}
-        <Section n={3} title="Signals" icon={<IconBell size={17} className="text-cobalt" />} sub="nudges, not noise">
+        {/* 4 — signals */}
+        <Section n={4} title="Signals" icon={<IconBell size={17} className="text-cobalt" />} sub="nudges, not noise">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">Browser nudges</span>
             <span className="ml-auto">
@@ -322,8 +382,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </div>
         </Section>
 
-        {/* 4 — scoring */}
-        <Section n={4} title="How the score works" icon={<IconInfo size={17} className="text-coral" />} sub="deterministic, inspectable, boring on purpose">
+        {/* 5 — scoring */}
+        <Section n={5} title="How the score works" icon={<IconInfo size={17} className="text-coral" />} sub="deterministic, inspectable, boring on purpose">
           <div className="space-y-1.5">
             {weights.map((w) => (
               <div key={w.k} className="flex items-center justify-between rounded-lg bg-canvas/70 px-3 py-2">
@@ -338,8 +398,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
         </Section>
 
-        {/* 5 — data */}
-        <Section n={5} title="Data" icon={<IconTrash size={17} className="text-honey" />} sub="stored locally in this browser">
+        {/* 6 — data */}
+        <Section n={6} title="Data" icon={<IconTrash size={17} className="text-honey" />} sub="stored locally in this browser">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {

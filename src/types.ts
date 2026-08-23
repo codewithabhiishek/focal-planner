@@ -93,6 +93,8 @@ export interface Settings {
   notificationsEnabled: boolean;
   /** sample data has been seeded once */
   seeded: boolean;
+  /** "light" (spearmint) or "dark" (pine) */
+  theme: "light" | "dark";
 }
 
 export interface AppState {

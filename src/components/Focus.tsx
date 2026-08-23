@@ -103,14 +103,14 @@ export function NextAction({
 
   if (!next && !blockedTop) {
     return (
-      <section className="anim-rise rounded-[20px] border-2 border-dashed border-ink/40 bg-paper/70 px-6 py-14 text-center">
-        <span className="sticker anim-wiggle mx-auto grid h-14 w-14 place-items-center bg-canvas">
-          <IconReticle size={28} />
+      <section className="anim-rise rounded-[20px] border-2 border-dashed border-ink/40 bg-paper/70 px-6 py-10 text-center">
+        <span className="sticker anim-wiggle mx-auto grid h-12 w-12 place-items-center bg-canvas">
+          <IconReticle size={24} />
         </span>
-        <h2 className="mt-5 font-display text-3xl font-extrabold tracking-tight">
+        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight">
           Queue's clear. Nice.
         </h2>
-        <p className="mx-auto mt-2 max-w-sm text-[15px] leading-relaxed text-ink/65">
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink/65">
           Dump whatever's on your mind below — Focal weighs it against your goals and
           deadlines, then points at the one thing worth doing next.
         </p>
@@ -137,38 +137,33 @@ export function NextAction({
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -14 }}
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="card-dark relative overflow-hidden p-6 sm:p-8"
+        className="card-dark relative overflow-hidden p-5 sm:p-6"
       >
         {/* ambient life */}
         <div
           aria-hidden
-          className="anim-breathe pointer-events-none absolute -top-28 -right-20 h-80 w-80 rounded-full"
+          className="anim-breathe pointer-events-none absolute -top-20 -right-16 h-64 w-64 rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(255,228,94,0.20) 0%, rgba(255,228,94,0.05) 45%, transparent 70%)",
+              "radial-gradient(circle, rgba(47,209,138,0.14) 0%, rgba(47,209,138,0.04) 45%, transparent 70%)",
           }}
         />
         <IconReticle
           aria-hidden
-          size={230}
-          className="pointer-events-none absolute -top-10 -right-10 text-fog/[0.05]"
-        />
-        <IconSquiggle
-          aria-hidden
-          size={90}
-          className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-fog/[0.06]"
+          size={150}
+          className="pointer-events-none absolute -top-8 -right-8 text-fog/[0.045]"
         />
 
         <div className="relative">
           <div className="flex flex-wrap items-center gap-3">
-            <span className="sticker -rotate-2 inline-flex items-center gap-2 bg-canvas px-3 py-1.5 font-mono text-[11px] font-bold tracking-[0.18em] text-ink uppercase">
+            <span className="sticker -rotate-2 inline-flex items-center gap-1.5 bg-canvas px-2.5 py-1 font-mono text-[10px] font-bold tracking-[0.18em] text-ink uppercase">
               <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint" />
               {isBlockedView ? "all blocked" : "do this now"}
             </span>
             <span className="ml-auto flex items-center gap-2">
               <span className="label-mono text-fog-faint">signal</span>
               <span
-                className={`rounded-lg border-2 px-2.5 py-0.5 font-mono text-base font-bold ${
+                className={`rounded-lg border-2 px-2 py-0.5 font-mono text-sm font-bold ${
                   r.score >= 65
                     ? "border-mint/60 bg-mint/15 text-mint"
                     : "border-fog/25 text-fog-dim"
@@ -179,18 +174,18 @@ export function NextAction({
             </span>
           </div>
 
-          <h1 className="mt-5 max-w-2xl font-display text-[clamp(1.75rem,4.6vw,3.1rem)] leading-[1.06] font-extrabold tracking-tight text-balance break-words text-paper">
+          <h1 className="mt-3 max-w-2xl font-display text-[clamp(1.3rem,3.2vw,1.9rem)] leading-[1.1] font-extrabold tracking-tight text-balance break-words text-paper">
             {task.title}
           </h1>
 
-          <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-fog-dim">
+          <p className="mt-2.5 max-w-2xl text-sm leading-relaxed text-fog-dim">
             <span className="font-bold text-mint">Why this? </span>
             {isBlockedView
               ? `It's blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
               : r.reason}
           </p>
 
-          <div className="mt-5 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-1.5">
             <CategoryBadge category={r.category} />
             {task.deadline != null && (
               <Chip
@@ -222,20 +217,20 @@ export function NextAction({
             )}
           </div>
 
-          <div className="mt-7 flex flex-wrap items-center gap-3">
+          <div className="mt-4 flex flex-wrap items-center gap-2.5">
             {isBlockedView ? (
-              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-6 py-3 text-[15px] font-bold">
-                <IconBlock size={17} /> Unblock it
+              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-5 py-2.5 text-sm font-bold">
+                <IconBlock size={15} /> Unblock it
               </button>
             ) : (
               <button
                 onClick={(e) => onComplete(task.id, e.currentTarget)}
-                className="btn-yellow px-7 py-3 text-[15px] font-bold"
+                className="btn-yellow px-5 py-2.5 text-sm font-bold"
               >
-                <IconCheck size={17} /> Complete
+                <IconCheck size={15} /> Complete
               </button>
             )}
-            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-5 py-3 text-[15px]">
+            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-4 py-2.5 text-sm">
               Not now
             </button>
             <button
@@ -262,7 +257,7 @@ export function NextAction({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mt-6 space-y-2.5 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-4">
+                <div className="mt-4 space-y-2.5 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-3.5">
                   <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-mint" />
                   <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-cobalt" delay={0.05} />
                   <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-coral" delay={0.1} />

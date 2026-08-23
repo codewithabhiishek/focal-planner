@@ -31,6 +31,7 @@ const defaultSettings: Settings = {
   aiModel: "llama-3.3-70b-versatile",
   notificationsEnabled: false,
   seeded: false,
+  theme: "light",
 };
 
 const emptyState: AppState = {

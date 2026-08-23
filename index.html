@@ -18,6 +18,21 @@
       href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Schibsted+Grotesk:ital,wght@0,400..900;1,400..700&family=Space+Mono:wght@400;700&display=swap"
       rel="stylesheet"
     />
+    <script>
+      /* apply the saved appearance before first paint — no wrong-color flash */
+      (function () {
+        try {
+          var raw = localStorage.getItem("focal.state.v1");
+          var theme = raw ? (JSON.parse(raw).settings || {}).theme : null;
+          if (theme === "dark") {
+            document.documentElement.setAttribute("data-theme", "dark");
+            document.documentElement.style.backgroundColor = "#0f1a14";
+          }
+        } catch (e) {
+          /* fresh start */
+        }
+      })();
+    </script>
     <style>
       html,
       body {

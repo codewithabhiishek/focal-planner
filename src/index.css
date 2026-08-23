@@ -33,7 +33,8 @@
   --color-honey: #e8960a;
 }
 
-:root {
+:root,
+[data-theme="light"] {
   color-scheme: light;
   --r-card: 14px;
   --r-hero: 20px;
@@ -44,6 +45,48 @@
   --shadow-hero: 8px 8px 0 #0e1712;
   --shadow-ink: #17251e;
   --ambient-glow: rgba(247, 251, 248, 0.85);
+  --dot-color: rgba(23, 37, 30, 0.1);
+  --btn-primary-bg: var(--color-canvas);
+  --btn-primary-text: var(--color-ink);
+  --hard-strong: rgba(23, 37, 30, 0.85);
+  --hard-soft: rgba(23, 37, 30, 0.18);
+  --hard-faint: rgba(23, 37, 30, 0.1);
+  --scroll-thumb: rgba(23, 37, 30, 0.3);
+}
+
+/* ---- Dark: deep pine canvas, light ink, same sticker physics ---- */
+[data-theme="dark"] {
+  color-scheme: dark;
+
+  --color-canvas: #0f1a14;
+  --color-paper: #16241c;
+  --color-ink: #e9f3ec;
+  --color-ink-2: #24382c;
+  --color-ink-3: #2f4a3a;
+
+  --color-line: #24382c;
+  --color-line-ink: rgba(233, 243, 236, 0.14);
+
+  --color-coral: #ff6b5a;
+  --color-cobalt: #7d95ff;
+  --color-mint: #2fd18a;
+  --color-lilac: #b79cff;
+  --color-sky: #45c6dc;
+  --color-honey: #ffc65c;
+
+  --hero-bg: #1b2e23;
+  --hero-line: #35503f;
+  --shadow-card: 5px 5px 0 rgba(0, 0, 0, 0.45);
+  --shadow-hero: 8px 8px 0 rgba(0, 0, 0, 0.55);
+  --shadow-ink: rgba(0, 0, 0, 0.6);
+  --ambient-glow: rgba(47, 209, 138, 0.07);
+  --dot-color: rgba(233, 243, 236, 0.06);
+  --btn-primary-bg: var(--color-mint);
+  --btn-primary-text: #0b140f;
+  --hard-strong: rgba(0, 0, 0, 0.65);
+  --hard-soft: rgba(0, 0, 0, 0.35);
+  --hard-faint: rgba(0, 0, 0, 0.22);
+  --scroll-thumb: rgba(233, 243, 236, 0.22);
 }
 
 @layer base {
@@ -87,7 +130,7 @@
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: rgba(23, 37, 30, 0.35) transparent;
+    scrollbar-color: var(--scroll-thumb) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
@@ -104,15 +147,15 @@
   @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-ink font-semibold transition-all duration-150 select-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none!;
 }
 
-/* theme-aware hard shadows (ink-colored) */
+/* theme-aware hard shadows */
 @utility shadow-hard-xs {
-  box-shadow: 2px 2px 0 rgba(23, 37, 30, 0.85);
+  box-shadow: 2px 2px 0 var(--hard-strong);
 }
 @utility shadow-hard-soft {
-  box-shadow: 3px 3px 0 rgba(23, 37, 30, 0.18);
+  box-shadow: 3px 3px 0 var(--hard-soft);
 }
 @utility shadow-hard-faint {
-  box-shadow: 3px 3px 0 rgba(23, 37, 30, 0.1);
+  box-shadow: 3px 3px 0 var(--hard-faint);
 }
 
 @layer components {
@@ -133,10 +176,12 @@
 
   /* ---- buttons: lift on hover, press into the shadow on click ---- */
   .btn-yellow {
-    @apply btn bg-canvas text-ink shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    @apply btn shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
   }
   .btn-ink {
-    @apply btn bg-ink text-canvas shadow-[4px_4px_0_rgba(23,37,30,0.28)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_rgba(23,37,30,0.28)];
+    @apply btn bg-ink text-canvas shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
   }
   .btn-coral {
     @apply btn bg-coral text-paper shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
@@ -236,7 +281,7 @@
     animation: dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
   .bg-dots {
-    background-image: radial-gradient(rgba(23, 37, 30, 0.12) 1.1px, transparent 1.1px);
+    background-image: radial-gradient(var(--dot-color) 1.1px, transparent 1.1px);
     background-size: 22px 22px;
   }
   .text-balance {
