@@ -44,7 +44,7 @@ Most task managers are passive bucket lists that grow infinitely and cause decis
 
 ### 3. 🧠 Hybrid AI & Deterministic Heuristics
 - **Built-in Offline Heuristics**: Works 100% offline out-of-the-box with zero configuration.
-- **Groq LLM Integration**: Optionally plug in a Groq API key (Llama 3.3 70B, Llama 3.1 8B, etc.) to analyze deeper contextual meaning and goal alignment while keeping hard scheduling math deterministic.
+- **Secure Backend Groq LLM Proxy**: Connects through a secure backend route (`/api/groq`). Store `GROQ_API_KEY` safely in `.env` so your secret key is never exposed on the frontend or in browser network bundles. Supports Llama 3.3 70B, Llama 3.1 8B, and more.
 
 ### 4. ⏱️ Adaptive Time-Budget Window
 - Filter the recommendation live based on how much time you have right now (**5m**, **15m**, **30m**, **1h+**, or **any**).

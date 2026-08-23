@@ -9,7 +9,8 @@ import type {
 } from "../../types";
 import { analyzeHeuristic, suggestBreakdown } from "./heuristic";
 
-const ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
+const BACKEND_ENDPOINT = "/api/groq";
+const DIRECT_GROQ_ENDPOINT = "https://api.groq.com/openai/v1/chat/completions";
 
 const clamp01 = (v: unknown): number => {
   const n = typeof v === "number" && Number.isFinite(v) ? v : 0.4;
@@ -25,35 +26,62 @@ const CATEGORY_MAP: Record<string, Category> = {
 };
 
 /**
- * Groq (OpenAI-compatible chat completions) provider.
- * The key is user-supplied at runtime (settings) or via VITE_GROQ_API_KEY —
- * never hardcoded. Always returns the same structured shape as the
- * heuristic engine, and falls back to it on any failure.
+ * Groq AI Provider.
+ * Calls the secure backend proxy endpoint (/api/groq) where GROQ_API_KEY is stored safely in .env.
+ * Falls back to local heuristic if offline.
  */
 export function createGroqProvider(apiKey: string, model: string): AIProvider {
   async function chat(system: string, user: string): Promise<unknown> {
-    const res = await fetch(ENDPOINT, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      body: JSON.stringify({
-        model,
-        temperature: 0.2,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: system },
-          { role: "user", content: user },
-        ],
-      }),
-    });
-    if (!res.ok) throw new Error(`Groq error ${res.status}`);
-    const json = (await res.json()) as {
-      choices?: Array<{ message?: { content?: string } }>;
-    };
-    const raw = json.choices?.[0]?.message?.content ?? "{}";
-    return JSON.parse(raw);
+    // 1. Try secure backend endpoint first
+    try {
+      const res = await fetch(BACKEND_ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          system,
+          user,
+          apiKey: apiKey || undefined,
+        }),
+      });
+      if (res.ok) {
+        const json = (await res.json()) as {
+          choices?: Array<{ message?: { content?: string } }>;
+        };
+        const raw = json.choices?.[0]?.message?.content ?? "{}";
+        return JSON.parse(raw);
+      }
+    } catch {
+      // Backend not reached
+    }
+
+    // 2. Direct fallback only if user provided a client key
+    if (apiKey) {
+      const res = await fetch(DIRECT_GROQ_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: 0.2,
+          response_format: { type: "json_object" },
+          messages: [
+            { role: "system", content: system },
+            { role: "user", content: user },
+          ],
+        }),
+      });
+      if (!res.ok) throw new Error(`Groq error ${res.status}`);
+      const json = (await res.json()) as {
+        choices?: Array<{ message?: { content?: string } }>;
+      };
+      const raw = json.choices?.[0]?.message?.content ?? "{}";
+      return JSON.parse(raw);
+    }
+
+    throw new Error("No backend or API key available");
   }
 
   return {

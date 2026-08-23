@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, format } from "date-fns";
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useState, useEffect, type FormEvent, type ReactNode } from "react";
 import type { Goal } from "../types";
 import { useStore } from "../lib/store";
 import { enableNotifications, notificationsSupported, notify } from "../lib/notify";
@@ -62,7 +62,18 @@ function Section({
 export function SettingsPage({ onBack }: { onBack: () => void }) {
   const { state, dispatch, pushToast } = useStore();
   const s = state.settings;
-  const aiOn = !!s.aiKey.trim();
+  const [backendConfigured, setBackendConfigured] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/groq")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data?.configured) setBackendConfigured(true);
+      })
+      .catch(() => {});
+  }, []);
+
+  const aiOn = backendConfigured || !!s.aiKey.trim();
 
   /* goals */
   const [title, setTitle] = useState("");
@@ -178,45 +189,25 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                   key={m}
                   aria-pressed={active}
                   onClick={() => {
-                    if (active) return;
                     dispatch({ type: "PATCH_SETTINGS", patch: { theme: m } });
-                    pushToast({
-                      title: lite ? "Light mode on" : "Dark mode on",
-                      body: lite ? "Back to ivory." : "Deep charcoal — easy on the eyes.",
-                      tone: "ok",
-                    });
+                    document.documentElement.setAttribute("data-theme", m);
                   }}
-                  className={`card cursor-pointer p-3 text-left transition-all duration-150 ${
+                  className={`flex cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition-all duration-150 ${
                     active
-                      ? "border-primary/50 shadow-hard-soft"
-                      : "opacity-65 hover:-translate-y-0.5 hover:opacity-100"
+                      ? "border-primary bg-primary/[0.07] text-ink shadow-hard-faint"
+                      : "border-line bg-surface text-ink-secondary hover:border-ink/30 hover:bg-surface-2"
                   }`}
                 >
                   <span
-                    className="relative block h-16 overflow-hidden rounded-lg border border-line"
-                    style={{ background: lite ? "#f5f3ee" : "#17171a" }}
+                    className={`grid h-8 w-8 place-items-center rounded-lg border ${
+                      lite
+                        ? "border-line bg-[#fdfcfa] text-[#23221e]"
+                        : "border-[#2b2b32] bg-[#1c1c21] text-[#f2f0e8]"
+                    }`}
                   >
-                    <span
-                      className="absolute top-2 left-2 block h-6 w-24 rounded-md border"
-                      style={{
-                        background: lite ? "#fdfcfa" : "#27272c",
-                        borderColor: lite ? "#e7e3d9" : "#2e2e33",
-                      }}
-                    />
-                    <span
-                      className="absolute bottom-2 left-2 block h-3.5 w-16 rounded border"
-                      style={{
-                        background: lite ? "#fdfcfa" : "#1f1f23",
-                        borderColor: lite ? "#e7e3d9" : "#2e2e33",
-                      }}
-                    />
-                    <span
-                      className="absolute right-2 bottom-2 block h-3.5 w-8 rounded-full"
-                      style={{ background: lite ? "#5e6ad2" : "#7681ec" }}
-                    />
+                    {lite ? "☀️" : "🌙"}
                   </span>
-                  <span className="mt-2 flex items-center gap-1.5 text-sm font-bold">
-                    {active && <IconCheck size={13} className="text-primary" />}
+                  <span className="font-display text-sm font-bold">
                     {lite ? "Light · ivory" : "Dark · charcoal"}
                   </span>
                 </button>
@@ -318,39 +309,49 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </Section>
 
         {/* 3 — AI provider */}
-        <Section n={3} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="optional — meaning reading, not math">
+        <Section n={3} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="secure backend proxy · meaning reading, not math">
           <p className="text-xs leading-relaxed text-ink-secondary">
-            Without a key, Focal runs on its built-in heuristic engine — fully functional, fully
-            offline. With a Groq key, an LLM reads task <em>meaning</em>, goal fit and impact.
-            Deadlines, blocks and time windows stay deterministic either way. The key lives only
-            in this browser.
+            Focal routes AI queries through a secure backend proxy (<code className="rounded border border-line bg-surface px-1 py-0.5 font-mono text-[11px]">/api/groq</code>). Your API key is stored safely on the server in <code className="rounded border border-line bg-surface px-1 py-0.5 font-mono text-[11px]">.env</code> and is never exposed to the client or browser network logs.
           </p>
-          <input
-            type="password"
-            value={s.aiKey}
-            onChange={(e) => dispatch({ type: "PATCH_SETTINGS", patch: { aiKey: e.target.value } })}
-            placeholder="gsk_…"
-            aria-label="Groq API key"
-            className="field mt-3 font-mono text-sm"
-          />
-          <div className="mt-2 flex flex-wrap gap-1.5">
-            {MODELS.map((m) => (
-              <button
-                key={m}
-                onClick={() => dispatch({ type: "PATCH_SETTINGS", patch: { aiModel: m } })}
-                className={`chip cursor-pointer transition-colors ${
-                  s.aiModel === m
-                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
-                    : "border-line bg-surface text-ink-secondary hover:border-ink/40 hover:text-ink"
-                }`}
-              >
-                {m}
-              </button>
-            ))}
+
+          <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-line bg-surface-2/50 p-3">
+            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${aiOn ? "bg-success" : "bg-ink-muted"}`} />
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-ink">
+                {backendConfigured
+                  ? "Backend GROQ_API_KEY active (.env)"
+                  : s.aiKey.trim()
+                  ? "Custom client key active"
+                  : "Built-in offline heuristic engine"}
+              </p>
+              <p className="font-mono text-[10px] text-ink-muted">
+                {aiOn
+                  ? "Tasks receive deep contextual goal & impact analysis"
+                  : "Add GROQ_API_KEY to your .env file to enable Groq LLM"}
+              </p>
+            </div>
           </div>
-          <p className="label-mono mt-2 text-ink-faint">
-            {aiOn ? "active — new & existing tasks get LLM analysis" : "get a key at console.groq.com → paste → done"}
-          </p>
+
+          <div className="mt-3">
+            <label className="label-mono mb-1.5 block text-ink-muted">
+              Model selector
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+              {MODELS.map((m) => (
+                <button
+                  key={m}
+                  onClick={() => dispatch({ type: "PATCH_SETTINGS", patch: { aiModel: m } })}
+                  className={`chip cursor-pointer transition-colors ${
+                    s.aiModel === m
+                      ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+                      : "border-line bg-surface text-ink-secondary hover:border-ink/40 hover:text-ink"
+                  }`}
+                >
+                  {m}
+                </button>
+              ))}
+            </div>
+          </div>
         </Section>
 
         {/* 4 — signals */}

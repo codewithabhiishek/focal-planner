@@ -13,14 +13,11 @@ export const heuristicProvider: AIProvider = {
 };
 
 /**
- * Provider factory. With a user-supplied key, the LLM provider handles
- * meaning/impact/goal-matching; every hard constraint (deadlines, blocked,
- * postponements, time budget) stays in the deterministic engine.
+ * Provider factory. Connects through the secure backend endpoint /api/groq (with server .env key),
+ * or client key if supplied, and automatically falls back to the built-in offline engine on any error.
  */
 export function getProvider(settings: Settings): AIProvider {
   const key = settings.aiKey.trim();
-  if (key) {
-    return createGroqProvider(key, settings.aiModel || "llama-3.3-70b-versatile");
-  }
-  return heuristicProvider;
+  const model = settings.aiModel || "llama-3.3-70b-versatile";
+  return createGroqProvider(key, model);
 }
