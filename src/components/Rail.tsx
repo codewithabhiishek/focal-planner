@@ -93,7 +93,7 @@ export function GoalsCard({ onOpenGoals }: { onOpenGoals: () => void }) {
                 onClick={() => {
                   if (!g.isPrimary) dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id });
                 }}
-                className={`grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 transition-all ${
+                className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 transition-all lg:h-7 lg:w-7 ${
                   g.isPrimary
                     ? "border-ink bg-canvas shadow-[2px_2px_0_var(--color-ink)]"
                     : "border-ink/15 text-ink/35 hover:border-ink hover:text-ink"
@@ -106,14 +106,14 @@ export function GoalsCard({ onOpenGoals }: { onOpenGoals: () => void }) {
                 onClick={() =>
                   dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
                 }
-                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-ink hover:text-ink"
+                className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
               >
                 {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
               </button>
               <button
                 title="Delete goal"
                 onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
-                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 opacity-0 transition-all group-hover:opacity-100 hover:border-coral hover:bg-coral/10 hover:text-coral"
+                className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-coral hover:bg-coral/10 hover:text-coral max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:h-7 lg:w-7"
               >
                 <IconTrash size={13} />
               </button>

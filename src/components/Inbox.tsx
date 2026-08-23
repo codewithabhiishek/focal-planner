@@ -81,7 +81,7 @@ export function Inbox({
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`cursor-pointer rounded-full border-2 px-2.5 py-1 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 ${
+                className={`cursor-pointer rounded-full border-2 px-3 py-1.5 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 sm:px-2.5 sm:py-1 ${
                   active
                     ? "border-ink bg-ink text-canvas"
                     : n === 0
@@ -165,7 +165,7 @@ export function Inbox({
                 {r.score}
               </span>
 
-              <div className="flex shrink-0 items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
+              <div className="flex shrink-0 items-center gap-1.5 transition-opacity duration-150 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
                 {r.task.blocked ? (
                   <button
                     title="Unblock"
@@ -177,7 +177,7 @@ export function Inbox({
                       });
                       pushToast({ title: "Unblocked — back in ranking", body: r.task.title, tone: "ok" });
                     }}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
                   >
                     <IconUndo size={13} />
                   </button>
@@ -185,7 +185,7 @@ export function Inbox({
                   <button
                     title="Complete"
                     onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
                   >
                     <IconCheck size={13} />
                   </button>
@@ -193,14 +193,14 @@ export function Inbox({
                 <button
                   title="Not now"
                   onClick={() => onNotNow(r.task.id)}
-                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
                 >
                   <IconPostpone size={13} />
                 </button>
                 <button
                   title="Drop"
                   onClick={() => drop(r.task)}
-                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-coral hover:bg-coral/10 hover:text-coral"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-coral hover:bg-coral/10 hover:text-coral lg:h-7 lg:w-7"
                 >
                   <IconTrash size={13} />
                 </button>
@@ -222,7 +222,7 @@ export function Inbox({
                 <CategoryBadge category={t.status === "delegated" ? "DELEGATE" : "DROP"} size="xs" />
                 <button
                   onClick={() => restore(t)}
-                  className="label-mono inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1 text-ink/40 opacity-0 transition-all hover:bg-paper hover:text-ink group-hover:opacity-100"
+                  className="label-mono inline-flex cursor-pointer items-center gap-1 rounded-md px-2 py-1.5 text-ink/40 transition-all hover:bg-paper hover:text-ink max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100"
                 >
                   <IconUndo size={11} /> restore
                 </button>

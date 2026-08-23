@@ -29,6 +29,27 @@
 }
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+  button,
+  a,
+  [role="button"],
+  [role="switch"] {
+    touch-action: manipulation; /* kills iOS double-tap zoom delay */
+  }
+  @media (max-width: 639px) {
+    /* iOS zooms the page when focusing inputs under 16px — never let it */
+    input,
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
+  }
   body {
     @apply bg-canvas font-body text-ink antialiased;
   }

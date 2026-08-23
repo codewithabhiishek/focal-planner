@@ -49,7 +49,7 @@ export function BudgetBar({
               key={String(b.id)}
               onClick={() => onChange(b.id)}
               aria-pressed={active}
-              className={`cursor-pointer rounded-full border-2 border-ink px-3 py-1 font-mono text-xs font-bold transition-all duration-150 ${
+              className={`cursor-pointer rounded-full border-2 border-ink px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
                 active
                   ? "bg-ink text-canvas shadow-[3px_3px_0_rgba(26,23,18,0.3)]"
                   : "bg-paper text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-[3px_3px_0_rgba(26,23,18,0.16)]"
@@ -179,7 +179,7 @@ export function NextAction({
             </span>
           </div>
 
-          <h1 className="mt-5 max-w-2xl font-display text-[clamp(1.9rem,4.6vw,3.1rem)] leading-[1.06] font-extrabold tracking-tight text-balance text-paper">
+          <h1 className="mt-5 max-w-2xl font-display text-[clamp(1.75rem,4.6vw,3.1rem)] leading-[1.06] font-extrabold tracking-tight text-balance break-words text-paper">
             {task.title}
           </h1>
 
@@ -335,18 +335,18 @@ export function UpNext({
                 </div>
               </div>
               <span className="chip hidden border-ink/20 bg-canvas/60 sm:inline-flex">{r.score}</span>
-              <div className="flex shrink-0 items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
+              <div className="flex shrink-0 items-center gap-1.5 transition-opacity duration-150 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
                 <button
                   aria-label={`Complete ${r.task.title}`}
                   onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
                 >
                   <IconCheck size={14} />
                 </button>
                 <button
                   aria-label={`Not now: ${r.task.title}`}
                   onClick={() => onNotNow(r.task.id)}
-                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
                 >
                   <IconDots size={14} />
                 </button>

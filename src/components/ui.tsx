@@ -128,44 +128,50 @@ export function Modal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-ink/60 p-4"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.18 }}
           onMouseDown={(e) => e.target === e.currentTarget && onClose()}
         >
+          {/* bottom sheet on phones, centered card on larger screens */}
           <motion.div
             role="dialog"
             aria-modal="true"
-            className={`anim-pop card relative my-auto w-full ${wide ? "max-w-lg" : "max-w-md"}`}
-            initial={{ scale: 0.95, y: 14 }}
-            animate={{ scale: 1, y: 0 }}
-            exit={{ scale: 0.97, y: 8, opacity: 0 }}
-            transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+            className={`card relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-b-none border-b-0 rounded-t-[24px] shadow-[0_-10px_0_rgba(26,23,18,0.18)] sm:max-h-[85vh] sm:rounded-[24px] sm:border-b-2 sm:shadow-[10px_10px_0_rgba(26,23,18,0.85)] ${
+              wide ? "sm:max-w-lg" : "sm:max-w-md"
+            }`}
+            initial={{ y: 72, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 56, opacity: 0 }}
+            transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
           >
+            <div aria-hidden className="mx-auto mt-2.5 mb-1 h-1.5 w-10 shrink-0 rounded-full bg-ink/15 sm:hidden" />
             <button
               onClick={onClose}
               aria-label="Close"
-              className="sticker absolute -right-2.5 -top-2.5 z-10 grid h-8 w-8 place-items-center bg-coral text-paper transition-transform hover:rotate-90"
+              className="sticker absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center bg-coral text-paper transition-transform hover:rotate-90 sm:-right-2.5 sm:-top-2.5 sm:h-8 sm:w-8"
             >
               <IconX size={15} />
             </button>
             {(title || kicker) && (
-              <div className="px-5 pt-5">
+              <div className="shrink-0 px-5 pt-4 sm:pt-5">
                 {kicker && (
-                  <p className="label-mono text-ink/50">
+                  <p className="label-mono pr-10 text-ink/50">
                     {kicker}
                   </p>
                 )}
                 {title && (
-                  <h3 className="mt-1 font-display text-2xl font-bold tracking-tight text-balance">
+                  <h3 className="mt-1 pr-10 font-display text-2xl font-bold tracking-tight text-balance">
                     {title}
                   </h3>
                 )}
               </div>
             )}
-            <div className="p-5">{children}</div>
+            <div className="overflow-y-auto p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-5">
+              {children}
+            </div>
           </motion.div>
         </motion.div>
       )}
@@ -263,7 +269,7 @@ export function Toasts({
     return map[t];
   };
   return (
-    <div className="pointer-events-none fixed right-4 bottom-4 z-[60] flex w-[min(92vw,340px)] flex-col gap-2.5">
+    <div className="pointer-events-none fixed inset-x-3 bottom-[max(1rem,env(safe-area-inset-bottom))] z-[60] flex flex-col gap-2.5 sm:inset-x-auto sm:right-4 sm:bottom-4 sm:w-[340px]">
       <AnimatePresence>
         {toasts.map((t) => {
           const m = iconFor(t.tone);

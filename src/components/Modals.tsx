@@ -239,7 +239,7 @@ export function BreakdownModal({
             <button
               onClick={onAdd}
               disabled={selected.size === 0}
-              className="btn-yellow px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
+              className="btn-yellow w-full px-5 py-2.5 text-sm font-bold disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none sm:w-auto"
             >
               <IconPlus size={15} /> Add {selected.size} step{selected.size === 1 ? "" : "s"} to queue
             </button>
@@ -298,7 +298,7 @@ export function GoalsModal({ onClose }: { onClose: () => void }) {
               <button
                 title="Make primary"
                 onClick={() => dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id })}
-                className={`grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 transition-all ${
+                className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 transition-all lg:h-7 lg:w-7 ${
                   g.isPrimary
                     ? "border-ink bg-canvas shadow-[2px_2px_0_var(--color-ink)]"
                     : "border-ink/15 text-ink/35 hover:border-ink hover:text-ink"
@@ -311,14 +311,14 @@ export function GoalsModal({ onClose }: { onClose: () => void }) {
                 onClick={() =>
                   dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
                 }
-                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 hover:border-ink hover:text-ink"
+                className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 hover:border-ink hover:text-ink lg:h-7 lg:w-7"
               >
                 {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
               </button>
               <button
                 title="Delete"
                 onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
-                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 hover:border-coral hover:bg-coral/10 hover:text-coral"
+                className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 hover:border-coral hover:bg-coral/10 hover:text-coral lg:h-7 lg:w-7"
               >
                 <IconTrash size={13} />
               </button>

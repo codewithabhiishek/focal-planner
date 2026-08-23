@@ -288,7 +288,7 @@ function Shell() {
   }, [modal, settingsOpen, next, completeTask]);
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-dvh">
       {/* ---------- ambient layer ---------- */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         <div className="bg-dots absolute inset-0 opacity-70" />
@@ -296,9 +296,9 @@ function Shell() {
           className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full"
           style={{ background: "radial-gradient(closest-side, rgba(255,253,246,0.75), transparent 70%)" }}
         />
-        <IconSquiggle size={170} className="anim-floaty absolute top-28 -left-8 rotate-12 text-ink/12" />
+        <IconSquiggle size={170} className="anim-floaty absolute top-28 -left-8 hidden rotate-12 text-ink/12 md:block" />
         <IconStar4 size={54} className="anim-floaty-slow absolute top-44 right-[8%] text-coral/40" style={{ "--fr": "12deg" } as CSSProperties} />
-        <IconArrowDoodle size={96} className="anim-floaty absolute bottom-24 left-[6%] text-cobalt/30" />
+        <IconArrowDoodle size={96} className="anim-floaty absolute bottom-24 left-[6%] hidden text-cobalt/30 md:block" />
         <IconStar4 size={34} className="anim-floaty absolute bottom-40 right-[14%] text-mint/50" style={{ animationDelay: "1.2s" }} />
         <span className="anim-floaty-slow absolute top-[62%] left-[3%] h-3 w-3 rounded-full border-2 border-ink bg-canvas" />
         <span className="anim-floaty absolute top-[18%] left-[42%] h-2.5 w-2.5 rounded-full bg-coral/50" style={{ animationDelay: "0.6s" }} />
@@ -308,7 +308,7 @@ function Shell() {
       <div className="relative z-10">
         <Header onOpenSettings={() => setSettingsOpen(true)} />
 
-        <main className="mx-auto grid max-w-6xl items-start gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <main className="mx-auto grid max-w-6xl items-start gap-6 px-4 py-6 sm:px-6 md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_320px]">
           {/* ---------- focus column ---------- */}
           <div className="min-w-0">
             <Capture />
