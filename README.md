@@ -13,11 +13,11 @@
 
 <p align="center">
   <a href="#-overview">Overview</a> •
+  <a href="./HOW_FOCAL_WORKS.md"><b>Deep Dive & Math Guide (MD)</b></a> •
   <a href="#-key-features">Features</a> •
   <a href="#-scoring-formula">Scoring Formula</a> •
   <a href="#-tech-stack">Tech Stack</a> •
-  <a href="#-getting-started">Getting Started</a> •
-  <a href="#-keyboard-shortcuts">Shortcuts</a>
+  <a href="#-getting-started">Getting Started</a>
 </p>
 
 </div>
