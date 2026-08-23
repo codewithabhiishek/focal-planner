@@ -1,254 +1,259 @@
-import { AnimatePresence, motion } from "framer-motion";
-import { differenceInCalendarDays, format, parseISO } from "date-fns";
+import { differenceInCalendarDays, format } from "date-fns";
 import { useState, type FormEvent } from "react";
-import type { Category, Goal } from "../types";
-import { CATEGORY_META, type Ranked } from "../lib/engine";
-import { makeGoal, useStore } from "../lib/store";
+import { useStore } from "../lib/store";
+import { enableNotifications, notificationsSupported, notify } from "../lib/notify";
+import type { Goal } from "../types";
 import { Switch } from "./ui";
 import {
+  IconBell,
   IconPause,
   IconPlay,
   IconPlus,
   IconSpark,
-  IconStar,
   IconStarFilled,
-  IconTarget,
   IconTrash,
 } from "./icons";
 
-function targetChip(g: Goal): { label: string; tone: string } | null {
-  if (!g.targetDate) return null;
-  try {
-    const d = parseISO(g.targetDate);
-    const days = differenceInCalendarDays(d, new Date());
-    if (days < 0) return { label: `${Math.abs(days)}d past`, tone: "text-ember" };
-    if (days === 0) return { label: "today", tone: "text-ember" };
-    return {
-      label: days <= 7 ? `${days}d left` : format(d, "MMM d"),
-      tone: days <= 7 ? "text-honey" : "text-ink-faint",
-    };
-  } catch {
-    return null;
-  }
-}
+/* ---------------- goals ---------------- */
 
-export function GoalsCard({ onManage }: { onManage: () => void }) {
+export function GoalsCard({ onOpenGoals }: { onOpenGoals: () => void }) {
   const { state, dispatch, pushToast } = useStore();
   const [title, setTitle] = useState("");
 
-  const addGoal = (e: FormEvent) => {
+  const submit = (e: FormEvent) => {
     e.preventDefault();
     const t = title.trim();
     if (!t) return;
-    const first = state.goals.filter((g) => g.active).length === 0;
-    dispatch({ type: "ADD_GOAL", goal: makeGoal(t, { isPrimary: first || state.goals.length === 0 }) });
-    pushToast({
-      title: first ? "Primary goal set" : "Goal added",
-      body: `The engine now weighs every task against “${t}”.`,
-      tone: "ok",
-    });
+    const goal: Goal = {
+      id: crypto.randomUUID(),
+      title: t,
+      active: true,
+      isPrimary: state.goals.length === 0,
+      targetDate: null,
+      createdAt: Date.now(),
+    };
+    dispatch({ type: "ADD_GOAL", goal });
     setTitle("");
+    pushToast({ title: "Goal locked in", body: `${t} is now part of the scoring.`, tone: "ok" });
   };
 
+  const daysUntil = (d: string) => differenceInCalendarDays(new Date(d), new Date());
+
   return (
-    <section className="rounded-xl border border-line bg-panel">
-      <div className="flex items-center justify-between border-b border-line px-4 py-3">
-        <h2 className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
-          <IconTarget size={14} /> Goals
-        </h2>
+    <section className="card anim-rise p-4" style={{ animationDelay: "120ms" }}>
+      <div className="flex items-center gap-2">
+        <h2 className="font-display text-lg font-extrabold tracking-tight">Your goals</h2>
+        <span className="chip border-ink/20 bg-canvas/70">
+          {state.goals.filter((g) => g.active).length} active
+        </span>
         <button
-          onClick={onManage}
-          className="font-mono text-[10px] uppercase tracking-wider text-ink-faint transition-colors hover:text-pine"
+          onClick={onOpenGoals}
+          className="label-mono ml-auto cursor-pointer text-ink/45 underline decoration-2 decoration-canvas underline-offset-4 transition-colors hover:text-ink"
         >
           manage
         </button>
       </div>
 
-      {state.goals.length === 0 && (
-        <p className="px-4 py-5 text-[13px] leading-relaxed text-ink-soft">
-          No goals yet. Focal can still rank by deadlines, but a goal is what turns a task
-          into <em>progress</em>.
-        </p>
-      )}
-
-      <ul>
-        {state.goals.map((g) => {
-          const chip = targetChip(g);
-          return (
-            <li
-              key={g.id}
-              className={`group flex items-center gap-2.5 border-t border-line px-4 py-2.5 first:border-t-0 ${
-                g.active ? "" : "opacity-55"
-              }`}
-            >
+      <div className="mt-2">
+        {state.goals.length === 0 && (
+          <p className="rounded-lg border-2 border-dashed border-ink/20 px-3 py-4 text-center text-sm text-ink/50">
+            No goals yet. Add one — everything gets scored against it.
+          </p>
+        )}
+        {state.goals.map((g) => (
+          <div
+            key={g.id}
+            className={`group flex items-start gap-2.5 border-t-2 border-dashed border-line py-2.5 first:border-t-0 ${
+              g.active ? "" : "opacity-45"
+            }`}
+          >
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <p className="truncate text-sm font-bold">{g.title}</p>
+                {g.isPrimary && (
+                  <span className="chip -rotate-2 border-ink bg-canvas text-ink">★ primary</span>
+                )}
+                {!g.active && <span className="chip border-ink/25 text-ink/45">paused</span>}
+              </div>
+              {g.targetDate && (
+                <p
+                  className={`mt-0.5 font-mono text-[10px] ${
+                    daysUntil(g.targetDate) < 14 ? "font-bold text-coral" : "text-ink/45"
+                  }`}
+                >
+                  {daysUntil(g.targetDate) >= 0
+                    ? `target ${format(new Date(g.targetDate), "MMM d")} · ${daysUntil(g.targetDate)}d left`
+                    : `target passed ${format(new Date(g.targetDate), "MMM d")}`}
+                </p>
+              )}
+            </div>
+            <div className="flex shrink-0 items-center gap-1">
               <button
                 title={g.isPrimary ? "Primary goal" : "Make primary"}
                 onClick={() => {
-                  dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id });
-                  pushToast({
-                    title: "Primary goal changed",
-                    body: `“${g.title}” now gets the heaviest weight.`,
-                    tone: "info",
-                  });
+                  if (!g.isPrimary) dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id });
                 }}
-                className={`shrink-0 transition-all hover:scale-110 ${
-                  g.isPrimary ? "text-honey" : "text-line-strong hover:text-honey"
+                className={`grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 transition-all ${
+                  g.isPrimary
+                    ? "border-ink bg-canvas shadow-[2px_2px_0_var(--color-ink)]"
+                    : "border-ink/15 text-ink/35 hover:border-ink hover:text-ink"
                 }`}
               >
-                {g.isPrimary ? <IconStarFilled size={17} /> : <IconStar size={17} />}
+                <IconStarFilled size={14} />
               </button>
-              <div className="min-w-0 flex-1">
-                <p
-                  className={`truncate text-[13px] font-semibold ${
-                    g.active ? "text-ink" : "text-ink-soft line-through"
-                  }`}
-                >
-                  {g.title}
-                  {g.isPrimary && (
-                    <span className="ml-2 font-mono text-[9px] font-medium uppercase tracking-wider text-honey">
-                      primary
-                    </span>
-                  )}
-                </p>
-                {g.description && (
-                  <p className="truncate text-[11px] text-ink-faint">{g.description}</p>
-                )}
-              </div>
-              {chip && <span className={`font-mono text-[10px] ${chip.tone}`}>{chip.label}</span>}
-              <div className="flex items-center gap-1 opacity-0 transition-opacity group-hover:opacity-100">
-                <button
-                  title={g.active ? "Pause goal" : "Resume goal"}
-                  onClick={() =>
-                    dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
-                  }
-                  className="grid h-6 w-6 place-items-center rounded text-ink-faint hover:bg-well hover:text-ink"
-                >
-                  {g.active ? <IconPause size={12} /> : <IconPlay size={12} />}
-                </button>
-              </div>
-            </li>
-          );
-        })}
-      </ul>
+              <button
+                title={g.active ? "Pause goal" : "Resume goal"}
+                onClick={() =>
+                  dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
+                }
+                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-ink hover:text-ink"
+              >
+                {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
+              </button>
+              <button
+                title="Delete goal"
+                onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
+                className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 opacity-0 transition-all group-hover:opacity-100 hover:border-coral hover:bg-coral/10 hover:text-coral"
+              >
+                <IconTrash size={13} />
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
 
-      <form onSubmit={addGoal} className="flex items-center gap-2 border-t border-line px-4 py-3">
+      <form onSubmit={submit} className="mt-2 flex gap-2 border-t-2 border-ink pt-3">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          placeholder="Add a goal…"
-          aria-label="Add a goal"
-          className="min-w-0 flex-1 bg-transparent text-[13px] text-ink outline-none placeholder:text-ink-faint"
+          placeholder="New goal… e.g. land a DevOps internship"
+          aria-label="New goal"
+          className="min-w-0 flex-1 rounded-lg border-2 border-ink bg-paper px-3 py-2 text-sm font-semibold outline-none placeholder:font-normal placeholder:text-ink/35 focus:bg-canvas/30"
         />
         <button
           type="submit"
           disabled={!title.trim()}
-          className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-night text-fog transition-all enabled:hover:bg-night-3 enabled:active:scale-95 disabled:opacity-30"
-          aria-label="Add goal"
+          className="btn-ink shrink-0 px-3 text-sm disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none"
         >
-          <IconPlus size={14} />
+          <IconPlus size={15} />
         </button>
       </form>
+      <p className="label-mono mt-2 text-ink/35">★ primary goal gets the biggest weight</p>
     </section>
   );
 }
 
-export function SignalCard({ ranked }: { ranked: Ranked[] }) {
-  const { state } = useStore();
-  const buckets: Category[] = ["DO_NOW", "SOON", "LATER"];
-  const max = Math.max(1, ...buckets.map((b) => ranked.filter((r) => r.category === b).length));
+/* ---------------- engine + push signals ---------------- */
+
+export function EngineCard({ onOpenSettings }: { onOpenSettings: () => void }) {
+  const { state, dispatch, pushToast } = useStore();
+  const [notifOn, setNotifOn] = useState(state.settings.notificationsEnabled);
+  const aiOn = !!state.settings.aiKey.trim();
+
+  const weights = [
+    { k: "goal fit", v: "+28", c: "text-mint" },
+    { k: "impact", v: "+24", c: "text-cobalt" },
+    { k: "urgency", v: "+34", c: "text-coral" },
+    { k: "time fit", v: "+14", c: "text-lilac" },
+    { k: "penalties", v: "−…", c: "text-fog-dim" },
+  ];
+
+  const toggleNudges = async (v: boolean) => {
+    if (v) {
+      if (!notificationsSupported()) {
+        pushToast({
+          title: "Notifications unavailable here",
+          body: "This browser context doesn't expose the Notification API. The push plumbing is still wired for production.",
+          tone: "warn",
+        });
+        return;
+      }
+      const res = await enableNotifications();
+      if (res !== "granted") {
+        pushToast({
+          title: "Permission not granted",
+          body: "Allow notifications in your browser settings to get nudges.",
+          tone: "warn",
+        });
+        return;
+      }
+      void notify("Focal is on", "We'll nudge you about overdue work and priority swaps.", "focal-hello");
+    }
+    setNotifOn(v);
+    dispatch({ type: "PATCH_SETTINGS", patch: { notificationsEnabled: v } });
+    pushToast({
+      title: v ? "Nudges on" : "Nudges off",
+      body: v ? "Rule-based — no spam, ever." : "You're flying solo.",
+      tone: v ? "ok" : "info",
+    });
+  };
+
+  const perm = notificationsSupported() ? Notification.permission : "unsupported";
 
   return (
-    <section className="rounded-xl border border-line bg-panel">
-      <div className="border-b border-line px-4 py-3">
-        <h2 className="flex items-center gap-2 font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
-          <IconSpark size={14} /> Engine
-        </h2>
+    <section className="card-dark anim-rise p-4" style={{ animationDelay: "180ms" }}>
+      <div className="flex items-center gap-2">
+        <h2 className="font-display text-lg font-extrabold tracking-tight text-paper">The engine</h2>
+        <span
+          className={`chip ml-auto ${
+            aiOn ? "border-mint/50 bg-mint/15 text-mint" : "border-lilac/50 bg-lilac/15 text-lilac"
+          }`}
+        >
+          {aiOn ? (
+            <>
+              <IconSpark size={11} /> groq llm
+            </>
+          ) : (
+            "heuristics"
+          )}
+        </span>
       </div>
-      <div className="space-y-2.5 px-4 py-4">
-        {buckets.map((b) => {
-          const n = ranked.filter((r) => r.category === b).length;
-          const meta = CATEGORY_META[b];
-          return (
-            <div key={b} className="grid grid-cols-[64px_1fr_18px] items-center gap-2">
-              <span className={`font-mono text-[10px] uppercase tracking-wider ${meta.text}`}>
-                {meta.label}
-              </span>
-              <div className="h-1.5 overflow-hidden rounded-full bg-well">
-                <motion.div
-                  className={`h-full rounded-full ${meta.dot}`}
-                  initial={false}
-                  animate={{ width: `${(n / max) * 100}%` }}
-                  transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                />
-              </div>
-              <span className="text-right font-mono text-[10px] text-ink-soft">{n}</span>
-            </div>
-          );
-        })}
-        <div className="grid grid-cols-[64px_1fr_18px] items-center gap-2">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-rust">Blocked</span>
-          <div className="h-1.5 overflow-hidden rounded-full bg-well">
-            <motion.div
-              className="h-full rounded-full bg-rust"
-              initial={false}
-              animate={{
-                width: `${(ranked.filter((r) => r.task.blocked).length / max) * 100}%`,
-              }}
-              transition={{ duration: 0.5 }}
-            />
+
+      <p className="mt-2 text-xs leading-relaxed text-fog-dim">
+        An LLM reads <em>meaning</em> (optional). The ranking math is always deterministic:
+      </p>
+
+      <div className="mt-3 space-y-1.5">
+        {weights.map((w) => (
+          <div
+            key={w.k}
+            className="flex items-center justify-between rounded-lg bg-white/[0.05] px-2.5 py-1.5"
+          >
+            <span className="font-mono text-[11px] text-fog-dim">{w.k}</span>
+            <span className={`font-mono text-[11px] font-bold ${w.c}`}>{w.v}</span>
           </div>
-          <span className="text-right font-mono text-[10px] text-ink-soft">
-            {ranked.filter((r) => r.task.blocked).length}
+        ))}
+      </div>
+
+      <button onClick={onOpenSettings} className="btn-yellow mt-3 w-full py-2 text-sm font-bold">
+        <IconSpark size={15} /> {aiOn ? "Manage AI key" : "Plug in Groq (optional)"}
+      </button>
+
+      <div className="mt-4 border-t-2 border-dashed border-fog/15 pt-4">
+        <div className="flex items-center gap-2">
+          <IconBell size={15} className="text-fog-dim" />
+          <span className="label-mono text-fog-dim">push signals</span>
+          <span className="ml-auto">
+            <Switch checked={notifOn} onChange={toggleNudges} label="Enable nudges" />
           </span>
         </div>
-      </div>
-      <div className="border-t border-line px-4 py-3">
-        <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-wider text-ink-faint">
-          <span
-            className={`h-1.5 w-1.5 rounded-full ${
-              state.settings.aiKey.trim() ? "bg-pine" : "bg-honey"
-            }`}
-          />
-          {state.settings.aiKey.trim()
-            ? `groq · ${state.settings.aiModel}`
-            : "heuristic engine · on-device"}
+        <p className="mt-2 font-mono text-[10px] leading-relaxed text-fog-faint">
+          {perm === "granted" && notifOn
+            ? "ready — nudges fire for overdue #1s, priority swaps & avoidance loops."
+            : perm === "denied"
+              ? "blocked in browser settings — the service worker is still registered for real push later."
+              : perm === "unsupported"
+                ? "unavailable in this context — service worker + push subscription plumbing is wired for production."
+                : "flip the switch to allow nudges."}
         </p>
-        <p className="mt-1.5 text-[11px] leading-relaxed text-ink-faint">
-          {state.settings.aiKey.trim()
-            ? "LLM reads meaning and goal fit; deadlines, blocks, and postponements stay hard-coded math."
-            : "Add a Groq key in settings for LLM scoring — everything already works without one."}
-        </p>
+        <div className="mt-2 flex flex-wrap gap-1">
+          {["overdue #1", "new #1", "avoidance loop"].map((r) => (
+            <span key={r} className="chip border-fog/20 text-fog-faint">
+              {r}
+            </span>
+          ))}
+        </div>
       </div>
     </section>
   );
 }
-
-export function AvoidanceBanner({
-  task,
-  count,
-  onOpen,
-}: {
-  task: string;
-  count: number;
-  onOpen: () => void;
-}) {
-  return (
-    <motion.button
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      onClick={onOpen}
-      className="mt-4 flex w-full items-center gap-3 rounded-xl border border-honey/40 bg-honey/10 px-4 py-3 text-left transition-colors hover:bg-honey/15"
-    >
-      <IconPause size={16} className="shrink-0 text-honey" />
-      <span className="min-w-0 flex-1 text-[13px] leading-snug text-ink">
-        <strong>“{task}”</strong> has been postponed{" "}
-        <strong>{count} times</strong>. Something's in the way — let's find out what.
-      </span>
-      <span className="shrink-0 font-mono text-[10px] uppercase tracking-wider text-honey">
-        inspect
-      </span>
-    </motion.button>
-  );
-}
-
-export { Switch };

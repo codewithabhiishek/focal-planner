@@ -11,15 +11,70 @@ import {
 import { CategoryBadge, Chip, ScoreBar } from "./ui";
 import {
   IconBlock,
-  IconCalendar,
   IconCheck,
   IconChevron,
   IconClock,
   IconDots,
   IconReticle,
+  IconSquiggle,
   IconTarget,
   IconTimer,
 } from "./icons";
+
+/* ---------------- time budget — always visible, drives the pick ---------------- */
+
+const BUDGETS: Array<{ id: TimeBudget; label: string }> = [
+  { id: 5, label: "5m" },
+  { id: 15, label: "15m" },
+  { id: 30, label: "30m" },
+  { id: 60, label: "1h+" },
+  { id: "any", label: "any" },
+];
+
+export function BudgetBar({
+  budget,
+  onChange,
+}: {
+  budget: TimeBudget;
+  onChange: (b: TimeBudget) => void;
+}) {
+  return (
+    <div className="anim-rise flex flex-wrap items-center gap-x-3 gap-y-2">
+      <span className="label-mono text-ink/60">How much time do you have?</span>
+      <div className="flex flex-wrap gap-1.5">
+        {BUDGETS.map((b) => {
+          const active = budget === b.id;
+          return (
+            <button
+              key={String(b.id)}
+              onClick={() => onChange(b.id)}
+              aria-pressed={active}
+              className={`cursor-pointer rounded-full border-2 border-ink px-3 py-1 font-mono text-xs font-bold transition-all duration-150 ${
+                active
+                  ? "bg-ink text-canvas shadow-[3px_3px_0_rgba(26,23,18,0.3)]"
+                  : "bg-paper text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-[3px_3px_0_rgba(26,23,18,0.16)]"
+              }`}
+            >
+              {b.label}
+            </button>
+          );
+        })}
+      </div>
+      <AnimatePresence>
+        {budget !== "any" && (
+          <motion.span
+            initial={{ opacity: 0, x: -8 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0 }}
+            className="chip border-mint/50 bg-mint/10 text-mint"
+          >
+            <IconTimer size={11} /> picks now fit ≤ {budget === 60 ? "60" : budget}m
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
 
 /* ---------------- Next Best Action ---------------- */
 
@@ -46,25 +101,21 @@ export function NextAction({
 }) {
   const [showWhy, setShowWhy] = useState(false);
 
-  /* empty queue */
   if (!next && !blockedTop) {
     return (
-      <section className="rise-in relative overflow-hidden rounded-xl border border-dashed border-line-strong bg-panel/60 px-6 py-14 text-center">
-        <span className="mx-auto grid h-12 w-12 place-items-center rounded-full border border-line bg-well text-ink-faint">
-          <IconReticle size={24} />
+      <section className="anim-rise rounded-[20px] border-2 border-dashed border-ink/40 bg-paper/70 px-6 py-14 text-center">
+        <span className="sticker anim-wiggle mx-auto grid h-14 w-14 place-items-center bg-canvas">
+          <IconReticle size={28} />
         </span>
-        <h2 className="mt-4 font-display text-2xl font-bold tracking-tight text-ink">
-          The queue is clear.
+        <h2 className="mt-5 font-display text-3xl font-extrabold tracking-tight">
+          Queue's clear. Nice.
         </h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-soft">
-          Dump whatever is on your mind below — Focal weighs it against your goals and
+        <p className="mx-auto mt-2 max-w-sm text-[15px] leading-relaxed text-ink/65">
+          Dump whatever's on your mind below — Focal weighs it against your goals and
           deadlines, then points at the one thing worth doing next.
         </p>
         {!hasGoals && (
-          <button
-            onClick={onAddGoal}
-            className="mt-5 inline-flex items-center gap-2 rounded-lg bg-pine px-4 py-2 text-sm font-semibold text-mint-soft transition-all hover:bg-pine-deep active:scale-[0.98]"
-          >
+          <button onClick={onAddGoal} className="btn-ink mt-6 px-5 py-2.5 text-sm">
             <IconTarget size={15} /> Add your first goal
           </button>
         )}
@@ -82,50 +133,45 @@ export function NextAction({
     <AnimatePresence mode="wait">
       <motion.section
         key={task.id + (isBlockedView ? "-blocked" : "")}
-        initial={{ opacity: 0, y: 18 }}
+        initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: -14 }}
-        transition={{ duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
-        className="relative overflow-hidden rounded-xl border border-night-line bg-night text-fog shadow-[0_30px_70px_-30px_rgba(13,27,21,0.55)]"
+        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="card-dark relative overflow-hidden p-6 sm:p-8"
       >
-        {/* ambient life: breathing glow + reticle watermark */}
+        {/* ambient life */}
         <div
           aria-hidden
-          className="anim-breathe pointer-events-none absolute -right-24 -top-32 h-80 w-80 rounded-full"
+          className="anim-breathe pointer-events-none absolute -top-28 -right-20 h-80 w-80 rounded-full"
           style={{
             background:
-              "radial-gradient(circle, rgba(87,199,154,0.16) 0%, rgba(87,199,154,0.04) 45%, transparent 70%)",
-          }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-16 -left-16 h-56 w-56 rounded-full"
-          style={{
-            background:
-              "radial-gradient(circle, rgba(211,148,31,0.08) 0%, transparent 65%)",
+              "radial-gradient(circle, rgba(255,228,94,0.20) 0%, rgba(255,228,94,0.05) 45%, transparent 70%)",
           }}
         />
         <IconReticle
           aria-hidden
-          size={220}
-          className="pointer-events-none absolute -right-10 -top-10 text-fog/[0.045]"
+          size={230}
+          className="pointer-events-none absolute -top-10 -right-10 text-fog/[0.05]"
+        />
+        <IconSquiggle
+          aria-hidden
+          size={90}
+          className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 text-fog/[0.06]"
         />
 
-        <div className="relative p-6 sm:p-8">
+        <div className="relative">
           <div className="flex flex-wrap items-center gap-3">
-            <p className="flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.22em] text-fog-dim">
-              <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-mint" />
-              {isBlockedView ? "Everything is blocked" : "Your next best action"}
-            </p>
+            <span className="sticker -rotate-2 inline-flex items-center gap-2 bg-canvas px-3 py-1.5 font-mono text-[11px] font-bold tracking-[0.18em] text-ink uppercase">
+              <span className="pulse-dot h-1.5 w-1.5 rounded-full bg-mint" />
+              {isBlockedView ? "all blocked" : "do this now"}
+            </span>
             <span className="ml-auto flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-wider text-fog-dim">
-                signal
-              </span>
+              <span className="label-mono text-fog-faint">signal</span>
               <span
-                className={`rounded-md border px-2 py-0.5 font-mono text-sm font-bold ${
+                className={`rounded-lg border-2 px-2.5 py-0.5 font-mono text-base font-bold ${
                   r.score >= 65
-                    ? "border-mint/40 bg-mint/10 text-mint"
-                    : "border-night-line bg-night-2 text-fog-dim"
+                    ? "border-mint/60 bg-mint/15 text-mint"
+                    : "border-fog/25 text-fog-dim"
                 }`}
               >
                 {r.score}
@@ -133,14 +179,14 @@ export function NextAction({
             </span>
           </div>
 
-          <h1 className="mt-4 max-w-2xl font-display text-[1.7rem] font-bold leading-[1.12] tracking-tight sm:text-4xl">
+          <h1 className="mt-5 max-w-2xl font-display text-[clamp(1.9rem,4.6vw,3.1rem)] leading-[1.06] font-extrabold tracking-tight text-balance text-paper">
             {task.title}
           </h1>
 
           <p className="mt-4 max-w-2xl text-[15px] leading-relaxed text-fog-dim">
-            <span className="font-semibold text-mint">Why this? </span>
+            <span className="font-bold text-mint">Why this? </span>
             {isBlockedView
-              ? `It's blocked — “${task.blockNote ?? "waiting on something"}”. Unblock it, or handle something else meanwhile.`
+              ? `It's blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
               : r.reason}
           </p>
 
@@ -148,29 +194,29 @@ export function NextAction({
             <CategoryBadge category={r.category} />
             {task.deadline != null && (
               <Chip
-                tone={r.overdue ? "warn" : "dark"}
-                icon={<IconClock size={12} />}
+                tone={r.overdue ? "coral" : "paper"}
+                icon={<IconClock size={11} />}
                 title="Deadline"
               >
                 {r.overdue ? "overdue · " : "due "}
                 {deadlinePhrase(task.deadline, Date.now())}
               </Chip>
             )}
-            <Chip tone="dark" icon={<IconTimer size={12} />} title="Estimated duration">
+            <Chip tone="paper" icon={<IconTimer size={11} />} title="Estimated duration">
               {minutesLabel(task.estMinutes)}
             </Chip>
             {goal && (
-              <Chip tone="dark" icon={<IconTarget size={12} />} title="Matched goal">
+              <Chip tone="mint" icon={<IconTarget size={11} />} title="Matched goal">
                 {goal.title}
               </Chip>
             )}
             {task.postponeCount > 0 && (
-              <Chip tone="dark" icon={<IconClock size={12} />} title="Postponed this many times">
+              <Chip tone="paper" icon={<IconClock size={11} />} title="Times postponed">
                 postponed ×{task.postponeCount}
               </Chip>
             )}
             {budget !== "any" && !r.fitsWindow && (
-              <Chip tone="warn" icon={<IconTimer size={12} />}>
+              <Chip tone="coral" icon={<IconTimer size={11} />}>
                 bigger than your window
               </Chip>
             )}
@@ -178,36 +224,32 @@ export function NextAction({
 
           <div className="mt-7 flex flex-wrap items-center gap-3">
             {isBlockedView ? (
-              <button
-                onClick={() => onUnblock(task.id)}
-                className="inline-flex items-center gap-2 rounded-lg bg-mint px-5 py-2.5 text-sm font-bold text-night transition-all hover:brightness-110 active:scale-[0.97]"
-              >
-                <IconBlock size={16} /> Unblock it
+              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-6 py-3 text-[15px] font-bold">
+                <IconBlock size={17} /> Unblock it
               </button>
             ) : (
               <button
                 onClick={(e) => onComplete(task.id, e.currentTarget)}
-                className="inline-flex items-center gap-2 rounded-lg bg-mint px-6 py-2.5 text-sm font-bold text-night shadow-[0_8px_24px_-8px_rgba(87,199,154,0.6)] transition-all hover:brightness-110 active:scale-[0.97]"
+                className="btn-yellow px-7 py-3 text-[15px] font-bold"
               >
-                <IconCheck size={16} /> Complete
+                <IconCheck size={17} /> Complete
               </button>
             )}
-            <button
-              onClick={() => onNotNow(task.id)}
-              className="inline-flex items-center gap-2 rounded-lg border border-night-line bg-night-2/60 px-5 py-2.5 text-sm font-semibold text-fog transition-colors hover:border-fog-dim/50 hover:bg-night-2"
-            >
+            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-5 py-3 text-[15px]">
               Not now
             </button>
             <button
               onClick={() => setShowWhy((v) => !v)}
               aria-expanded={showWhy}
-              className="ml-auto inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-wider text-fog-dim transition-colors hover:text-fog"
+              className="label-mono ml-auto cursor-pointer text-fog-faint transition-colors hover:text-fog"
             >
-              why this score
-              <IconChevron
-                size={13}
-                className={`transition-transform duration-300 ${showWhy ? "rotate-90" : ""}`}
-              />
+              <span className="inline-flex items-center gap-1">
+                why this score
+                <IconChevron
+                  size={13}
+                  className={`transition-transform duration-300 ${showWhy ? "rotate-90" : ""}`}
+                />
+              </span>
             </button>
           </div>
 
@@ -220,27 +262,21 @@ export function NextAction({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mt-6 space-y-2.5 rounded-lg border border-night-line bg-night-2/50 p-4">
-                  <ScoreBar label="Goal fit" value={r.parts.goal} max={WEIGHTS.goal} delay={0} />
-                  <ScoreBar label="Impact" value={r.parts.impact} max={WEIGHTS.impact} delay={0.05} />
-                  <ScoreBar label="Urgency" value={r.parts.urgency} max={WEIGHTS.urgency} delay={0.1} />
-                  <ScoreBar label="Time fit" value={r.parts.time} max={WEIGHTS.time} delay={0.15} />
-                  <ScoreBar label="Freshness" value={r.parts.recency} max={WEIGHTS.recency} delay={0.2} />
+                <div className="mt-6 space-y-2.5 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-4">
+                  <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-mint" />
+                  <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-cobalt" delay={0.05} />
+                  <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-coral" delay={0.1} />
+                  <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.time} color="bg-lilac" delay={0.15} />
+                  <ScoreBar label="freshness" value={r.parts.recency} max={WEIGHTS.recency} color="bg-canvas" delay={0.2} />
                   {r.parts.postpone < 0 && (
-                    <ScoreBar
-                      label="Postponed"
-                      value={r.parts.postpone}
-                      max={21}
-                      negative
-                      delay={0.25}
-                    />
+                    <ScoreBar label="postponed" value={r.parts.postpone} max={21} negative delay={0.25} />
                   )}
                   {r.parts.blocked < 0 && (
-                    <ScoreBar label="Blocked" value={r.parts.blocked} max={70} negative delay={0.3} />
+                    <ScoreBar label="blocked" value={r.parts.blocked} max={70} negative delay={0.3} />
                   )}
-                  <p className="pt-1 font-mono text-[10px] leading-relaxed text-fog-dim/70">
+                  <p className="pt-1 font-mono text-[10px] leading-relaxed text-fog-faint">
                     {meta.label} = goal fit + impact + urgency + time fit − penalties. Language
-                    understanding by {task.analysis.source === "ai" ? "Groq LLM" : "built-in heuristics"};
+                    reading by {task.analysis.source === "ai" ? "the Groq LLM" : "built-in heuristics"} —
                     the math is always deterministic.
                   </p>
                 </div>
@@ -266,68 +302,59 @@ export function UpNext({
 }) {
   if (items.length === 0) return null;
   return (
-    <section className="mt-8">
+    <section className="mt-9">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-mono text-[11px] uppercase tracking-[0.2em] text-ink-faint">
-          Up next
-        </h2>
-        <span className="font-mono text-[10px] text-ink-faint">ranked by the same score</span>
+        <h2 className="font-display text-xl font-extrabold tracking-tight">Up next</h2>
+        <span className="label-mono text-ink/45">same score · ranked live</span>
       </div>
-      <ol className="mt-3 overflow-hidden rounded-xl border border-line bg-panel">
+      <div className="card mt-3 overflow-hidden">
         <AnimatePresence initial={false}>
           {items.map((r, i) => (
-            <motion.li
+            <motion.div
               key={r.task.id}
               layout
-              initial={{ opacity: 0, y: 8 }}
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -30 }}
-              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-              className={`group flex items-center gap-3 px-4 py-3 ${
-                i > 0 ? "border-t border-line" : ""
-              }`}
+              exit={{ opacity: 0, x: -36 }}
+              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+              className={`group flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
             >
-              <span className="w-7 shrink-0 font-mono text-xs font-bold text-ink-faint">
-                {String(i + 2).padStart(2, "0")}
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-ink bg-canvas font-mono text-xs font-bold shadow-[2px_2px_0_rgba(26,23,18,0.85)]">
+                {i + 2}
               </span>
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-ink">{r.task.title}</p>
-                <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[10px] text-ink-faint">
+                <p className="truncate text-sm font-bold">{r.task.title}</p>
+                <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[10px] text-ink/50">
                   <CategoryBadge category={r.category} size="xs" />
                   {r.task.deadline != null && (
-                    <span className={r.overdue ? "text-ember" : ""}>
+                    <span className={r.overdue ? "font-bold text-coral" : ""}>
                       {r.overdue ? "overdue" : `due ${deadlinePhrase(r.task.deadline, Date.now())}`}
                     </span>
                   )}
                   <span>{minutesLabel(r.task.estMinutes)}</span>
                 </div>
               </div>
-              <span className="hidden font-mono text-xs font-bold text-ink-faint sm:block">
-                {r.score}
-              </span>
-              <div className="flex shrink-0 items-center gap-1 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
+              <span className="chip hidden border-ink/20 bg-canvas/60 sm:inline-flex">{r.score}</span>
+              <div className="flex shrink-0 items-center gap-1.5 opacity-0 transition-opacity duration-150 group-hover:opacity-100 focus-within:opacity-100">
                 <button
                   aria-label={`Complete ${r.task.title}`}
                   onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                  className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink-faint transition-colors hover:border-pine hover:bg-mint-soft hover:text-pine-deep"
+                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint"
                 >
                   <IconCheck size={14} />
                 </button>
                 <button
                   aria-label={`Not now: ${r.task.title}`}
                   onClick={() => onNotNow(r.task.id)}
-                  className="grid h-7 w-7 place-items-center rounded-md border border-line text-ink-faint transition-colors hover:border-line-strong hover:text-ink"
+                  className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink"
                 >
                   <IconDots size={14} />
                 </button>
               </div>
-            </motion.li>
+            </motion.div>
           ))}
         </AnimatePresence>
-      </ol>
+      </div>
     </section>
   );
 }
-
-/* convenience re-export used by the inbox for consistent date chips */
-export { IconCalendar };

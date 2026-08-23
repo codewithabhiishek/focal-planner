@@ -1,10 +1,10 @@
-import type { SVGProps } from "react";
+import type { ReactNode, SVGProps } from "react";
 
-/* Hand-drawn 24×24 stroke icons — consistent 1.75 weight, rounded caps. */
+/* Hand-drawn 24×24 stroke icons — 1.9 weight, rounded caps, sticker energy. */
 
 type P = SVGProps<SVGSVGElement> & { size?: number };
 
-function base({ size = 18, ...props }: P, children: React.ReactNode) {
+function base({ size = 18, ...props }: P, children: ReactNode) {
   return (
     <svg
       width={size}
@@ -12,7 +12,7 @@ function base({ size = 18, ...props }: P, children: React.ReactNode) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={1.75}
+      strokeWidth={1.9}
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden="true"
@@ -29,7 +29,7 @@ export const IconReticle = (p: P) =>
     <>
       <circle cx="12" cy="12" r="6.25" />
       <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3" />
-      <circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none" />
     </>
   );
 
@@ -78,7 +78,7 @@ export const IconTarget = (p: P) =>
     <>
       <circle cx="12" cy="12" r="8.5" />
       <circle cx="12" cy="12" r="4.5" />
-      <circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
     </>
   );
 
@@ -176,15 +176,13 @@ export const IconUndo = (p: P) =>
     </>
   );
 
-export const IconArrowUp = (p: P) => base(p, <path d="M12 19V5m0 0-5 5m5-5 5 5" />);
-
 export const IconDots = (p: P) =>
   base(
     p,
     <>
-      <circle cx="5.5" cy="12" r="1" fill="currentColor" stroke="none" />
-      <circle cx="12" cy="12" r="1" fill="currentColor" stroke="none" />
-      <circle cx="18.5" cy="12" r="1" fill="currentColor" stroke="none" />
+      <circle cx="5.5" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="12" cy="12" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="18.5" cy="12" r="1.1" fill="currentColor" stroke="none" />
     </>
   );
 
@@ -208,5 +206,37 @@ export const IconPostpone = (p: P) =>
       <path d="M17 4.5a8.5 8.5 0 1 0 2.5 6" />
       <path d="M19.5 3.5v4h-4" />
       <path d="M12 8v4l2.6 1.8" />
+    </>
+  );
+
+/* --- new for the sticker era --- */
+
+export const IconFire = (p: P) =>
+  base(
+    p,
+    <path d="M12 21c3.9 0 6.5-2.5 6.5-6 0-2.6-1.6-4.4-3-6-1.3-1.5-2.4-2.9-2.5-5-2.3 1.5-3.2 3.4-3 5.5-.6-.3-1.1-1-1.3-1.9-1.5 1.6-2.7 3.8-2.7 6.4 0 4 2.6 7 6 7Zm0 0c-1.8 0-3-1.4-3-3 0-1.4 1-2.4 1.8-3.4.6-.7 1.2-1.4 1.4-2.4 1.2 1.2 2.8 3.2 2.8 5.4 0 2-1.2 3.4-3 3.4Z" />
+  );
+
+export const IconPin = (p: P) =>
+  base(
+    p,
+    <>
+      <path d="M12 21s6.5-5.6 6.5-11a6.5 6.5 0 1 0-13 0c0 5.4 6.5 11 6.5 11Z" />
+      <circle cx="12" cy="10" r="2.3" />
+    </>
+  );
+
+export const IconStar4 = (p: P) =>
+  base(p, <path d="M12 2.5c.9 5 2.5 6.6 7.5 7.5-5 .9-6.6 2.5-7.5 7.5-.9-5-2.5-6.6-7.5-7.5 5-.9 6.6-2.5 7.5-7.5Z" />);
+
+export const IconSquiggle = (p: P) =>
+  base(p, <path d="M2.5 14c2-4.5 4-4.5 6 0s4 4.5 6 0 4-4.5 6 0" />);
+
+export const IconArrowDoodle = (p: P) =>
+  base(
+    p,
+    <>
+      <path d="M5 19c1.5-7 6-11.5 13-13" />
+      <path d="M13.5 4.5 18 6l-1.5 4.5" />
     </>
   );
