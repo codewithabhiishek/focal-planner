@@ -28,7 +28,7 @@ const STORAGE_KEY = "focal.state.v1";
 
 const defaultSettings: Settings = {
   aiKey: "",
-  aiModel: "llama-3.3-70b-versatile",
+  aiModel: "openai/gpt-oss-120b",
   notificationsEnabled: false,
   seeded: false,
   theme: "light",

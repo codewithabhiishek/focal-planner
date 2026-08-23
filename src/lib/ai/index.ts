@@ -18,6 +18,6 @@ export const heuristicProvider: AIProvider = {
  */
 export function getProvider(settings: Settings): AIProvider {
   const key = settings.aiKey.trim();
-  const model = settings.aiModel || "llama-3.3-70b-versatile";
+  const model = settings.aiModel || "openai/gpt-oss-120b";
   return createGroqProvider(key, model);
 }

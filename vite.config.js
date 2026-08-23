@@ -41,7 +41,7 @@ export default defineConfig(({ mode }) => {
                       Authorization: `Bearer ${key}`,
                     },
                     body: JSON.stringify({
-                      model: model || "llama-3.3-70b-versatile",
+                      model: model || "openai/gpt-oss-120b",
                       temperature: 0.2,
                       response_format: { type: "json_object" },
                       messages: [
