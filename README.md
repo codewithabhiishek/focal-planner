@@ -34,49 +34,68 @@ Most task managers are passive bucket lists that grow infinitely and cause decis
 
 ## ✨ Key Features
 
-### 1. 🎯 Dynamic Priority Engine & Next Best Action
-- Real-time algorithmic ranking that deterministically calculates task priority scores (0–100).
-- Transparent **"Why this score?"** breakdown inspecting exact points for goal alignment, urgency, impact, and time-budget fit.
+### 1. 🎯 2-Layer Deterministic Scoring Engine
+- **Layer A: Strategic Value (Intrinsic, Max 55 pts)**:
+  - **Goal Alignment (+35 pts)**: Semantic fit multiplied by primary ($1.0\times$) or secondary ($0.85\times$) boost.
+  - **Estimated Impact (+20 pts)**: Payoff relative to effort.
+  - **Goal Trajectory Pressure (+12 pts)**: Automatically detects when a long-term goal is lagging behind schedule (`expectedProgress > actualProgress`) and boosts related tasks.
+- **Layer B: Execution Context (Dynamic, Max 45 pts)**:
+  - **Deadline Urgency (+30 pts)**: Non-linear proximity to hard deadlines.
+  - **Time Budget Window Fit (+15 pts)**: Dynamic fit for your active time block (`5m`, `15m`, `30m`, `60m`, `any`).
+  - **Energy Context Fit (±5 pts)**: Optional match between user energy (`low`, `normal`, `high`) and task requirement.
+  - **Unprocessed Capture Grace (+5 pts)**: Brief temporary boost only while newly captured tasks await classification.
 
-### 2. ⚡ Natural Language Task Capture
-- Instant heuristic deadline extractor (e.g., *"reply to recruiter before 5 pm"* auto-detects 5:00 PM today).
-- Unified composer with quick-pick estimate durations and datetime picker.
+### 2. 🔍 Single Source of Truth "Why this?" Explainability
+- Expandable inspection panel on the Focus Card showing an itemized, point-by-point breakdown derived directly from the exact scoring calculation.
+- Explains why the task is chosen (e.g., *Primary goal alignment +28*, *Goal behind schedule +10*, *Fits 30m window +12*).
 
-### 3. 🧠 Hybrid AI & Deterministic Heuristics
-- **Built-in Offline Heuristics**: Works 100% offline out-of-the-box with zero configuration.
-- **Secure Backend Groq LLM Proxy**: Connects through a secure backend route (`/api/groq`). Store `GROQ_API_KEY` safely in `.env` so your secret key is never exposed on the frontend or in browser network bundles. Supports Llama 3.3 70B, Llama 3.1 8B, and more.
+### 3. 🧩 Concrete Next Actions & Non-Destructive Time Budgeting
+- Differentiates `GOAL` → `PROJECT` → `TASK` → `NEXT ACTION`.
+- When a large task ($60\text{m}$) does not fit the current focus window ($15\text{m}$), Focal derives an immediate, actionable $\le 15\text{m}$ next action so strategic value is never buried.
 
-### 4. ⏱️ Adaptive Time-Budget Window
-- Filter the recommendation live based on how much time you have right now (**5m**, **15m**, **30m**, **1h+**, or **any**).
+### 4. 🛡️ Candidate Filtering & Friction Resolution
+- **Non-Executable Candidate Filtering**: Blocked and snoozed tasks are excluded from winning the Focus Card without corrupting their scores with magic numbers.
+- **All-Blocked State**: Surfaces an unblock action banner when all top tasks are blocked, rather than showing a random low-priority task as "Do Now".
+- **Friction Resolution**: If a task is postponed $3+$ times, Focal triggers empathetic resolution: *This is too big*, *I'm blocked*, *I don't have enough time*, *It isn't actually important*, or *Remind me later*.
 
-### 5. 🛡️ Anti-Avoidance & AI Task Breakdown
-- Automatically flags tasks that have been repeatedly postponed or neglected.
-- Offers non-judgmental assistance to break overwhelming tasks into bite-sized, actionable subtasks.
+### 5. 🧠 AI Confidence Blending & Offline Determinism
+- **Built-in Heuristic Engine**: Runs 100% offline with zero network latency.
+- **AI Confidence Blending**: Parses AI confidence ($0..1$); classifications with low confidence ($< 0.6$) safely blend with deterministic heuristic baselines.
+- **Secure Groq LLM Proxy**: Connects via backend proxy (`/api/groq`) with `.env` API keys.
 
 ### 6. 🎨 Ivory & Indigo Design System
 - Calibrated typography powered by **Plus Jakarta Sans** and **JetBrains Mono**.
 - **Flawless Light & Dark Modes** with WCAG AA compliant semantic contrast tokens.
 - **Ambient Constellation Background**: Subtle canvas heuristic network with soft center-masking so UI cards stay crystal clear.
 
-### 7. 🗃️ Unified Task Inbox
-- Standardized, zero-shift structural grid across all states (**Do Now**, **Soon**, **Later**, **Delegate**, **Drop**, and **Blocked**).
-- Smooth hover reveals without layout jumpiness.
-
 ---
 
 ## 📐 Scoring Formula
 
-The core ranking math is 100% transparent and deterministic:
+$$\text{Final Priority} = \text{clamp}\Big(\text{Strategic Value (Layer A)} + \text{Execution Context (Layer B)} - \text{Temporary Postpone Penalty}, \; 0, \; 100\Big)$$
 
-$$\text{Priority Score} = \text{Goal Fit} + \text{Impact} + \text{Urgency} + \text{Time Window Fit} - \text{Penalties}$$
+```text
+┌──────────────────────────────────────────────────────────────┐
+│  Layer A: STRATEGIC VALUE (Intrinsic, Max 55 pts):           │
+│  • Goal Relevance & Primary Boost :  max 35 pts              │
+│  • Estimated Impact               :  max 20 pts              │
+│  • Goal Trajectory Pressure       :  max 12 pts (when lagging)│
+│                                                              │
+│  Layer B: EXECUTION CONTEXT (Dynamic, Max 45 pts):           │
+│  • Urgency & Deadline Proximity   :  max 30 pts              │
+│  • Time Budget Window Fit         :  max 15 pts              │
+│  • Energy / Context Fit           :  ±5 pts (neutral: 0)     │
+│  • Unprocessed Raw Capture Grace  :  max  5 pts (temp only)  │
+│                                                              │
+│  Friction / Postpone:                                        │
+│  • Postpone Penalty               : −7 pts per skip (max −21)│
+│                                                              │
+│  Candidate Filtering (Non-Executable Exclusion):             │
+│  • Blocked tasks: Filtered out from #1 Focus candidate pool  │
+└──────────────────────────────────────────────────────────────┘
+```
 
-| Component | Weight Range | Details |
-| :--- | :---: | :--- |
-| **Goal Fit** | `0 → +28` | Semantic relevance to your active and primary goals |
-| **Impact** | `0 → +24` | Expected value and leverage of completing the task |
-| **Urgency** | `0 → +34` | Proximity to deadline and overdue decay |
-| **Time Fit** | `0 → +14` | Matches your selected time-budget window |
-| **Penalties** | `−…` | Postponement fatigue, blocked states, and stale items |
+For full mathematical proofs, weight breakdowns, and decision thresholds, see [**`HOW_FOCAL_WORKS.md`**](./HOW_FOCAL_WORKS.md).
 
 ---
 
@@ -89,7 +108,7 @@ $$\text{Priority Score} = \text{Goal Fit} + \text{Impact} + \text{Urgency} + \te
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/) with custom inline `@theme` tokens |
 | **Animations** | [Framer Motion 11](https://www.framer.com/motion/) + HTML5 Canvas API |
 | **Typography** | [Plus Jakarta Sans](https://fonts.google.com/specimen/Plus+Jakarta+Sans) & [JetBrains Mono](https://fonts.google.com/specimen/JetBrains+Mono) |
-| **AI Integration** | [Groq API](https://groq.com/) (Llama 3.3 70B Versatile, Llama 3.1 8B Instant) |
+| **AI Integration** | [Groq API](https://groq.com/) (OpenAI-compatible models) + Local Heuristics |
 | **Date Utilities** | [date-fns](https://date-fns.org/) |
 | **Storage** | Browser `localStorage` (Zero tracking, 100% private and client-side) |
 
@@ -101,7 +120,7 @@ $$\text{Priority Score} = \text{Goal Fit} + \text{Impact} + \text{Urgency} + \te
 - Node.js 18.x or higher
 - npm, pnpm, or yarn
 
-### Installation
+### Installation & Scripts
 
 1. **Clone the repository:**
    ```bash
@@ -114,20 +133,21 @@ $$\text{Priority Score} = \text{Goal Fit} + \text{Impact} + \text{Urgency} + \te
    npm install
    ```
 
-3. **Start the local development server:**
+3. **Run the local dev server:**
    ```bash
    npm run dev
    ```
    Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-4. **Build for production:**
+4. **Run the automated unit test suite:**
    ```bash
-   npm run build
+   npm test
    ```
 
-5. **Typecheck:**
+5. **Typecheck and Build:**
    ```bash
    npm run typecheck
+   npm run build
    ```
 
 ---
