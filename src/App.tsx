@@ -24,8 +24,8 @@ import {
 import { Toasts } from "./components/ui";
 import { IconPostpone, IconPlus, IconStarFilled } from "./components/icons";
 
-const CONFETTI_LIGHT = ["#5E6AD2", "#3F7F63", "#C05B50", "#A87A22", "#8B84A8", "#E7E3D9"];
-const CONFETTI_DARK = ["#6E79E0", "#63A98C", "#D5776D", "#CFA24C", "#A9A1C6", "#E8E6DF"];
+const CONFETTI_LIGHT = ["#000000", "#171717", "#404040", "#737373", "#A3A3A3", "#E5E5E5"];
+const CONFETTI_DARK = ["#FFFFFF", "#E5E5E5", "#A3A3A3", "#737373", "#262626", "#0A0A0A"];
 
 /* ---------------- tiny hash router ---------------- */
 

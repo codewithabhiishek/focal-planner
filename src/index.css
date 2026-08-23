@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/* DESIGN TOKENS — "Ivory & Indigo"                                    */
-/* Warm neutral foundation + ONE restrained indigo accent.             */
+/* DESIGN TOKENS — "Pure Jet Onyx & OLED Black"                      */
+/* Pitch black foundation with ultra-sharp Linear/Apple Pro contrast.  */
 /* Semantic core vars live on :root / [data-theme="dark"]; Tailwind    */
 /* colors are exposed through @theme inline, including legacy aliases  */
 /* so existing component classes re-skin consistently.                 */
@@ -61,81 +61,81 @@
   --color-sky: var(--delegate);
 }
 
-/* ---- Light: warm ivory, charcoal ink, muted indigo ---- */
+/* ---- Light: clean snow-paper, deep pitch-black ink, razor contrast ---- */
 :root,
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg: #f5f3ee;
-  --surface: #fdfcfa;
-  --surface-2: #f0ede6;
-  --fg: #23221e;
-  --fg-secondary: #4d4a42;
-  --muted: #6e6a60;
-  --faint: #8d897e;
-  --subtle: #a39f94;
-  --placeholder: #a39f94;
+  --bg: #f5f5f5;
+  --surface: #ffffff;
+  --surface-2: #eeeeee;
+  --fg: #0a0a0a;
+  --fg-secondary: #333333;
+  --muted: #5c5c5c;
+  --faint: #808080;
+  --subtle: #9e9e9e;
+  --placeholder: #9e9e9e;
 
-  --panel: #2b2a25;
-  --panel-2: #3b392f;
-  --on-surface: #f6f4ee;
-  --line: #e7e3d9;
-  --line-strong: rgba(35, 34, 30, 0.16);
+  --panel: #171717;
+  --panel-2: #262626;
+  --on-surface: #f5f5f5;
+  --line: #e0e0e0;
+  --line-strong: rgba(10, 10, 10, 0.22);
 
-  --primary: #5e6ad2;
-  --primary-deep: #4d58be;
-  --primary-fg: #fcfcff;
+  --primary: #000000;
+  --primary-deep: #171717;
+  --primary-fg: #ffffff;
 
-  --success: #3f7f63;
-  --warning: #a87a22;
-  --danger: #c05b50;
-  --info: #64718a;
-  --later: #8b84a8;
-  --delegate: #4f8e8a;
-  --rose: #b76878;
+  --success: #16a34a;
+  --warning: #ca8a04;
+  --danger: #dc2626;
+  --info: #525252;
+  --later: #666666;
+  --delegate: #0d9488;
+  --rose: #e11d48;
 
   --r-card: 12px;
   --r-hero: 14px;
-  --shadow-card: 0 1px 2px rgba(24, 22, 16, 0.04), 0 10px 28px -18px rgba(24, 22, 16, 0.16);
-  --shadow-hero: 0 1px 2px rgba(24, 22, 16, 0.05), 0 18px 44px -24px rgba(24, 22, 16, 0.24);
-  --shadow-pop: 0 24px 64px -24px rgba(24, 22, 16, 0.35);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.05), 0 8px 24px -16px rgba(0, 0, 0, 0.15);
+  --shadow-hero: 0 1px 2px rgba(0, 0, 0, 0.06), 0 16px 40px -20px rgba(0, 0, 0, 0.22);
+  --shadow-pop: 0 24px 64px -20px rgba(0, 0, 0, 0.3);
 }
 
-/* ---- Dark: deep charcoal-slate, elevated surfaces, softened accent ---- */
+/* ---- Dark: true OLED pitch #000000, onyx cards #0a0a0a, pure white contrast ---- */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg: #141417;
-  --surface: #1c1c21;
-  --surface-2: #25252c;
-  --fg: #f2f0e8;
-  --fg-secondary: #d8d4c7;
-  --muted: #b8b4a6;
-  --faint: #9c988c;
-  --subtle: #848074;
-  --placeholder: #848074;
+  --bg: #000000;
+  --surface: #0a0a0a;
+  --surface-2: #141414;
+  --fg: #ffffff;
+  --fg-secondary: #e5e5e5;
+  --muted: #a3a3a3;
+  --faint: #737373;
+  --subtle: #525252;
+  --placeholder: #525252;
 
-  --panel: #26262d;
-  --panel-2: #303039;
-  --on-surface: #26251f;
-  --line: #2b2b32;
-  --line-strong: rgba(242, 240, 232, 0.20);
+  --panel: #111111;
+  --panel-2: #1c1c1c;
+  --on-surface: #0a0a0a;
+  --line: #222222;
+  --line-strong: rgba(255, 255, 255, 0.22);
 
-  --primary: #858fed;
-  --primary-deep: #707ce5;
-  --primary-fg: #0d0e14;
+  --primary: #ffffff;
+  --primary-deep: #e5e5e5;
+  --primary-fg: #000000;
 
-  --success: #62c99a;
-  --warning: #ebba52;
-  --danger: #eb7c70;
-  --info: #82b4ea;
-  --later: #bcaef0;
-  --delegate: #66c9c2;
-  --rose: #eb8c9e;
+  --success: #22c55e;
+  --warning: #eab308;
+  --danger: #ef4444;
+  --info: #a3a3a3;
+  --later: #737373;
+  --delegate: #14b8a6;
+  --rose: #f43f5e;
 
-  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.45), 0 10px 28px -14px rgba(0, 0, 0, 0.65);
-  --shadow-hero: 0 1px 3px rgba(0, 0, 0, 0.5), 0 18px 44px -20px rgba(0, 0, 0, 0.7);
-  --shadow-pop: 0 24px 64px -20px rgba(0, 0, 0, 0.85);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.9), 0 10px 28px -10px rgba(0, 0, 0, 0.95);
+  --shadow-hero: 0 1px 3px rgba(0, 0, 0, 0.9), 0 18px 44px -14px rgba(0, 0, 0, 0.98);
+  --shadow-pop: 0 24px 64px -10px rgba(0, 0, 0, 1);
 }
 
 @layer base {

@@ -34,15 +34,15 @@ export function AmbientBackground() {
       const isDark = document.documentElement.getAttribute("data-theme") === "dark";
       return isDark
         ? {
-            primary: "118, 129, 236", // soft indigo #7681ec
-            muted: "156, 152, 142",   // slate neutral #9c988e
+            primary: "255, 255, 255", // crisp pure white #ffffff
+            muted: "115, 115, 115",   // onyx neutral #737373
             dotAlphaMax: 0.35,
             lineAlphaMax: 0.16,
             maxLineDist: 115,
           }
         : {
-            primary: "94, 106, 210",  // warm indigo #5e6ad2
-            muted: "110, 106, 96",    // charcoal neutral #6e6a60
+            primary: "0, 0, 0",       // pitch black #000000
+            muted: "102, 102, 102",   // deep grey #666666
             dotAlphaMax: 0.24,
             lineAlphaMax: 0.10,
             maxLineDist: 110,
