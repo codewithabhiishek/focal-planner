@@ -23,8 +23,8 @@ import {
 import { Toasts } from "./components/ui";
 import { IconPostpone, IconPlus, IconStarFilled } from "./components/icons";
 
-const CONFETTI_LIGHT = ["#0BA36B", "#FF4B3A", "#2E4CFF", "#9C6BFF", "#0FA3BF", "#F7FBF8"];
-const CONFETTI_DARK = ["#2FD18A", "#FF6B5A", "#7D95FF", "#B79CFF", "#45C6DC", "#FFC65C"];
+const CONFETTI_LIGHT = ["#5E6AD2", "#3F7F63", "#C05B50", "#A87A22", "#8B84A8", "#E7E3D9"];
+const CONFETTI_DARK = ["#6E79E0", "#63A98C", "#D5776D", "#CFA24C", "#A9A1C6", "#E8E6DF"];
 
 /* ---------------- tiny hash router ---------------- */
 
@@ -65,13 +65,13 @@ function GoalStrip({
             if (!g.isPrimary) onPrimary(g.id);
           }}
           title={g.isPrimary ? "Primary goal" : "Make primary"}
-          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border-2 px-2.5 py-1 text-xs font-bold transition-all duration-150 ${
+          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-xs font-bold transition-all duration-150 ${
             g.isPrimary
-              ? "-rotate-1 border-ink bg-ink text-canvas shadow-[2px_2px_0_rgba(23,37,30,0.3)]"
-              : "border-ink/25 bg-paper text-ink/65 hover:-translate-y-0.5 hover:border-ink hover:text-ink"
+              ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+              : "border-line bg-surface text-ink/65 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
           }`}
         >
-          {g.isPrimary && <IconStarFilled size={11} className="shrink-0 text-canvas" />}
+          {g.isPrimary && <IconStarFilled size={11} className="shrink-0" />}
           <span className="truncate">{g.title}</span>
         </button>
       ))}
@@ -79,8 +79,7 @@ function GoalStrip({
         onClick={onManage}
         aria-label="Add a goal"
         title="Add / manage goals"
-        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border-2 border-ink/25 bg-paper text-ink/50 transition-all hover:-translate-y-0.5 hover:border-ink hover:text-ink"
-      >
+          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ink/50 transition-all hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"      >
         <IconPlus size={12} />
       </button>
     </div>
@@ -155,7 +154,7 @@ function Shell() {
     document.documentElement.setAttribute("data-theme", theme);
     document
       .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", theme === "dark" ? "#0F1A14" : "#D9F0E3");
+      ?.setAttribute("content", theme === "dark" ? "#17171A" : "#F5F3EE");
   }, [theme]);
 
   /* ---------- rule-based nudges (no AI, throttled) ---------- */
@@ -381,10 +380,14 @@ function Shell() {
     <div className="min-h-dvh">
       {/* ---------- ambient layer: dots + one soft glow, nothing else ---------- */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="bg-dots absolute inset-0 opacity-60" />
+        {/* quiet two-tone wash: faint indigo at the crown, warm sand low-right */}
         <div
-          className="absolute -top-40 left-1/2 h-[520px] w-[860px] -translate-x-1/2 rounded-full"
-          style={{ background: "radial-gradient(closest-side, var(--ambient-glow), transparent 70%)" }}
+          className="absolute -top-48 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full"
+          style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--primary) 7%, transparent), transparent 72%)" }}
+        />
+        <div
+          className="absolute -bottom-56 -right-40 h-[520px] w-[680px] rounded-full"
+          style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--warning) 6%, transparent), transparent 70%)" }}
         />
       </div>
 
@@ -421,9 +424,9 @@ function Shell() {
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => setModal({ type: "avoidance", task: avoided.task })}
-                  className="card mt-5 flex w-full cursor-pointer items-center gap-3 border-coral bg-coral/10 px-4 py-3 text-left shadow-[5px_5px_0_rgba(255,75,58,0.4)] transition-transform hover:-translate-y-0.5"
+                  className="card mt-5 flex w-full cursor-pointer items-center gap-3 border-danger/35 bg-danger/[0.07] px-4 py-3 text-left shadow-[0_10px_30px_-18px_rgba(192,91,80,0.5)] transition-transform hover:-translate-y-0.5"
                 >
-                  <span className="sticker grid h-9 w-9 shrink-0 place-items-center bg-coral text-paper">
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-danger text-white">
                     <IconPostpone size={17} />
                   </span>
                   <span className="min-w-0">
@@ -432,7 +435,7 @@ function Shell() {
                       “{avoided.task.title}” — postponed ×{avoided.task.postponeCount}. What's stopping you?
                     </span>
                   </span>
-                  <span className="chip ml-auto shrink-0 border-coral bg-coral text-paper">let's talk</span>
+                  <span className="chip ml-auto shrink-0 border-danger bg-danger text-white">let's talk</span>
                 </motion.button>
               )}
             </AnimatePresence>
@@ -484,7 +487,7 @@ function Shell() {
               </p>
               <button
                 onClick={() => navigate("setup")}
-                className="label-mono mt-3 cursor-pointer text-ink/50 underline decoration-2 decoration-canvas underline-offset-4 transition-colors hover:text-ink"
+                className="label-mono mt-3 cursor-pointer text-ink/50 underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
               >
                 goals · AI key · signals · data →
               </button>

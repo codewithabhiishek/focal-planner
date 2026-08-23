@@ -81,7 +81,7 @@ export function Inbox({
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`cursor-pointer rounded-full border-2 px-3 py-1.5 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 sm:px-2.5 sm:py-1 ${
+                className={`cursor-pointer rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 sm:px-2.5 sm:py-1 ${
                   active
                     ? "border-ink bg-ink text-canvas"
                     : n === 0
@@ -113,7 +113,7 @@ export function Inbox({
               transition={{ duration: 0.25 }}
               className={`group flex items-center gap-3 px-4 py-3 ${
                 i > 0 ? "border-t-2 border-dashed border-line" : ""
-              } ${r.task.blocked ? "bg-coral/[0.05]" : ""}`}
+              } ${r.task.blocked ? "bg-warning/[0.06]" : ""}`}
             >
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-2">
@@ -126,7 +126,7 @@ export function Inbox({
                   </p>
                   <CategoryBadge category={r.category} size="xs" />
                   {r.task.blocked && (
-                    <span className="chip border-coral/50 bg-coral/10 text-coral">
+                    <span className="chip border-warning/40 bg-warning/10 text-warning">
                       <IconBlock size={10} /> blocked
                     </span>
                   )}
@@ -161,7 +161,7 @@ export function Inbox({
                 </div>
               </div>
 
-              <span className="chip hidden shrink-0 border-ink/20 bg-canvas/60 sm:inline-flex">
+              <span className="chip hidden shrink-0 border-line bg-surface-2 text-ink/55 sm:inline-flex">
                 {r.score}
               </span>
 
@@ -177,7 +177,7 @@ export function Inbox({
                       });
                       pushToast({ title: "Unblocked — back in ranking", body: r.task.title, tone: "ok" });
                     }}
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-success hover:bg-success/10 hover:text-success lg:h-7 lg:w-7"
                   >
                     <IconUndo size={13} />
                   </button>
@@ -185,7 +185,7 @@ export function Inbox({
                   <button
                     title="Complete"
                     onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-success hover:bg-success/10 hover:text-success lg:h-7 lg:w-7"
                   >
                     <IconCheck size={13} />
                   </button>
@@ -193,14 +193,14 @@ export function Inbox({
                 <button
                   title="Not now"
                   onClick={() => onNotNow(r.task.id)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
                 >
                   <IconPostpone size={13} />
                 </button>
                 <button
                   title="Drop"
                   onClick={() => drop(r.task)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-coral hover:bg-coral/10 hover:text-coral lg:h-7 lg:w-7"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-danger hover:bg-danger/10 hover:text-danger lg:h-7 lg:w-7"
                 >
                   <IconTrash size={13} />
                 </button>

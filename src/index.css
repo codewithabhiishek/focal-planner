@@ -1,92 +1,126 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/* DESIGN TOKENS — one theme: "Spearmint Sticker".                    */
-/* Soft mint canvas, deep pine ink, hard offset shadows, loud          */
-/* semantic accents. Every component consumes these vars.              */
+/* DESIGN TOKENS — "Ivory & Indigo"                                    */
+/* Warm neutral foundation + ONE restrained indigo accent.             */
+/* Semantic core vars live on :root / [data-theme="dark"]; Tailwind    */
+/* colors are exposed through @theme inline, including legacy aliases  */
+/* so existing component classes re-skin consistently.                 */
 /* ================================================================== */
 
 @theme {
   --font-display: "Bricolage Grotesque", "Schibsted Grotesk", ui-sans-serif, sans-serif;
   --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
-
-  /* spearmint sticker palette */
-  --color-canvas: #d9f0e3; /* spearmint mist */
-  --color-paper: #f7fbf8; /* card white, mint-tinted */
-  --color-ink: #17251e; /* deep pine */
-  --color-ink-2: #21332a;
-  --color-ink-3: #324a3d;
-
-  --color-fog: #f0f7f2; /* text on ink */
-  --color-fog-dim: #c7d8cc;
-  --color-fog-faint: #90a798;
-
-  --color-line: #c2dfce; /* hairlines on paper */
-  --color-line-ink: rgba(23, 37, 30, 0.14);
-
-  --color-coral: #ff4b3a; /* fire / do now / warning */
-  --color-cobalt: #2e4cff; /* soon / info */
-  --color-mint: #0ba36b; /* done / ok — deep enough to pop on mint canvas */
-  --color-lilac: #9c6bff; /* later / ai */
-  --color-sky: #0fa3bf; /* delegate */
-  --color-honey: #e8960a;
 }
 
+@theme inline {
+  /* ---- semantic core ---- */
+  --color-background: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-foreground: var(--fg);
+  --color-muted-foreground: var(--muted);
+  --color-border: var(--line);
+  --color-primary: var(--primary);
+  --color-primary-deep: var(--primary-deep);
+  --color-primary-foreground: var(--primary-fg);
+  --color-accent: var(--primary);
+  --color-accent-foreground: var(--primary-fg);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-danger: var(--danger);
+  --color-info: var(--info);
+  --color-later: var(--later);
+  --color-delegate: var(--delegate);
+  --color-rose: var(--rose);
+
+  /* ---- legacy aliases (components already speak these names) ---- */
+  --color-canvas: var(--bg);
+  --color-paper: var(--surface);
+  --color-ink: var(--fg);
+  --color-ink-2: var(--panel);
+  --color-ink-3: var(--panel-2);
+  --color-fog: var(--on-surface);
+  --color-fog-dim: var(--muted);
+  --color-fog-faint: var(--faint);
+  --color-line: var(--line);
+  --color-line-ink: var(--line-strong);
+  --color-mint: var(--success);
+  --color-coral: var(--danger);
+  --color-honey: var(--warning);
+  --color-cobalt: var(--info);
+  --color-lilac: var(--later);
+  --color-sky: var(--delegate);
+}
+
+/* ---- Light: warm ivory, charcoal ink, muted indigo ---- */
 :root,
 [data-theme="light"] {
   color-scheme: light;
-  --r-card: 14px;
-  --r-hero: 20px;
-  --card-bg: var(--color-paper);
-  --hero-bg: var(--color-ink);
-  --hero-line: var(--color-ink);
-  --shadow-card: 5px 5px 0 rgba(23, 37, 30, 0.16);
-  --shadow-hero: 8px 8px 0 #0e1712;
-  --shadow-ink: #17251e;
-  --ambient-glow: rgba(247, 251, 248, 0.85);
-  --dot-color: rgba(23, 37, 30, 0.1);
-  --btn-primary-bg: var(--color-canvas);
-  --btn-primary-text: var(--color-ink);
-  --hard-strong: rgba(23, 37, 30, 0.85);
-  --hard-soft: rgba(23, 37, 30, 0.18);
-  --hard-faint: rgba(23, 37, 30, 0.1);
-  --scroll-thumb: rgba(23, 37, 30, 0.3);
+
+  --bg: #f5f3ee;
+  --surface: #fdfcfa;
+  --surface-2: #f0ede6;
+  --fg: #23221e;
+  --panel: #2b2a25;
+  --panel-2: #3b392f;
+  --muted: #6e6a60;
+  --faint: #9b968a;
+  --on-surface: #f6f4ee;
+  --line: #e7e3d9;
+  --line-strong: rgba(35, 34, 30, 0.16);
+
+  --primary: #5e6ad2;
+  --primary-deep: #4d58be;
+  --primary-fg: #fcfcff;
+
+  --success: #3f7f63;
+  --warning: #a87a22;
+  --danger: #c05b50;
+  --info: #64718a;
+  --later: #8b84a8;
+  --delegate: #4f8e8a;
+  --rose: #b76878;
+
+  --r-card: 12px;
+  --r-hero: 14px;
+  --shadow-card: 0 1px 2px rgba(24, 22, 16, 0.04), 0 10px 28px -18px rgba(24, 22, 16, 0.16);
+  --shadow-hero: 0 1px 2px rgba(24, 22, 16, 0.05), 0 18px 44px -24px rgba(24, 22, 16, 0.24);
+  --shadow-pop: 0 24px 64px -24px rgba(24, 22, 16, 0.35);
 }
 
-/* ---- Dark: deep pine canvas, light ink, same sticker physics ---- */
+/* ---- Dark: deep charcoal-slate, elevated surfaces, softened accent ---- */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --color-canvas: #0f1a14;
-  --color-paper: #16241c;
-  --color-ink: #e9f3ec;
-  --color-ink-2: #24382c;
-  --color-ink-3: #2f4a3a;
+  --bg: #17171a;
+  --surface: #1f1f23;
+  --surface-2: #27272c;
+  --fg: #e8e6df;
+  --panel: #2a2a30;
+  --panel-2: #35353c;
+  --muted: #9d9a90;
+  --faint: #716e66;
+  --on-surface: #26251f;
+  --line: #2e2e33;
+  --line-strong: rgba(232, 230, 223, 0.16);
 
-  --color-line: #24382c;
-  --color-line-ink: rgba(233, 243, 236, 0.14);
+  --primary: #6e79e0;
+  --primary-deep: #5f6ad6;
+  --primary-fg: #fbfbff;
 
-  --color-coral: #ff6b5a;
-  --color-cobalt: #7d95ff;
-  --color-mint: #2fd18a;
-  --color-lilac: #b79cff;
-  --color-sky: #45c6dc;
-  --color-honey: #ffc65c;
+  --success: #63a98c;
+  --warning: #cfa24c;
+  --danger: #d5776d;
+  --info: #95a2b8;
+  --later: #a9a1c6;
+  --delegate: #79b0ac;
+  --rose: #ce8b98;
 
-  --hero-bg: #1b2e23;
-  --hero-line: #35503f;
-  --shadow-card: 5px 5px 0 rgba(0, 0, 0, 0.45);
-  --shadow-hero: 8px 8px 0 rgba(0, 0, 0, 0.55);
-  --shadow-ink: rgba(0, 0, 0, 0.6);
-  --ambient-glow: rgba(47, 209, 138, 0.07);
-  --dot-color: rgba(233, 243, 236, 0.06);
-  --btn-primary-bg: var(--color-mint);
-  --btn-primary-text: #0b140f;
-  --hard-strong: rgba(0, 0, 0, 0.65);
-  --hard-soft: rgba(0, 0, 0, 0.35);
-  --hard-faint: rgba(0, 0, 0, 0.22);
-  --scroll-thumb: rgba(233, 243, 236, 0.22);
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.35), 0 10px 28px -18px rgba(0, 0, 0, 0.55);
+  --shadow-hero: 0 1px 2px rgba(0, 0, 0, 0.4), 0 18px 44px -24px rgba(0, 0, 0, 0.6);
+  --shadow-pop: 0 24px 64px -24px rgba(0, 0, 0, 0.7);
 }
 
 @layer base {
@@ -101,10 +135,9 @@
   a,
   [role="button"],
   [role="switch"] {
-    touch-action: manipulation; /* kills iOS double-tap zoom delay */
+    touch-action: manipulation;
   }
   @media (max-width: 639px) {
-    /* iOS zooms the page when focusing inputs under 16px — never let it */
     input,
     select,
     textarea {
@@ -115,11 +148,11 @@
     @apply bg-canvas font-body text-ink antialiased;
   }
   ::selection {
-    background: var(--color-ink);
-    color: var(--color-canvas);
+    background: var(--primary);
+    color: var(--primary-fg);
   }
   :focus-visible {
-    outline: 3px solid var(--color-cobalt);
+    outline: 2px solid var(--primary);
     outline-offset: 2px;
   }
   input,
@@ -130,81 +163,109 @@
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: var(--scroll-thumb) transparent;
+    scrollbar-color: var(--line-strong) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   *::-webkit-scrollbar-thumb {
-    background: rgba(23, 37, 30, 0.3);
+    background: var(--line-strong);
     border-radius: 8px;
   }
 }
 
-/* composable base for sticker buttons */
+/* composable button base — 1px borders, soft press */
 @utility btn {
-  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-ink font-semibold transition-all duration-150 select-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none!;
+  @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-[10px] border border-transparent font-semibold transition-all duration-150 select-none active:translate-y-px;
 }
 
-/* theme-aware hard shadows */
+/* soft elevation utilities (formerly hard offset shadows) */
 @utility shadow-hard-xs {
-  box-shadow: 2px 2px 0 var(--hard-strong);
+  box-shadow: 0 1px 2px rgba(24, 22, 16, 0.1);
 }
 @utility shadow-hard-soft {
-  box-shadow: 3px 3px 0 var(--hard-soft);
+  box-shadow: 0 1px 2px rgba(24, 22, 16, 0.06), 0 8px 20px -12px rgba(24, 22, 16, 0.18);
 }
 @utility shadow-hard-faint {
-  box-shadow: 3px 3px 0 var(--hard-faint);
+  box-shadow: 0 1px 2px rgba(24, 22, 16, 0.05);
 }
 
 @layer components {
   /* ---- surfaces ---- */
   .card {
-    @apply border-2 border-ink bg-paper;
+    border: 1px solid var(--line);
     border-radius: var(--r-card);
-    background: var(--card-bg);
+    background: var(--surface);
     box-shadow: var(--shadow-card);
   }
-  .card-dark {
-    @apply border-2 text-fog;
+
+  /* the recommendation card: light surface, hairline border, accent rail */
+  .card-hero {
+    position: relative;
+    border: 1px solid var(--line);
     border-radius: var(--r-hero);
-    border-color: var(--hero-line);
-    background: var(--hero-bg);
+    background: var(--surface);
     box-shadow: var(--shadow-hero);
   }
+  .card-hero::before {
+    content: "";
+    position: absolute;
+    top: 14px;
+    bottom: 14px;
+    left: 0;
+    width: 3px;
+    border-radius: 0 3px 3px 0;
+    background: var(--primary);
+  }
 
-  /* ---- buttons: lift on hover, press into the shadow on click ---- */
+  /* ---- buttons ---- */
+  .btn-primary {
+    background: var(--primary);
+    color: var(--primary-fg);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 2px rgba(24, 22, 16, 0.14);
+    @apply btn hover:bg-(--primary-deep);
+  }
   .btn-yellow {
-    background: var(--btn-primary-bg);
-    color: var(--btn-primary-text);
-    @apply btn shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
+    /* legacy name → primary action */
+    background: var(--primary);
+    color: var(--primary-fg);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 1px 2px rgba(24, 22, 16, 0.14);
+    @apply btn hover:bg-(--primary-deep);
   }
   .btn-ink {
-    @apply btn bg-ink text-canvas shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
+    @apply btn bg-ink text-canvas shadow-hard-faint hover:opacity-90;
   }
   .btn-coral {
-    @apply btn bg-coral text-paper shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
+    @apply btn bg-danger text-white shadow-hard-faint hover:opacity-90;
   }
   .btn-ghost {
-    @apply btn border-ink/25 bg-transparent text-ink shadow-none hover:border-ink hover:bg-paper;
+    @apply btn border-line bg-transparent text-ink hover:bg-ink/[0.045];
   }
   .btn-outline-dark {
-    @apply btn border-fog/35 bg-transparent text-fog shadow-none hover:border-fog/70 hover:bg-white/5;
+    /* legacy name → quiet action on the hero card */
+    @apply btn border-line bg-transparent text-ink hover:bg-ink/[0.045];
   }
 
   /* ---- small parts ---- */
   .chip {
-    @apply inline-flex items-center gap-1.5 rounded-full border-[1.5px] px-2 py-[3px] font-mono text-[10px] font-bold tracking-[0.06em] uppercase whitespace-nowrap;
+    @apply inline-flex items-center gap-1.5 rounded-full border px-2 py-[3px] font-mono text-[10px] font-bold tracking-[0.05em] uppercase whitespace-nowrap;
   }
   .sticker {
-    @apply rounded-lg border-2 border-ink shadow-[3px_3px_0_var(--shadow-ink)];
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    background: var(--surface-2);
   }
   .field {
-    @apply w-full rounded-lg border-2 border-ink bg-paper px-3 py-2 text-[15px] font-medium text-ink placeholder:font-normal placeholder:text-ink/40;
+    @apply w-full rounded-[9px] border border-line bg-surface px-3 py-2 text-[15px] font-medium text-ink placeholder:font-normal placeholder:text-ink/35 transition-shadow;
+  }
+  .field:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px color-mix(in oklab, var(--primary) 14%, transparent);
+    outline: none;
   }
   .label-mono {
-    @apply font-mono text-[10px] font-bold tracking-[0.18em] uppercase;
+    @apply font-mono text-[10px] font-bold tracking-[0.14em] uppercase;
   }
 }
 
@@ -212,7 +273,7 @@
 @keyframes rise-in {
   from {
     opacity: 0;
-    transform: translateY(16px);
+    transform: translateY(14px);
   }
   to {
     opacity: 1;
@@ -222,42 +283,31 @@
 @keyframes pop-in {
   from {
     opacity: 0;
-    transform: scale(0.94) translateY(10px);
+    transform: scale(0.96) translateY(8px);
   }
   to {
     opacity: 1;
     transform: none;
   }
 }
-@keyframes breathe {
-  0%,
-  100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.07);
-  }
-}
 @keyframes floaty {
   0%,
   100% {
-    transform: translateY(0) rotate(var(--fr, 0deg));
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-9px) rotate(calc(var(--fr, 0deg) + 3deg));
+    transform: translateY(-6px);
   }
 }
-@keyframes dot-ping {
-  0% {
-    box-shadow: 0 0 0 0 rgba(11, 163, 107, 0.5);
-  }
-  70% {
-    box-shadow: 0 0 0 7px rgba(11, 163, 107, 0);
-  }
+@keyframes pulse-dot {
+  0%,
   100% {
-    box-shadow: 0 0 0 0 rgba(11, 163, 107, 0);
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.45;
+    transform: scale(0.8);
   }
 }
 
@@ -266,36 +316,25 @@
     animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .anim-pop {
-    animation: pop-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
-  }
-  .anim-breathe {
-    animation: breathe 5.5s ease-in-out infinite;
+    animation: pop-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
   .anim-floaty {
-    animation: floaty 6s ease-in-out infinite;
+    animation: floaty 5s ease-in-out infinite;
   }
   .anim-floaty-slow {
-    animation: floaty 9s ease-in-out infinite reverse;
+    animation: floaty 8s ease-in-out infinite;
   }
   .pulse-dot {
-    animation: dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-  }
-  .bg-dots {
-    background-image: radial-gradient(var(--dot-color) 1.1px, transparent 1.1px);
-    background-size: 22px 22px;
-  }
-  .text-balance {
-    text-wrap: balance;
+    animation: pulse-dot 2.2s ease-in-out infinite;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .anim-rise,
-  .anim-pop,
-  .anim-breathe,
-  .anim-floaty,
-  .anim-floaty-slow,
-  .pulse-dot {
-    animation: none;
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

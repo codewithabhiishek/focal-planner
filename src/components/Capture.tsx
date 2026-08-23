@@ -51,10 +51,10 @@ export function Capture() {
           onClick={() => setExpanded((v) => !v)}
           aria-label="Deadline"
           aria-pressed={expanded}
-          className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-lg border-2 transition-all ${
+          className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all ${
             expanded || deadline
-              ? "border-ink bg-canvas shadow-[2px_2px_0_var(--color-ink)]"
-              : "border-ink/15 text-ink/45 hover:border-ink hover:text-ink"
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-line text-ink/45 hover:border-ink/40 hover:text-ink"
           }`}
         >
           <IconCalendar size={16} />
@@ -63,10 +63,10 @@ export function Capture() {
           type="button"
           onClick={() => setExpanded((v) => !v)}
           aria-label="Duration"
-          className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-lg border-2 transition-all ${
+          className={`grid h-9 w-9 shrink-0 cursor-pointer place-items-center rounded-lg border transition-all ${
             est !== ""
-              ? "border-ink bg-canvas shadow-[2px_2px_0_var(--color-ink)]"
-              : "border-ink/15 text-ink/45 hover:border-ink hover:text-ink"
+              ? "border-primary/40 bg-primary/10 text-primary"
+              : "border-line text-ink/45 hover:border-ink/40 hover:text-ink"
           }`}
         >
           <IconTimer size={16} />

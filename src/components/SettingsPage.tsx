@@ -135,9 +135,9 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
   const [confirmClear, setConfirmClear] = useState(false);
 
   const weights = [
-    { k: "goal fit", v: "+28", c: "text-mint" },
+    { k: "goal fit", v: "+28", c: "text-primary" },
     { k: "impact", v: "+24", c: "text-cobalt" },
-    { k: "urgency", v: "+34", c: "text-coral" },
+    { k: "urgency", v: "+34", c: "text-warning" },
     { k: "time fit", v: "+14", c: "text-lilac" },
     { k: "penalties", v: "−…", c: "text-ink/45" },
   ];
@@ -154,7 +154,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           <p className="label-mono text-ink/45">the engine room — nothing here is required</p>
         </div>
         <span
-          className={`chip ml-auto ${aiOn ? "border-mint/50 bg-mint/15 text-mint" : "border-lilac/50 bg-lilac/15 text-lilac"}`}
+          className={`chip ml-auto ${aiOn ? "border-success/35 bg-success/10 text-success" : "border-later/35 bg-later/10 text-later"}`}
         >
           {aiOn ? (
             <>
@@ -168,7 +168,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
 
       <div className="mt-6 grid gap-5">
         {/* 1 — appearance */}
-        <Section n={1} title="Appearance" icon={<IconReticle size={17} className="text-sky" />} sub="light or dark — applied instantly, remembered">
+        <Section n={1} title="Appearance" icon={<IconReticle size={17} className="text-primary" />} sub="light or dark — applied instantly, remembered">
           <div className="grid grid-cols-2 gap-3">
             {(["light", "dark"] as const).map((m) => {
               const active = s.theme === m;
@@ -188,36 +188,36 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                   }}
                   className={`card cursor-pointer p-3 text-left transition-all duration-150 ${
                     active
-                      ? "border-ink shadow-hard-soft"
+                      ? "border-primary/50 shadow-hard-soft"
                       : "opacity-65 hover:-translate-y-0.5 hover:opacity-100"
                   }`}
                 >
                   <span
-                    className="relative block h-16 overflow-hidden rounded-lg border-2 border-ink/15"
-                    style={{ background: lite ? "#d9f0e3" : "#0f1a14" }}
+                    className="relative block h-16 overflow-hidden rounded-lg border border-ink/15"
+                    style={{ background: lite ? "#f5f3ee" : "#17171a" }}
                   >
                     <span
-                      className="absolute top-2 left-2 block h-6 w-24 rounded-md border-2"
+                      className="absolute top-2 left-2 block h-6 w-24 rounded-md border"
                       style={{
-                        background: lite ? "#17251e" : "#1b2e23",
-                        borderColor: lite ? "#17251e" : "#35503f",
+                        background: lite ? "#fdfcfa" : "#27272c",
+                        borderColor: lite ? "#e7e3d9" : "#2e2e33",
                       }}
                     />
                     <span
-                      className="absolute bottom-2 left-2 block h-3.5 w-16 rounded border-[1.5px]"
+                      className="absolute bottom-2 left-2 block h-3.5 w-16 rounded border"
                       style={{
-                        background: lite ? "#f7fbf8" : "#16241c",
-                        borderColor: lite ? "#17251e" : "#e9f3ec",
+                        background: lite ? "#fdfcfa" : "#1f1f23",
+                        borderColor: lite ? "#e7e3d9" : "#2e2e33",
                       }}
                     />
                     <span
                       className="absolute right-2 bottom-2 block h-3.5 w-8 rounded-full"
-                      style={{ background: lite ? "#0ba36b" : "#2fd18a" }}
+                      style={{ background: lite ? "#5e6ad2" : "#6e79e0" }}
                     />
                   </span>
                   <span className="mt-2 flex items-center gap-1.5 text-sm font-bold">
-                    {active && <IconCheck size={13} className="text-mint" />}
-                    {lite ? "Light · spearmint" : "Dark · pine"}
+                    {active && <IconCheck size={13} className="text-primary" />}
+                    {lite ? "Light · ivory" : "Dark · charcoal"}
                   </span>
                 </button>
               );
@@ -226,9 +226,9 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </Section>
 
         {/* 2 — goals */}
-        <Section n={2} title="Goals" icon={<IconTarget size={17} className="text-mint" />} sub="what everything gets scored against">
+        <Section n={2} title="Goals" icon={<IconTarget size={17} className="text-success" />} sub="what everything gets scored against">
           {state.goals.length === 0 && (
-            <p className="rounded-lg border-2 border-dashed border-ink/20 px-3 py-4 text-center text-sm text-ink/50">
+            <p className="rounded-lg border border-dashed border-ink/20 px-3 py-4 text-center text-sm text-ink/50">
               No goals yet — tasks score fine, but a goal makes the ranking personal.
             </p>
           )}
@@ -266,10 +266,10 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     onClick={() => {
                       if (!g.isPrimary) dispatch({ type: "SET_PRIMARY_GOAL", goalId: g.id });
                     }}
-                    className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 transition-all lg:h-7 lg:w-7 ${
+                    className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border transition-all lg:h-7 lg:w-7 ${
                       g.isPrimary
-                        ? "border-ink bg-canvas shadow-[2px_2px_0_var(--shadow-ink)]"
-                        : "border-ink/15 text-ink/35 hover:border-ink hover:text-ink"
+                        ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+                        : "border-line text-ink/35 hover:border-ink/40 hover:text-ink"
                     }`}
                   >
                     <IconStarFilled size={14} />
@@ -279,14 +279,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     onClick={() =>
                       dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
                     }
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/35 transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
                   >
                     {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
                   </button>
                   <button
                     title="Delete goal"
                     onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/35 transition-all hover:border-coral hover:bg-coral/10 hover:text-coral lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/35 transition-all hover:border-danger hover:bg-danger/10 hover:text-danger lg:h-7 lg:w-7"
                   >
                     <IconTrash size={13} />
                   </button>
@@ -383,7 +383,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </Section>
 
         {/* 5 — scoring */}
-        <Section n={5} title="How the score works" icon={<IconInfo size={17} className="text-coral" />} sub="deterministic, inspectable, boring on purpose">
+        <Section n={5} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="deterministic, inspectable, boring on purpose">
           <div className="space-y-1.5">
             {weights.map((w) => (
               <div key={w.k} className="flex items-center justify-between rounded-lg bg-canvas/70 px-3 py-2">
@@ -399,7 +399,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </Section>
 
         {/* 6 — data */}
-        <Section n={6} title="Data" icon={<IconTrash size={17} className="text-honey" />} sub="stored locally in this browser">
+        <Section n={6} title="Data" icon={<IconTrash size={17} className="text-danger" />} sub="stored locally in this browser">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {

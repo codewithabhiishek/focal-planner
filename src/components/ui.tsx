@@ -22,27 +22,27 @@ export const CATEGORY_STYLE: Record<
 > = {
   DO_NOW: {
     label: "Do now",
-    cls: "border-coral/50 bg-coral/12 text-coral",
+    cls: "border-primary/30 bg-primary/10 text-primary",
     icon: (p) => <IconFire {...p} />,
   },
   SOON: {
     label: "Soon",
-    cls: "border-cobalt/45 bg-cobalt/10 text-cobalt",
+    cls: "border-info/30 bg-info/10 text-info",
     icon: (p) => <IconPin {...p} />,
   },
   LATER: {
     label: "Later",
-    cls: "border-lilac/45 bg-lilac/12 text-lilac",
+    cls: "border-later/30 bg-later/10 text-later",
     icon: (p) => <IconClock {...p} />,
   },
   DELEGATE: {
     label: "Delegate",
-    cls: "border-sky/45 bg-sky/12 text-sky",
+    cls: "border-delegate/30 bg-delegate/10 text-delegate",
     icon: (p) => <IconSend {...p} />,
   },
   DROP: {
     label: "Drop",
-    cls: "border-ink/25 bg-ink/6 text-ink/55",
+    cls: "border-rose/30 bg-rose/10 text-rose",
     icon: (p) => <IconTrash {...p} />,
   },
 };
@@ -75,17 +75,18 @@ export function Chip({
 }: {
   children: ReactNode;
   icon?: ReactNode;
-  tone?: "line" | "coral" | "mint" | "cobalt" | "lilac" | "dark" | "paper";
+  tone?: "line" | "primary" | "danger" | "warning" | "success" | "info" | "dark" | "paper";
   title?: string;
 }) {
   const tones: Record<string, string> = {
-    line: "border-ink/25 text-ink/70",
-    coral: "border-coral/50 bg-coral/10 text-coral",
-    mint: "border-mint/50 bg-mint/10 text-mint",
-    cobalt: "border-cobalt/45 bg-cobalt/10 text-cobalt",
-    lilac: "border-lilac/45 bg-lilac/10 text-lilac",
-    dark: "border-fog/30 text-fog-dim",
-    paper: "border-fog/25 bg-white/5 text-fog-dim",
+    line: "border-line text-ink/60",
+    primary: "border-primary/30 bg-primary/10 text-primary",
+    danger: "border-danger/30 bg-danger/10 text-danger",
+    warning: "border-warning/35 bg-warning/10 text-warning",
+    success: "border-success/30 bg-success/10 text-success",
+    info: "border-info/30 bg-info/10 text-info",
+    dark: "border-line bg-surface-2 text-ink/60",
+    paper: "border-line bg-surface-2 text-ink/60",
   };
   return (
     <span className={`chip ${tones[tone]}`} title={title}>
@@ -128,7 +129,7 @@ export function Modal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-ink/60 sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(21,20,17,0.5)] sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -139,7 +140,7 @@ export function Modal({
           <motion.div
             role="dialog"
             aria-modal="true"
-            className={`card relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-b-none border-b-0 rounded-t-[24px] shadow-[0_-10px_0_color-mix(in_srgb,var(--color-ink)_18%,transparent)] sm:max-h-[85vh] sm:rounded-[24px] sm:border-b-2 sm:shadow-[10px_10px_0_var(--color-ink)] ${
+            className={`card relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-b-none border-b-0 rounded-t-[18px] shadow-[var(--shadow-pop)] sm:max-h-[85vh] sm:rounded-[16px] sm:border-b ${
               wide ? "sm:max-w-lg" : "sm:max-w-md"
             }`}
             initial={{ y: 72, opacity: 0 }}
@@ -151,7 +152,7 @@ export function Modal({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="sticker absolute right-3 top-3 z-10 grid h-9 w-9 place-items-center bg-coral text-paper transition-transform hover:rotate-90 sm:-right-2.5 sm:-top-2.5 sm:h-8 sm:w-8"
+              className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-line bg-surface-2 text-ink/55 transition-colors hover:border-ink/30 hover:text-ink sm:h-8 sm:w-8"
             >
               <IconX size={15} />
             </button>
@@ -196,16 +197,15 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-ink transition-colors duration-200 ${
-        checked ? "bg-mint" : "bg-ink/15"
+              className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors duration-200 ${
+        checked ? "border-primary bg-primary" : "border-line bg-ink/10"
       }`}
     >
       <span
-        className={`absolute top-0.5 h-4 w-4 rounded-full border-2 border-ink bg-paper transition-all duration-200 ${
-          checked ? "left-[22px]" : "left-0.5"
+        className={`absolute top-[3px] h-4 w-4 rounded-full bg-surface shadow-hard-xs transition-all duration-200 ${
+          checked ? "left-[23px]" : "left-[3px]"
         }`}
-      />
-    </button>
+      />    </button>
   );
 }
 
@@ -229,20 +229,20 @@ export function ScoreBar({
   const pct = Math.min(100, Math.round((Math.abs(value) / max) * 100));
   return (
     <div className="flex items-center gap-3">
-      <span className="label-mono w-24 shrink-0 text-fog-dim normal-case tracking-wider">
+      <span className="label-mono w-24 shrink-0 text-ink/55 normal-case tracking-wider">
         {label}
       </span>
-      <div className="h-3 flex-1 overflow-hidden rounded-full border border-white/15 bg-white/10">
+      <div className="h-2 flex-1 overflow-hidden rounded-full border border-ink/10 bg-ink/[0.06]">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
-          className={`h-full rounded-full ${negative ? "bg-coral" : color}`}
+          className={`h-full rounded-full ${negative ? "bg-danger" : color}`}
         />
       </div>
       <span
         className={`w-11 shrink-0 text-right font-mono text-xs font-bold ${
-          negative ? "text-coral" : "text-fog"
+          negative ? "text-danger" : "text-ink"
         }`}
       >
         {value > 0 ? `+${value}` : value}

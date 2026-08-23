@@ -48,10 +48,10 @@ export function BudgetBar({
               key={String(b.id)}
               onClick={() => onChange(b.id)}
               aria-pressed={active}
-              className={`cursor-pointer rounded-full border-2 border-ink px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
+              className={`cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
                 active
-                  ? "bg-ink text-canvas shadow-hard-soft"
-                  : "bg-paper text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
+                  ? "border-primary/40 bg-primary text-primary-foreground shadow-hard-soft"
+                  : "border-line bg-surface text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
               }`}
             >
               {b.label}
@@ -65,7 +65,7 @@ export function BudgetBar({
             initial={{ opacity: 0, x: -8 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0 }}
-            className="chip border-mint/50 bg-mint/10 text-mint"
+            className="chip border-primary/30 bg-primary/10 text-primary"
           >
             <IconTimer size={11} /> picks now fit ≤ {budget === 60 ? "60" : budget}m
           </motion.span>
@@ -102,8 +102,8 @@ export function NextAction({
 
   if (!next && !blockedTop) {
     return (
-      <section className="anim-rise rounded-[20px] border-2 border-dashed border-ink/40 bg-paper/70 px-6 py-10 text-center">
-        <span className="sticker anim-wiggle mx-auto grid h-12 w-12 place-items-center bg-canvas">
+      <section className="anim-rise rounded-[16px] border border-dashed border-ink/25 bg-surface/70 px-6 py-10 text-center">
+        <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
           <IconReticle size={24} />
         </span>
         <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight">
@@ -114,7 +114,7 @@ export function NextAction({
           deadlines, then points at the one thing worth doing next.
         </p>
         {!hasGoals && (
-          <button onClick={onAddGoal} className="btn-ink mt-6 px-5 py-2.5 text-sm">
+          <button onClick={onAddGoal} className="btn-primary mt-6 px-5 py-2.5 text-sm">
             <IconTarget size={15} /> Add your first goal
           </button>
         )}
@@ -131,7 +131,7 @@ export function NextAction({
   return (
     <div>
       <p className="label-mono mb-2 flex items-center gap-2 text-ink/55">
-        <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-mint" />
+        <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-primary" />
         {isBlockedView ? "all blocked — everything's parked" : "your next action"}
       </p>
       <AnimatePresence mode="wait">
@@ -141,7 +141,7 @@ export function NextAction({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -14 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="card-dark relative overflow-hidden p-4 sm:p-5"
+          className="card-hero relative p-4 sm:p-5"
         >
           <div className="flex items-center gap-2">
             <CategoryBadge category={r.category} />
@@ -149,21 +149,21 @@ export function NextAction({
               title="Priority score"
               className={`ml-auto rounded-md border px-2 py-0.5 font-mono text-[11px] font-bold ${
                 r.score >= 65
-                  ? "border-mint/60 bg-mint/15 text-mint"
-                  : "border-fog/25 text-fog-dim"
+                  ? "border-primary/30 bg-primary/10 text-primary"
+                  : "border-line bg-surface-2 text-ink/55"
               }`}
             >
               score {r.score}
             </span>
           </div>
 
-          <h1 className="mt-2.5 font-display text-xl leading-[1.15] font-extrabold tracking-tight text-balance break-words text-paper sm:text-[1.35rem]">
+          <h1 className="mt-2.5 font-display text-xl leading-[1.15] font-extrabold tracking-tight text-balance break-words text-ink sm:text-[1.35rem]">
             {task.title}
           </h1>
 
           {/* one dense meta line — deadline · estimate · goal · flags */}
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[11px] font-medium text-fog-dim">
-            <IconClock size={11} className="shrink-0 text-fog-faint" />
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[11px] font-medium text-ink/55">
+            <IconClock size={11} className="shrink-0 text-ink/35" />
             {task.deadline != null ? (
               <span className={r.overdue ? "font-bold text-coral" : ""}>
                 {r.overdue
@@ -179,7 +179,7 @@ export function NextAction({
               <>
                 <span className="text-fog-faint">·</span>
                 <span className="inline-flex min-w-0 max-w-[52vw] items-center gap-1 sm:max-w-[300px]">
-                  <IconTarget size={11} className="shrink-0 text-mint" />
+                  <IconTarget size={11} className="shrink-0 text-primary" />
                   <span className="truncate" title={goal.title}>
                     {goal.title}
                   </span>
@@ -200,7 +200,7 @@ export function NextAction({
             )}
           </p>
 
-          <p className="mt-1.5 text-[13px] leading-snug text-fog-dim line-clamp-2">
+          <p className="mt-1.5 text-[13px] leading-snug text-ink/60 line-clamp-2">
             {isBlockedView
               ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
               : r.reason}
@@ -225,7 +225,7 @@ export function NextAction({
             <button
               onClick={() => setShowWhy((v) => !v)}
               aria-expanded={showWhy}
-              className="label-mono ml-auto cursor-pointer text-fog-faint transition-colors hover:text-fog"
+              className="label-mono ml-auto cursor-pointer text-ink/40 transition-colors hover:text-ink"
             >
               <span className="inline-flex items-center gap-1">
                 why this?
@@ -246,17 +246,17 @@ export function NextAction({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mt-3 space-y-2 rounded-xl border-2 border-fog/15 bg-ink-2/70 p-3">
-                  <p className="border-b border-fog/10 pb-2 text-xs leading-relaxed text-fog-dim">
+                <div className="mt-3 space-y-2 rounded-xl border border-line bg-ink/[0.03] p-3">
+                  <p className="border-b border-line pb-2 text-xs leading-relaxed text-ink/60">
                     {isBlockedView
                       ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
                       : r.reason}
                   </p>
-                  <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-mint" />
-                  <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-cobalt" delay={0.05} />
-                  <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-coral" delay={0.1} />
-                  <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.time} color="bg-lilac" delay={0.15} />
-                  <ScoreBar label="freshness" value={r.parts.recency} max={WEIGHTS.recency} color="bg-canvas" delay={0.2} />
+                  <ScoreBar label="goal fit" value={r.parts.goal} max={WEIGHTS.goal} color="bg-primary" />
+                  <ScoreBar label="impact" value={r.parts.impact} max={WEIGHTS.impact} color="bg-info" delay={0.05} />
+                  <ScoreBar label="urgency" value={r.parts.urgency} max={WEIGHTS.urgency} color="bg-warning" delay={0.1} />
+                  <ScoreBar label="time fit" value={r.parts.time} max={WEIGHTS.time} color="bg-later" delay={0.15} />
+                  <ScoreBar label="freshness" value={r.parts.recency} max={WEIGHTS.recency} color="bg-ink/30" delay={0.2} />
                   {r.parts.postpone < 0 && (
                     <ScoreBar label="postponed" value={r.parts.postpone} max={21} negative delay={0.25} />
                   )}
@@ -308,7 +308,7 @@ export function UpNext({
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className={`group flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
             >
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border-2 border-ink bg-canvas font-mono text-[11px] font-bold shadow-hard-xs">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line bg-ink/[0.04] font-mono text-[11px] font-bold text-ink/55">
                 {i + 2}
               </span>
               <div className="min-w-0 flex-1">
@@ -323,19 +323,19 @@ export function UpNext({
                   <span>{minutesLabel(r.task.estMinutes)}</span>
                 </div>
               </div>
-              <span className="chip hidden border-ink/20 bg-canvas/60 sm:inline-flex">{r.score}</span>
+              <span className="chip hidden border-line bg-surface-2 text-ink/55 sm:inline-flex">{r.score}</span>
               <div className="flex shrink-0 items-center gap-1.5 transition-opacity duration-150 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
                 <button
                   aria-label={`Complete ${r.task.title}`}
                   onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-mint hover:bg-mint/10 hover:text-mint lg:h-7 lg:w-7"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-success hover:bg-success/10 hover:text-success lg:h-7 lg:w-7"
                 >
                   <IconCheck size={14} />
                 </button>
                 <button
                   aria-label={`Not now: ${r.task.title}`}
                   onClick={() => onNotNow(r.task.id)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border-2 border-ink/15 text-ink/50 transition-all hover:border-ink hover:text-ink lg:h-7 lg:w-7"
+                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
                 >
                   <IconDots size={14} />
                 </button>

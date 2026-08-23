@@ -83,7 +83,7 @@ export function NotNowModal({
         />
         <Option
           icon={<IconBlock size={17} />}
-          cls="bg-coral/15 text-coral"
+          cls="bg-warning/12 text-warning"
           label="I'm blocked"
           note="parks it out of the way until you unblock"
           onClick={() => onReason("blocked")}
@@ -118,13 +118,13 @@ export function AvoidanceModal({
       kicker={`postponed ×${task.postponeCount} — no shame`}
       title="What's stopping you?"
     >
-      <p className="-mt-2 mb-4 rounded-lg border-2 border-dashed border-ink/25 bg-canvas/50 px-3 py-2 text-sm font-semibold">
+      <p className="-mt-2 mb-4 rounded-lg border border-dashed border-ink/25 bg-surface-2/70 px-3 py-2 text-sm font-semibold">
         “{task.title}”
       </p>
       <div className="grid gap-2">
         <Option
           icon={<IconSplit size={17} />}
-          cls="bg-coral/15 text-coral"
+          cls="bg-warning/12 text-warning"
           label="The task is too big"
           note="we'll break it into tiny, doable steps"
           onClick={() => onReason("big")}
@@ -189,7 +189,7 @@ export function BreakdownModal({
           {[0, 1, 2].map((i) => (
             <span
               key={i}
-              className="h-2.5 w-2.5 rounded-full border-2 border-ink bg-canvas"
+              className="h-2.5 w-2.5 rounded-full border border-primary/40 bg-primary/20"
               style={{
                 animation: `floaty 1s ease-in-out ${i * 0.15}s infinite`,
               }}
@@ -208,13 +208,13 @@ export function BreakdownModal({
                   onClick={() => onToggle(i)}
                   className={`btn w-full justify-start gap-3 px-3.5 py-2.5 text-left ${
                     on
-                      ? "bg-canvas/60 shadow-hard-faint"
-                      : "border-ink/20 bg-paper/60 text-ink/40 shadow-none"
+                      ? "border-primary/40 bg-primary/[0.07] shadow-hard-faint"
+                      : "border-line bg-surface text-ink/45 shadow-none"
                   }`}
                 >
                   <span
                     className={`sticker grid h-7 w-7 shrink-0 place-items-center ${
-                      on ? "bg-mint text-paper" : "bg-ink/10 text-ink/40"
+                      on ? "border-primary bg-primary text-primary-foreground" : "border-line bg-surface-2 text-ink/40"
                     }`}
                   >
                     {on ? <IconCheck size={14} /> : <span className="font-mono text-xs">{i + 1}</span>}
