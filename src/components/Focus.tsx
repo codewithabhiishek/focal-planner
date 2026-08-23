@@ -39,7 +39,7 @@ export function BudgetBar({
 }) {
   return (
     <div className="anim-rise flex flex-wrap items-center gap-x-3 gap-y-2">
-      <span className="label-mono text-ink/60">How much time do you have?</span>
+      <span className="label-mono text-ink-muted">How much time do you have?</span>
       <div className="flex flex-wrap gap-1.5">
         {BUDGETS.map((b) => {
           const active = budget === b.id;
@@ -51,7 +51,7 @@ export function BudgetBar({
               className={`cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
                 active
                   ? "border-primary/40 bg-primary text-primary-foreground shadow-hard-soft"
-                  : "border-line bg-surface text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
+                  : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
               }`}
             >
               {b.label}
@@ -102,14 +102,14 @@ export function NextAction({
 
   if (!next && !blockedTop) {
     return (
-      <section className="anim-rise rounded-[16px] border border-dashed border-ink/25 bg-surface/70 px-6 py-10 text-center">
+      <section className="anim-rise rounded-[16px] border border-dashed border-line bg-surface/70 px-6 py-10 text-center">
         <span className="mx-auto grid h-12 w-12 place-items-center rounded-xl border border-primary/25 bg-primary/10 text-primary">
           <IconReticle size={24} />
         </span>
-        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight">
+        <h2 className="mt-4 font-display text-2xl font-extrabold tracking-tight text-ink">
           Queue's clear. Nice.
         </h2>
-        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink/65">
+        <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-secondary">
           Dump whatever's on your mind below — Focal weighs it against your goals and
           deadlines, then points at the one thing worth doing next.
         </p>
@@ -130,7 +130,7 @@ export function NextAction({
 
   return (
     <div>
-      <p className="label-mono mb-2 flex items-center gap-2 text-ink/55">
+      <p className="label-mono mb-2 flex items-center gap-2 text-ink-muted">
         <span className="pulse-dot inline-block h-1.5 w-1.5 rounded-full bg-primary" />
         {isBlockedView ? "all blocked — everything's parked" : "your next action"}
       </p>
@@ -147,10 +147,10 @@ export function NextAction({
             <CategoryBadge category={r.category} />
             <span
               title="Priority score"
-              className={`ml-auto rounded-md border px-2 py-0.5 font-mono text-[11px] font-bold ${
+              className={`chip ml-auto ${
                 r.score >= 65
                   ? "border-primary/30 bg-primary/10 text-primary"
-                  : "border-line bg-surface-2 text-ink/55"
+                  : "border-line bg-surface-2 text-ink-muted"
               }`}
             >
               score {r.score}
@@ -162,8 +162,8 @@ export function NextAction({
           </h1>
 
           {/* one dense meta line — deadline · estimate · goal · flags */}
-          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[11px] font-medium text-ink/55">
-            <IconClock size={11} className="shrink-0 text-ink/35" />
+          <p className="mt-1.5 flex flex-wrap items-center gap-x-1.5 font-mono text-[11px] font-medium text-ink-muted">
+            <IconClock size={11} className="shrink-0 text-ink-faint" />
             {task.deadline != null ? (
               <span className={r.overdue ? "font-bold text-coral" : ""}>
                 {r.overdue
@@ -173,14 +173,14 @@ export function NextAction({
             ) : (
               <span>no deadline</span>
             )}
-            <span className="text-fog-faint">·</span>
+            <span className="text-ink-faint">·</span>
             <span>{minutesLabel(task.estMinutes)}</span>
             {goal && (
               <>
-                <span className="text-fog-faint">·</span>
+                <span className="text-ink-faint">·</span>
                 <span className="inline-flex min-w-0 max-w-[52vw] items-center gap-1 sm:max-w-[300px]">
                   <IconTarget size={11} className="shrink-0 text-primary" />
-                  <span className="truncate" title={goal.title}>
+                  <span className="truncate text-ink-secondary" title={goal.title}>
                     {goal.title}
                   </span>
                 </span>
@@ -188,19 +188,19 @@ export function NextAction({
             )}
             {task.postponeCount > 0 && (
               <>
-                <span className="text-fog-faint">·</span>
+                <span className="text-ink-faint">·</span>
                 <span className="text-honey">postponed ×{task.postponeCount}</span>
               </>
             )}
             {budget !== "any" && !r.fitsWindow && (
               <>
-                <span className="text-fog-faint">·</span>
+                <span className="text-ink-faint">·</span>
                 <span className="font-bold text-coral">bigger than your window</span>
               </>
             )}
           </p>
 
-          <p className="mt-1.5 text-[13px] leading-snug text-ink/60 line-clamp-2">
+          <p className="mt-1.5 text-[13px] leading-snug text-ink-secondary line-clamp-2">
             {isBlockedView
               ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
               : r.reason}
@@ -225,7 +225,7 @@ export function NextAction({
             <button
               onClick={() => setShowWhy((v) => !v)}
               aria-expanded={showWhy}
-              className="label-mono ml-auto cursor-pointer text-ink/40 transition-colors hover:text-ink"
+              className="label-mono ml-auto cursor-pointer text-ink-muted transition-colors hover:text-ink"
             >
               <span className="inline-flex items-center gap-1">
                 why this?
@@ -246,8 +246,8 @@ export function NextAction({
                 transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                 className="overflow-hidden"
               >
-                <div className="mt-3 space-y-2 rounded-xl border border-line bg-ink/[0.03] p-3">
-                  <p className="border-b border-line pb-2 text-xs leading-relaxed text-ink/60">
+                <div className="mt-3 space-y-2 rounded-xl border border-line bg-surface-2/60 p-3">
+                  <p className="border-b border-line pb-2 text-xs leading-relaxed text-ink-secondary">
                     {isBlockedView
                       ? `Blocked — "${task.blockNote ?? "waiting on something"}". Unblock it, or grab something else meanwhile.`
                       : r.reason}
@@ -263,7 +263,7 @@ export function NextAction({
                   {r.parts.blocked < 0 && (
                     <ScoreBar label="blocked" value={r.parts.blocked} max={70} negative delay={0.3} />
                   )}
-                  <p className="pt-1 font-mono text-[10px] leading-relaxed text-fog-faint">
+                  <p className="pt-1 font-mono text-[10px] leading-relaxed text-ink-faint">
                     {meta.label} = goal fit + impact + urgency + time fit − penalties. Language
                     reading by {task.analysis.source === "ai" ? "the Groq LLM" : "built-in heuristics"} —
                     the math is always deterministic.
@@ -293,8 +293,8 @@ export function UpNext({
   return (
     <section className="mt-7">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-lg font-extrabold tracking-tight">Up next</h2>
-        <span className="label-mono text-ink/45">same score · ranked live</span>
+        <h2 className="font-display text-lg font-extrabold tracking-tight text-ink">Up next</h2>
+        <span className="label-mono text-ink-muted">same score · ranked live</span>
       </div>
       <div className="card mt-2.5 overflow-hidden">
         <AnimatePresence initial={false}>
@@ -305,40 +305,57 @@ export function UpNext({
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -36 }}
-              transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
-              className={`group flex items-center gap-2.5 px-3.5 py-2.5 sm:px-4 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
+              transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+              className={`group flex items-center justify-between gap-4 px-4 py-3 sm:px-5 ${
+                i > 0 ? "border-t border-line" : ""
+              } hover:bg-surface-2/40 transition-colors`}
             >
-              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line bg-ink/[0.04] font-mono text-[11px] font-bold text-ink/55">
-                {i + 2}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-bold">{r.task.title}</p>
-                <div className="mt-1 flex flex-wrap items-center gap-x-2.5 gap-y-1 font-mono text-[10px] text-ink/50">
-                  <CategoryBadge category={r.category} size="xs" />
-                  {r.task.deadline != null && (
-                    <span className={r.overdue ? "font-bold text-coral" : ""}>
-                      {r.overdue ? "overdue" : `due ${deadlinePhrase(r.task.deadline, Date.now())}`}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md border border-line bg-surface-2 font-mono text-[11px] font-bold text-ink-secondary">
+                  {i + 2}
+                </span>
+                <div className="min-w-0 flex-1 space-y-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="truncate text-sm font-bold tracking-tight text-ink">
+                      {r.task.title}
                     </span>
-                  )}
-                  <span>{minutesLabel(r.task.estMinutes)}</span>
+                    <CategoryBadge category={r.category} size="xs" />
+                  </div>
+                  <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 font-mono text-[11px] text-ink-muted">
+                    {r.task.deadline != null && (
+                      <span className={r.overdue ? "font-bold text-coral" : ""}>
+                        {r.overdue ? "overdue" : `due ${deadlinePhrase(r.task.deadline, Date.now())}`}
+                      </span>
+                    )}
+                    {r.task.deadline != null && <span className="text-ink-faint">·</span>}
+                    <span>{minutesLabel(r.task.estMinutes)}</span>
+                  </div>
                 </div>
               </div>
-              <span className="chip hidden border-line bg-surface-2 text-ink/55 sm:inline-flex">{r.score}</span>
-              <div className="flex shrink-0 items-center gap-1.5 transition-opacity duration-150 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
-                <button
-                  aria-label={`Complete ${r.task.title}`}
-                  onClick={(e) => onComplete(r.task.id, e.currentTarget)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-success hover:bg-success/10 hover:text-success lg:h-7 lg:w-7"
-                >
-                  <IconCheck size={14} />
-                </button>
-                <button
-                  aria-label={`Not now: ${r.task.title}`}
-                  onClick={() => onNotNow(r.task.id)}
-                  className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/50 transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
-                >
-                  <IconDots size={14} />
-                </button>
+
+              {/* Right: Score + Action slot */}
+              <div className="flex shrink-0 items-center gap-3">
+                <span className="chip w-10 justify-center border-line bg-surface-2 font-mono text-[11px] font-bold text-ink-secondary">
+                  {r.score}
+                </span>
+                <div className="flex w-[60px] items-center justify-end gap-1.5 transition-opacity duration-150 max-lg:opacity-100 lg:opacity-0 lg:group-hover:opacity-100 lg:focus-within:opacity-100">
+                  <button
+                    aria-label={`Complete ${r.task.title}`}
+                    title="Complete"
+                    onClick={(e) => onComplete(r.task.id, e.currentTarget)}
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-success hover:bg-success/10 hover:text-success"
+                  >
+                    <IconCheck size={13} />
+                  </button>
+                  <button
+                    aria-label={`Not now: ${r.task.title}`}
+                    title="Not now"
+                    onClick={() => onNotNow(r.task.id)}
+                    className="grid h-7 w-7 cursor-pointer place-items-center rounded-lg border border-line bg-surface text-ink-muted transition-all hover:border-ink/40 hover:text-ink"
+                  >
+                    <IconDots size={13} />
+                  </button>
+                </div>
               </div>
             </motion.div>
           ))}

@@ -43,7 +43,7 @@ function Section({
   return (
     <section className="card anim-rise p-4 sm:p-5" style={{ animationDelay: `${n * 60}ms` }}>
       <div className="flex items-center gap-3">
-        <span className="sticker grid h-9 w-9 shrink-0 place-items-center bg-canvas font-display text-base font-extrabold">
+        <span className="sticker grid h-9 w-9 shrink-0 place-items-center bg-surface-2 font-display text-base font-extrabold text-ink">
           {n}
         </span>
         <div className="min-w-0">
@@ -51,7 +51,7 @@ function Section({
             {icon}
             {title}
           </h2>
-          <p className="label-mono mt-0.5 text-ink/45">{sub}</p>
+          <p className="label-mono mt-0.5 text-ink-muted">{sub}</p>
         </div>
       </div>
       <div className="mt-4">{children}</div>
@@ -139,7 +139,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
     { k: "impact", v: "+24", c: "text-cobalt" },
     { k: "urgency", v: "+34", c: "text-warning" },
     { k: "time fit", v: "+14", c: "text-lilac" },
-    { k: "penalties", v: "−…", c: "text-ink/45" },
+    { k: "penalties", v: "−…", c: "text-ink-muted" },
   ];
 
   return (
@@ -151,7 +151,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </button>
         <div className="ml-1">
           <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Setup</h1>
-          <p className="label-mono text-ink/45">the engine room — nothing here is required</p>
+          <p className="label-mono text-ink-muted">the engine room — nothing here is required</p>
         </div>
         <span
           className={`chip ml-auto ${aiOn ? "border-success/35 bg-success/10 text-success" : "border-later/35 bg-later/10 text-later"}`}
@@ -182,7 +182,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     dispatch({ type: "PATCH_SETTINGS", patch: { theme: m } });
                     pushToast({
                       title: lite ? "Light mode on" : "Dark mode on",
-                      body: lite ? "Back to spearmint." : "Deep pine — easy on the eyes.",
+                      body: lite ? "Back to ivory." : "Deep charcoal — easy on the eyes.",
                       tone: "ok",
                     });
                   }}
@@ -193,7 +193,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                   }`}
                 >
                   <span
-                    className="relative block h-16 overflow-hidden rounded-lg border border-ink/15"
+                    className="relative block h-16 overflow-hidden rounded-lg border border-line"
                     style={{ background: lite ? "#f5f3ee" : "#17171a" }}
                   >
                     <span
@@ -212,7 +212,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     />
                     <span
                       className="absolute right-2 bottom-2 block h-3.5 w-8 rounded-full"
-                      style={{ background: lite ? "#5e6ad2" : "#6e79e0" }}
+                      style={{ background: lite ? "#5e6ad2" : "#7681ec" }}
                     />
                   </span>
                   <span className="mt-2 flex items-center gap-1.5 text-sm font-bold">
@@ -228,7 +228,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         {/* 2 — goals */}
         <Section n={2} title="Goals" icon={<IconTarget size={17} className="text-success" />} sub="what everything gets scored against">
           {state.goals.length === 0 && (
-            <p className="rounded-lg border border-dashed border-ink/20 px-3 py-4 text-center text-sm text-ink/50">
+            <p className="rounded-lg border border-dashed border-line bg-surface-2/40 px-3 py-4 text-center text-sm text-ink-muted">
               No goals yet — tasks score fine, but a goal makes the ranking personal.
             </p>
           )}
@@ -236,22 +236,22 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
             {state.goals.map((g) => (
               <div
                 key={g.id}
-                className={`group flex items-start gap-2.5 border-t-2 border-dashed border-line py-2.5 first:border-t-0 ${
-                  g.active ? "" : "opacity-45"
+                className={`group flex items-start gap-2.5 border-t border-dashed border-line py-2.5 first:border-t-0 ${
+                  g.active ? "" : "opacity-65"
                 }`}
               >
                 <div className="min-w-0 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
                     <p className="truncate text-sm font-bold">{g.title}</p>
                     {g.isPrimary && (
-                      <span className="chip -rotate-2 border-ink bg-canvas text-ink">★ primary</span>
+                      <span className="chip -rotate-2 border-primary/40 bg-primary/10 text-primary">★ primary</span>
                     )}
-                    {!g.active && <span className="chip border-ink/25 text-ink/45">paused</span>}
+                    {!g.active && <span className="chip border-line bg-surface-2 text-ink-muted">paused</span>}
                   </div>
                   {g.targetDate && (
                     <p
                       className={`mt-0.5 font-mono text-[10px] ${
-                        daysUntil(g.targetDate) < 14 ? "font-bold text-coral" : "text-ink/45"
+                        daysUntil(g.targetDate) < 14 ? "font-bold text-coral" : "text-ink-muted"
                       }`}
                     >
                       {daysUntil(g.targetDate) >= 0
@@ -269,7 +269,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     className={`grid h-9 w-9 cursor-pointer place-items-center rounded-lg border transition-all lg:h-7 lg:w-7 ${
                       g.isPrimary
                         ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
-                        : "border-line text-ink/35 hover:border-ink/40 hover:text-ink"
+                        : "border-line text-ink-muted hover:border-ink/40 hover:text-ink"
                     }`}
                   >
                     <IconStarFilled size={14} />
@@ -279,14 +279,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                     onClick={() =>
                       dispatch({ type: "PATCH_GOAL", goalId: g.id, patch: { active: !g.active } })
                     }
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/35 transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all hover:border-ink/40 hover:text-ink lg:h-7 lg:w-7"
                   >
                     {g.active ? <IconPause size={13} /> : <IconPlay size={13} />}
                   </button>
                   <button
                     title="Delete goal"
                     onClick={() => dispatch({ type: "DELETE_GOAL", goalId: g.id })}
-                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink/35 transition-all hover:border-danger hover:bg-danger/10 hover:text-danger lg:h-7 lg:w-7"
+                    className="grid h-9 w-9 cursor-pointer place-items-center rounded-lg border border-line text-ink-muted transition-all hover:border-danger hover:bg-danger/10 hover:text-danger lg:h-7 lg:w-7"
                   >
                     <IconTrash size={13} />
                   </button>
@@ -295,7 +295,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
             ))}
           </div>
 
-          <form onSubmit={addGoal} className="mt-2 grid gap-2 border-t-2 border-ink pt-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
+          <form onSubmit={addGoal} className="mt-2 grid gap-2 border-t border-line pt-3 sm:grid-cols-[minmax(0,1fr)_auto_auto]">
             <input
               value={title}
               onChange={(e) => setTitle(e.target.value)}
@@ -314,12 +314,12 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
               <IconPlus size={15} /> Add
             </button>
           </form>
-          <p className="label-mono mt-2 text-ink/35">★ the primary goal gets the biggest weight in every score</p>
+          <p className="label-mono mt-2 text-ink-faint">★ the primary goal gets the biggest weight in every score</p>
         </Section>
 
         {/* 3 — AI provider */}
         <Section n={3} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="optional — meaning reading, not math">
-          <p className="text-xs leading-relaxed text-ink/60">
+          <p className="text-xs leading-relaxed text-ink-secondary">
             Without a key, Focal runs on its built-in heuristic engine — fully functional, fully
             offline. With a Groq key, an LLM reads task <em>meaning</em>, goal fit and impact.
             Deadlines, blocks and time windows stay deterministic either way. The key lives only
@@ -340,15 +340,15 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
                 onClick={() => dispatch({ type: "PATCH_SETTINGS", patch: { aiModel: m } })}
                 className={`chip cursor-pointer transition-colors ${
                   s.aiModel === m
-                    ? "border-ink bg-ink text-canvas"
-                    : "border-ink/25 bg-paper text-ink/60 hover:border-ink hover:text-ink"
+                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+                    : "border-line bg-surface text-ink-secondary hover:border-ink/40 hover:text-ink"
                 }`}
               >
                 {m}
               </button>
             ))}
           </div>
-          <p className="label-mono mt-2 text-ink/35">
+          <p className="label-mono mt-2 text-ink-faint">
             {aiOn ? "active — new & existing tasks get LLM analysis" : "get a key at console.groq.com → paste → done"}
           </p>
         </Section>
@@ -361,7 +361,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
               <Switch checked={notifOn} onChange={(v) => void toggleNudges(v)} label="Enable nudges" />
             </span>
           </div>
-          <p className="mt-2 font-mono text-[10px] leading-relaxed text-ink/45">
+          <p className="mt-2 font-mono text-[10px] leading-relaxed text-ink-muted">
             {perm === "granted" && notifOn
               ? "ready — nudges fire for overdue #1s, priority swaps & avoidance loops."
               : perm === "denied"
@@ -372,7 +372,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-1.5">
             {["overdue #1", "new #1", "avoidance loop"].map((r) => (
-              <span key={r} className="chip border-ink/20 text-ink/50">
+              <span key={r} className="chip border-line bg-surface-2 text-ink-muted">
                 {r}
               </span>
             ))}
@@ -386,13 +386,13 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         <Section n={5} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="deterministic, inspectable, boring on purpose">
           <div className="space-y-1.5">
             {weights.map((w) => (
-              <div key={w.k} className="flex items-center justify-between rounded-lg bg-canvas/70 px-3 py-2">
-                <span className="font-mono text-[11px] text-ink/60">{w.k}</span>
+              <div key={w.k} className="flex items-center justify-between rounded-lg border border-line bg-surface-2/60 px-3 py-2">
+                <span className="font-mono text-[11px] text-ink-secondary">{w.k}</span>
                 <span className={`font-mono text-[11px] font-bold ${w.c}`}>{w.v}</span>
               </div>
             ))}
           </div>
-          <p className="mt-3 font-mono text-[10px] leading-relaxed text-ink/45">
+          <p className="mt-3 font-mono text-[10px] leading-relaxed text-ink-muted">
             signal = goal fit + impact + urgency + time fit − postpone/blocked penalties. Open
             “why this score” on any pick to see the live numbers.
           </p>
@@ -432,14 +432,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
               </button>
             )}
           </div>
-          <p className="label-mono mt-3 text-ink/35">
+          <p className="label-mono mt-3 text-ink-faint">
             no account, no cloud — goals & tasks persist in localStorage only
           </p>
         </Section>
       </div>
 
       <footer className="mt-10 pb-8 text-center">
-        <button onClick={onBack} className="label-mono cursor-pointer text-ink/50 underline decoration-2 decoration-canvas underline-offset-4 transition-colors hover:text-ink">
+        <button onClick={onBack} className="label-mono cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink">
           ← back to the one question
         </button>
       </footer>

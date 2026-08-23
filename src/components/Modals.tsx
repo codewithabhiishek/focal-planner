@@ -35,12 +35,12 @@ function Option({
   return (
     <button
       onClick={onClick}
-      className="btn w-full justify-start gap-3 bg-paper px-3.5 py-3 text-left shadow-hard-faint hover:-translate-y-0.5 hover:shadow-hard-soft"
+      className="btn w-full justify-start gap-3 border-line bg-surface px-3.5 py-3 text-left text-ink shadow-hard-faint hover:-translate-y-0.5 hover:border-ink/30 hover:bg-surface-2 hover:shadow-hard-soft"
     >
       <span className={`sticker grid h-9 w-9 shrink-0 place-items-center ${cls}`}>{icon}</span>
       <span className="min-w-0">
-        <span className="block text-sm font-bold">{label}</span>
-        <span className="block font-mono text-[10px] text-ink/45">{note}</span>
+        <span className="block text-sm font-bold text-ink">{label}</span>
+        <span className="block font-mono text-[10px] text-ink-muted">{note}</span>
       </span>
     </button>
   );
@@ -69,7 +69,7 @@ export function NotNowModal({
         />
         <Option
           icon={<IconTrash size={17} />}
-          cls="bg-ink/10 text-ink/60"
+          cls="bg-surface-2 text-ink-muted"
           label="Not important anymore"
           note="strikes its importance — sinks in the ranking"
           onClick={() => onReason("unimportant")}
@@ -118,7 +118,7 @@ export function AvoidanceModal({
       kicker={`postponed ×${task.postponeCount} — no shame`}
       title="What's stopping you?"
     >
-      <p className="-mt-2 mb-4 rounded-lg border border-dashed border-ink/25 bg-surface-2/70 px-3 py-2 text-sm font-semibold">
+      <p className="-mt-2 mb-4 rounded-lg border border-dashed border-line bg-surface-2/70 px-3 py-2 text-sm font-semibold text-ink">
         “{task.title}”
       </p>
       <div className="grid gap-2">
@@ -145,7 +145,7 @@ export function AvoidanceModal({
         />
         <Option
           icon={<IconTrash size={17} />}
-          cls="bg-ink/10 text-ink/60"
+          cls="bg-surface-2 text-ink-muted"
           label="It's not actually important"
           note="drops it — the queue re-ranks without it"
           onClick={() => onReason("notimportant")}
@@ -195,7 +195,7 @@ export function BreakdownModal({
               }}
             />
           ))}
-          <span className="label-mono ml-2 text-ink/50">sketching steps…</span>
+          <span className="label-mono ml-2 text-ink-muted">sketching steps…</span>
         </div>
       ) : (
         <>
@@ -208,20 +208,20 @@ export function BreakdownModal({
                   onClick={() => onToggle(i)}
                   className={`btn w-full justify-start gap-3 px-3.5 py-2.5 text-left ${
                     on
-                      ? "border-primary/40 bg-primary/[0.07] shadow-hard-faint"
-                      : "border-line bg-surface text-ink/45 shadow-none"
+                      ? "border-primary/40 bg-primary/[0.07] shadow-hard-faint text-ink"
+                      : "border-line bg-surface text-ink-secondary shadow-none hover:bg-surface-2"
                   }`}
                 >
                   <span
                     className={`sticker grid h-7 w-7 shrink-0 place-items-center ${
-                      on ? "border-primary bg-primary text-primary-foreground" : "border-line bg-surface-2 text-ink/40"
+                      on ? "border-primary bg-primary text-primary-foreground" : "border-line bg-surface-2 text-ink-muted"
                     }`}
                   >
                     {on ? <IconCheck size={14} /> : <span className="font-mono text-xs">{i + 1}</span>}
                   </span>
                   <span className="min-w-0 flex-1 text-sm font-semibold">{s.title}</span>
                   {s.minutes != null && (
-                    <span className="chip shrink-0 border-ink/25 bg-paper text-ink/60">
+                    <span className="chip shrink-0 border-line bg-surface-2 text-ink-muted">
                       ~{s.minutes}m
                     </span>
                   )}
@@ -240,7 +240,7 @@ export function BreakdownModal({
             <button onClick={onRegenerate} className="btn-ghost px-4 py-2.5 text-sm">
               <IconSpark size={15} /> Shuffle ideas
             </button>
-            <p className="label-mono ml-auto text-ink/35">optional — nothing is forced</p>
+            <p className="label-mono ml-auto text-ink-faint">optional — nothing is forced</p>
           </div>
         </>
       )}

@@ -13,6 +13,7 @@ import { BudgetBar, NextAction, UpNext } from "./components/Focus";
 import { Capture } from "./components/Capture";
 import { Inbox } from "./components/Inbox";
 import { SettingsPage } from "./components/SettingsPage";
+import { AmbientBackground } from "./components/AmbientBackground";
 import {
   AvoidanceModal,
   BreakdownModal,
@@ -49,11 +50,11 @@ function GoalStrip({
   const active = goals.filter((g) => g.active);
   return (
     <div className="anim-rise flex flex-wrap items-center gap-1.5" style={{ animationDelay: "30ms" }}>
-      <span className="label-mono mr-1 text-ink/45">aiming at</span>
+      <span className="label-mono mr-1 text-ink-muted">aiming at</span>
       {active.length === 0 && (
         <button
           onClick={onManage}
-          className="chip cursor-pointer border-dashed border-ink/35 bg-paper/60 text-ink/55 transition-colors hover:border-ink hover:text-ink"
+          className="chip cursor-pointer border-dashed border-line bg-surface text-ink-muted transition-colors hover:border-ink/40 hover:text-ink"
         >
           no goal yet — set one <span aria-hidden>→</span>
         </button>
@@ -68,7 +69,7 @@ function GoalStrip({
           className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-xs font-bold transition-all duration-150 ${
             g.isPrimary
               ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
-              : "border-line bg-surface text-ink/65 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
+              : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
           }`}
         >
           {g.isPrimary && <IconStarFilled size={11} className="shrink-0" />}
@@ -79,7 +80,8 @@ function GoalStrip({
         onClick={onManage}
         aria-label="Add a goal"
         title="Add / manage goals"
-          className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ink/50 transition-all hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"      >
+        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border border-line bg-surface text-ink-muted transition-all hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink"
+      >
         <IconPlus size={12} />
       </button>
     </div>
@@ -378,7 +380,8 @@ function Shell() {
 
   return (
     <div className="min-h-dvh">
-      {/* ---------- ambient layer: dots + one soft glow, nothing else ---------- */}
+      {/* ---------- ambient layer: subtle constellation canvas + soft gradient wash ---------- */}
+      <AmbientBackground />
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
         {/* quiet two-tone wash: faint indigo at the crown, warm sand low-right */}
         <div
@@ -479,15 +482,15 @@ function Shell() {
             />
 
             <footer className="mt-12 pb-8 text-center">
-              <p className="label-mono text-ink/40">focal — dump tasks, we point at the one thing</p>
-              <p className="mt-1 font-mono text-[10px] text-ink/30">
-                shortcuts: <kbd className="rounded border border-ink/30 bg-paper px-1">/</kbd> capture ·{" "}
-                <kbd className="rounded border border-ink/30 bg-paper px-1">c</kbd> complete #1 ·{" "}
-                <kbd className="rounded border border-ink/30 bg-paper px-1">g</kbd> setup
+              <p className="label-mono text-ink-muted">focal — dump tasks, we point at the one thing</p>
+              <p className="mt-1 font-mono text-[10px] text-ink-faint">
+                shortcuts: <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">/</kbd> capture ·{" "}
+                <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">c</kbd> complete #1 ·{" "}
+                <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">g</kbd> setup
               </p>
               <button
                 onClick={() => navigate("setup")}
-                className="label-mono mt-3 cursor-pointer text-ink/50 underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
+                className="label-mono mt-3 cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
               >
                 goals · AI key · signals · data →
               </button>

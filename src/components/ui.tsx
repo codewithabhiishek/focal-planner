@@ -79,14 +79,14 @@ export function Chip({
   title?: string;
 }) {
   const tones: Record<string, string> = {
-    line: "border-line text-ink/60",
+    line: "border-line text-ink-secondary",
     primary: "border-primary/30 bg-primary/10 text-primary",
     danger: "border-danger/30 bg-danger/10 text-danger",
     warning: "border-warning/35 bg-warning/10 text-warning",
     success: "border-success/30 bg-success/10 text-success",
     info: "border-info/30 bg-info/10 text-info",
-    dark: "border-line bg-surface-2 text-ink/60",
-    paper: "border-line bg-surface-2 text-ink/60",
+    dark: "border-line bg-surface-2 text-ink-secondary",
+    paper: "border-line bg-surface-2 text-ink-secondary",
   };
   return (
     <span className={`chip ${tones[tone]}`} title={title}>
@@ -129,7 +129,7 @@ export function Modal({
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-[rgba(21,20,17,0.5)] sm:items-center sm:p-6"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs sm:items-center sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -152,19 +152,19 @@ export function Modal({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-line bg-surface-2 text-ink/55 transition-colors hover:border-ink/30 hover:text-ink sm:h-8 sm:w-8"
+              className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-line bg-surface-2 text-ink-muted transition-colors hover:border-ink/30 hover:text-ink sm:h-8 sm:w-8"
             >
               <IconX size={15} />
             </button>
             {(title || kicker) && (
               <div className="shrink-0 px-5 pt-4 sm:pt-5">
                 {kicker && (
-                  <p className="label-mono pr-10 text-ink/50">
+                  <p className="label-mono pr-10 text-ink-muted">
                     {kicker}
                   </p>
                 )}
                 {title && (
-                  <h3 className="mt-1 pr-10 font-display text-2xl font-bold tracking-tight text-balance">
+                  <h3 className="mt-1 pr-10 font-display text-2xl font-bold tracking-tight text-balance text-ink">
                     {title}
                   </h3>
                 )}
@@ -197,15 +197,16 @@ export function Switch({
       aria-checked={checked}
       aria-label={label}
       onClick={() => onChange(!checked)}
-              className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors duration-200 ${
-        checked ? "border-primary bg-primary" : "border-line bg-ink/10"
+      className={`relative h-6 w-11 shrink-0 cursor-pointer rounded-full border transition-colors duration-200 ${
+        checked ? "border-primary bg-primary" : "border-line bg-surface-2"
       }`}
     >
       <span
         className={`absolute top-[3px] h-4 w-4 rounded-full bg-surface shadow-hard-xs transition-all duration-200 ${
           checked ? "left-[23px]" : "left-[3px]"
         }`}
-      />    </button>
+      />
+    </button>
   );
 }
 
@@ -229,10 +230,10 @@ export function ScoreBar({
   const pct = Math.min(100, Math.round((Math.abs(value) / max) * 100));
   return (
     <div className="flex items-center gap-3">
-      <span className="label-mono w-24 shrink-0 text-ink/55 normal-case tracking-wider">
+      <span className="label-mono w-24 shrink-0 text-ink-muted normal-case tracking-wider">
         {label}
       </span>
-      <div className="h-2 flex-1 overflow-hidden rounded-full border border-ink/10 bg-ink/[0.06]">
+      <div className="h-2 flex-1 overflow-hidden rounded-full border border-line bg-surface-2">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
@@ -262,9 +263,9 @@ export function Toasts({
 }) {
   const iconFor = (t: Toast["tone"]) => {
     const map = {
-      ok: { icon: <IconCheckCircle size={16} />, cls: "bg-mint text-paper" },
-      info: { icon: <IconInfo size={16} />, cls: "bg-cobalt text-paper" },
-      warn: { icon: <IconStar4 size={16} />, cls: "bg-coral text-paper" },
+      ok: { icon: <IconCheckCircle size={16} />, cls: "bg-mint text-white" },
+      info: { icon: <IconInfo size={16} />, cls: "bg-cobalt text-white" },
+      warn: { icon: <IconStar4 size={16} />, cls: "bg-coral text-white" },
     } as const;
     return map[t];
   };
@@ -291,7 +292,7 @@ export function Toasts({
               <div className="min-w-0 flex-1">
                 <p className="font-display text-sm font-bold leading-snug">{t.title}</p>
                 {t.body && (
-                  <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-ink/65">
+                  <p className="mt-0.5 line-clamp-2 text-xs leading-relaxed text-ink-secondary">
                     {t.body}
                   </p>
                 )}
@@ -299,7 +300,7 @@ export function Toasts({
               <button
                 onClick={() => onDismiss(t.id)}
                 aria-label="Dismiss"
-                className="shrink-0 cursor-pointer text-ink/40 transition-colors hover:text-ink"
+                className="shrink-0 cursor-pointer text-ink-muted transition-colors hover:text-ink"
               >
                 <IconX size={14} />
               </button>
