@@ -482,7 +482,7 @@ function Shell() {
             />
 
             <footer className="mt-12 pb-8 text-center">
-              <p className="label-mono text-ink-muted">focal — dump tasks, we point at the one thing</p>
+              <p className="label-mono text-ink-muted">focal — add tasks, we point at the one thing</p>
               <p className="mt-1 font-mono text-[10px] text-ink-faint">
                 shortcuts: <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">/</kbd> capture ·{" "}
                 <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">c</kbd> complete #1 ·{" "}
@@ -492,7 +492,7 @@ function Shell() {
                 onClick={() => navigate("setup")}
                 className="label-mono mt-3 cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
               >
-                goals · AI key · signals · data →
+                goals · signals · scoring · data →
               </button>
             </footer>
           </main>

@@ -110,7 +110,7 @@ export function NextAction({
           Queue's clear. Nice.
         </h2>
         <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-ink-secondary">
-          Dump whatever's on your mind below — Focal weighs it against your goals and
+          Add whatever tasks are on your mind below — Focal weighs them against your goals and
           deadlines, then points at the one thing worth doing next.
         </p>
         {!hasGoals && (
