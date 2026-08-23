@@ -161,11 +161,11 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
   const [confirmClear, setConfirmClear] = useState(false);
 
   const weights = [
-    { k: "goal fit", v: "+28", c: "text-primary" },
-    { k: "impact", v: "+24", c: "text-cobalt" },
-    { k: "urgency", v: "+34", c: "text-warning" },
-    { k: "time fit", v: "+14", c: "text-lilac" },
-    { k: "penalties", v: "−…", c: "text-ink-muted" },
+    { k: "Goal Fit", v: "+28", c: "text-primary" },
+    { k: "Impact", v: "+24", c: "text-cobalt" },
+    { k: "Urgency", v: "+34", c: "text-warning" },
+    { k: "Time Fit", v: "+14", c: "text-lilac" },
+    { k: "Penalties", v: "−…", c: "text-ink-muted" },
   ];
 
   return (
@@ -369,18 +369,18 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </Section>
 
         {/* 4 — scoring */}
-        <Section n={4} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="deterministic, inspectable, boring on purpose">
+        <Section n={4} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="Deterministic, inspectable, boring on purpose">
           <div className="space-y-1.5">
             {weights.map((w) => (
               <div key={w.k} className="flex items-center justify-between rounded-lg border border-line bg-surface-2/60 px-3 py-2">
-                <span className="font-mono text-[11px] text-ink-secondary">{w.k}</span>
+                <span className="font-mono text-[11px] font-medium text-ink-secondary">{w.k}</span>
                 <span className={`font-mono text-[11px] font-bold ${w.c}`}>{w.v}</span>
               </div>
             ))}
           </div>
           <p className="mt-3 font-mono text-[10px] leading-relaxed text-ink-muted">
-            signal = goal fit + impact + urgency + time fit − postpone/blocked penalties. Open
-            “why this score” on any pick to see the live numbers.
+            Signal = Goal Fit + Impact + Urgency + Time Fit − Postpone / Blocked penalties. Open
+            “Why this score” on any pick to see the live numbers.
           </p>
         </Section>
 
