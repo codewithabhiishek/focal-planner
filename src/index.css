@@ -1,10 +1,9 @@
 @import "tailwindcss";
 
 /* ================================================================== */
-/* THEME TOKENS — :root is "Sticker Pop" (default).                    */
-/* [data-theme="y2k"] and [data-theme="night"] remap every token:      */
-/* colors, fonts, radii, shadows and surfaces. All component classes   */
-/* consume these vars, so the whole app re-skins instantly.            */
+/* DESIGN TOKENS — one theme: "Spearmint Sticker".                    */
+/* Soft mint canvas, deep pine ink, hard offset shadows, loud          */
+/* semantic accents. Every component consumes these vars.              */
 /* ================================================================== */
 
 @theme {
@@ -12,30 +11,28 @@
   --font-body: "Schibsted Grotesk", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "Space Mono", ui-monospace, "SF Mono", Menlo, monospace;
 
-  /* loud, warm, Gen-Z palette */
-  --color-canvas: #ffe45e; /* butter */
-  --color-paper: #fffdf6; /* card white */
-  --color-ink: #1a1712;
-  --color-ink-deep: #12100b;
-  --color-ink-2: #262018;
-  --color-ink-3: #3a3222;
+  /* spearmint sticker palette */
+  --color-canvas: #d9f0e3; /* spearmint mist */
+  --color-paper: #f7fbf8; /* card white, mint-tinted */
+  --color-ink: #17251e; /* deep pine */
+  --color-ink-2: #21332a;
+  --color-ink-3: #324a3d;
 
-  --color-fog: #f7f0df; /* text on ink */
-  --color-fog-dim: #d8d0ba;
-  --color-fog-faint: #a39a80;
+  --color-fog: #f0f7f2; /* text on ink */
+  --color-fog-dim: #c7d8cc;
+  --color-fog-faint: #90a798;
 
-  --color-line: #e9dfc2; /* hairlines on paper */
-  --color-line-ink: rgba(26, 23, 18, 0.14);
+  --color-line: #c2dfce; /* hairlines on paper */
+  --color-line-ink: rgba(23, 37, 30, 0.14);
 
   --color-coral: #ff4b3a; /* fire / do now / warning */
   --color-cobalt: #2e4cff; /* soon / info */
-  --color-mint: #0bbf6f; /* done / ok */
+  --color-mint: #0ba36b; /* done / ok — deep enough to pop on mint canvas */
   --color-lilac: #9c6bff; /* later / ai */
-  --color-sky: #12a8bf; /* delegate */
-  --color-honey: #f59f00;
+  --color-sky: #0fa3bf; /* delegate */
+  --color-honey: #e8960a;
 }
 
-/* ---- Sticker Pop (default) ---- */
 :root {
   color-scheme: light;
   --r-card: 14px;
@@ -43,87 +40,10 @@
   --card-bg: var(--color-paper);
   --hero-bg: var(--color-ink);
   --hero-line: var(--color-ink);
-  --shadow-card: 5px 5px 0 rgba(26, 23, 18, 0.16);
-  --shadow-hero: 8px 8px 0 #12100b;
-  --ambient-glow: rgba(255, 253, 246, 0.75);
-}
-
-/* ---- Y2K Cyber: ice blue, chrome-navy ink, glossy white cards ---- */
-[data-theme="y2k"] {
-  color-scheme: light;
-  --font-display: "Unbounded", "Space Grotesk", ui-sans-serif, sans-serif;
-  --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-
-  --color-canvas: #d8ecff;
-  --color-paper: #ffffff;
-  --color-ink: #1b2a6b;
-  --color-ink-deep: #131f52;
-  --color-ink-2: #2a3b85;
-  --color-ink-3: #46539e;
-
-  --color-fog: #eaf2ff;
-  --color-fog-dim: #b9c8ec;
-  --color-fog-faint: #8494c9;
-
-  --color-line: #c4dcf5;
-  --color-line-ink: rgba(27, 42, 107, 0.14);
-
-  --color-coral: #ff4fa8; /* bubblegum */
-  --color-cobalt: #2e63ff;
-  --color-mint: #00b87a;
-  --color-lilac: #8f7bff;
-  --color-sky: #12b3d8; /* chrome cyan */
-  --color-honey: #ff9e2c;
-
-  --r-card: 20px;
-  --r-hero: 26px;
-  --card-bg: linear-gradient(180deg, #ffffff 0%, #f4f9ff 55%, #e9f2ff 100%);
-  --hero-bg: linear-gradient(160deg, #27399f 0%, #16205e 55%, #0f1746 100%);
-  --hero-line: #3d55c8;
-  --shadow-card:
-    inset 0 2px 0 rgba(255, 255, 255, 0.95), 0 14px 30px rgba(64, 105, 208, 0.18);
-  --shadow-hero:
-    inset 0 2px 0 rgba(255, 255, 255, 0.16), 0 20px 46px rgba(21, 32, 94, 0.38);
-  --ambient-glow: rgba(255, 255, 255, 0.85);
-}
-
-/* ---- Night Shift: deep plum, lavender ink, pastel-neon accents ---- */
-[data-theme="night"] {
-  color-scheme: dark;
-  --font-display: "Syne", "Sora", ui-sans-serif, sans-serif;
-  --font-body: "Sora", ui-sans-serif, system-ui, sans-serif;
-
-  --color-canvas: #151027;
-  --color-paper: #201839;
-  --color-ink: #efe9ff; /* ink flips light — text & outlines */
-  --color-ink-deep: #0c0819;
-  --color-ink-2: #2b2150;
-  --color-ink-3: #3a2e66;
-
-  --color-fog: #f4efff;
-  --color-fog-dim: #c7bbea;
-  --color-fog-faint: #8d80b8;
-
-  --color-line: #322854;
-  --color-line-ink: rgba(239, 233, 255, 0.14);
-
-  --color-coral: #ff5c8a;
-  --color-cobalt: #6ba6ff;
-  --color-mint: #4fe3a3;
-  --color-lilac: #c0a6ff;
-  --color-sky: #45d8e8;
-  --color-honey: #ffc65c;
-
-  --r-card: 16px;
-  --r-hero: 22px;
-  --card-bg: linear-gradient(180deg, #251c46 0%, #1e1638 100%);
-  --hero-bg: linear-gradient(165deg, #2c1f5c 0%, #191040 60%, #120b2a 100%);
-  --hero-line: #4a3b86;
-  --shadow-card:
-    inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 16px 36px rgba(4, 2, 16, 0.55);
-  --shadow-hero:
-    0 0 0 1px rgba(192, 166, 255, 0.14), 0 22px 54px rgba(0, 0, 0, 0.5);
-  --ambient-glow: rgba(139, 110, 255, 0.16);
+  --shadow-card: 5px 5px 0 rgba(23, 37, 30, 0.16);
+  --shadow-hero: 8px 8px 0 #0e1712;
+  --shadow-ink: #17251e;
+  --ambient-glow: rgba(247, 251, 248, 0.85);
 }
 
 @layer base {
@@ -150,7 +70,6 @@
   }
   body {
     @apply bg-canvas font-body text-ink antialiased;
-    transition: background-color 0.35s ease;
   }
   ::selection {
     background: var(--color-ink);
@@ -168,14 +87,14 @@
   }
   * {
     scrollbar-width: thin;
-    scrollbar-color: color-mix(in srgb, var(--color-ink) 35%, transparent) transparent;
+    scrollbar-color: rgba(23, 37, 30, 0.35) transparent;
   }
   *::-webkit-scrollbar {
     width: 8px;
     height: 8px;
   }
   *::-webkit-scrollbar-thumb {
-    background: color-mix(in srgb, var(--color-ink) 30%, transparent);
+    background: rgba(23, 37, 30, 0.3);
     border-radius: 8px;
   }
 }
@@ -185,54 +104,42 @@
   @apply inline-flex cursor-pointer items-center justify-center gap-2 rounded-lg border-2 border-ink font-semibold transition-all duration-150 select-none active:translate-x-[3px] active:translate-y-[3px] active:shadow-none!;
 }
 
-/* theme-aware hard shadows (ink-tinted, so they adapt per vibe) */
+/* theme-aware hard shadows (ink-colored) */
 @utility shadow-hard-xs {
-  box-shadow: 2px 2px 0 var(--color-ink);
+  box-shadow: 2px 2px 0 rgba(23, 37, 30, 0.85);
 }
 @utility shadow-hard-soft {
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-ink) 30%, transparent);
+  box-shadow: 3px 3px 0 rgba(23, 37, 30, 0.18);
 }
 @utility shadow-hard-faint {
-  box-shadow: 3px 3px 0 color-mix(in srgb, var(--color-ink) 16%, transparent);
+  box-shadow: 3px 3px 0 rgba(23, 37, 30, 0.1);
 }
 
 @layer components {
   /* ---- surfaces ---- */
   .card {
-    border: 2px solid var(--color-ink);
+    @apply border-2 border-ink bg-paper;
     border-radius: var(--r-card);
     background: var(--card-bg);
     box-shadow: var(--shadow-card);
   }
   .card-dark {
-    border: 2px solid var(--hero-line);
+    @apply border-2 text-fog;
     border-radius: var(--r-hero);
+    border-color: var(--hero-line);
     background: var(--hero-bg);
-    color: var(--color-fog);
     box-shadow: var(--shadow-hero);
   }
 
   /* ---- buttons: lift on hover, press into the shadow on click ---- */
   .btn-yellow {
-    @apply btn bg-canvas text-ink hover:-translate-x-px hover:-translate-y-px;
-    box-shadow: 4px 4px 0 var(--color-ink);
-    &:hover {
-      box-shadow: 5px 5px 0 var(--color-ink);
-    }
+    @apply btn bg-canvas text-ink shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
   }
   .btn-ink {
-    @apply btn bg-ink text-canvas hover:-translate-x-px hover:-translate-y-px;
-    box-shadow: 4px 4px 0 color-mix(in srgb, var(--color-ink) 28%, transparent);
-    &:hover {
-      box-shadow: 5px 5px 0 color-mix(in srgb, var(--color-ink) 28%, transparent);
-    }
+    @apply btn bg-ink text-canvas shadow-[4px_4px_0_rgba(23,37,30,0.28)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_rgba(23,37,30,0.28)];
   }
   .btn-coral {
-    @apply btn bg-coral text-paper hover:-translate-x-px hover:-translate-y-px;
-    box-shadow: 4px 4px 0 var(--color-ink);
-    &:hover {
-      box-shadow: 5px 5px 0 var(--color-ink);
-    }
+    @apply btn bg-coral text-paper shadow-[4px_4px_0_var(--shadow-ink)] hover:-translate-x-px hover:-translate-y-px hover:shadow-[5px_5px_0_var(--shadow-ink)];
   }
   .btn-ghost {
     @apply btn border-ink/25 bg-transparent text-ink shadow-none hover:border-ink hover:bg-paper;
@@ -246,9 +153,7 @@
     @apply inline-flex items-center gap-1.5 rounded-full border-[1.5px] px-2 py-[3px] font-mono text-[10px] font-bold tracking-[0.06em] uppercase whitespace-nowrap;
   }
   .sticker {
-    border-radius: 10px;
-    border: 2px solid var(--color-ink);
-    box-shadow: 3px 3px 0 var(--color-ink);
+    @apply rounded-lg border-2 border-ink shadow-[3px_3px_0_var(--shadow-ink)];
   }
   .field {
     @apply w-full rounded-lg border-2 border-ink bg-paper px-3 py-2 text-[15px] font-medium text-ink placeholder:font-normal placeholder:text-ink/40;
@@ -279,14 +184,6 @@
     transform: none;
   }
 }
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
 @keyframes breathe {
   0%,
   100% {
@@ -309,22 +206,13 @@
 }
 @keyframes dot-ping {
   0% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-mint) 55%, transparent);
+    box-shadow: 0 0 0 0 rgba(11, 163, 107, 0.5);
   }
   70% {
-    box-shadow: 0 0 0 7px color-mix(in srgb, var(--color-mint) 0%, transparent);
+    box-shadow: 0 0 0 7px rgba(11, 163, 107, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-mint) 0%, transparent);
-  }
-}
-@keyframes wiggle {
-  0%,
-  100% {
-    transform: rotate(-2deg);
-  }
-  50% {
-    transform: rotate(2deg);
+    box-shadow: 0 0 0 0 rgba(11, 163, 107, 0);
   }
 }
 
@@ -335,9 +223,6 @@
   .anim-pop {
     animation: pop-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
   }
-  .anim-marquee {
-    animation: marquee 26s linear infinite;
-  }
   .anim-breathe {
     animation: breathe 5.5s ease-in-out infinite;
   }
@@ -347,40 +232,13 @@
   .anim-floaty-slow {
     animation: floaty 9s ease-in-out infinite reverse;
   }
-  .anim-wiggle {
-    animation: wiggle 3.4s ease-in-out infinite;
-  }
   .pulse-dot {
     animation: dot-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
-
-  /* ---- ambient backgrounds, one per vibe ---- */
   .bg-dots {
-    background-image: radial-gradient(
-      color-mix(in srgb, var(--color-ink) 14%, transparent) 1.1px,
-      transparent 1.1px
-    );
+    background-image: radial-gradient(rgba(23, 37, 30, 0.12) 1.1px, transparent 1.1px);
     background-size: 22px 22px;
   }
-  .bg-y2k-grid {
-    background-image:
-      linear-gradient(color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px),
-      linear-gradient(90deg, color-mix(in srgb, var(--color-ink) 9%, transparent) 1px, transparent 1px);
-    background-size: 26px 26px;
-    mask-image: radial-gradient(ellipse 90% 80% at 50% 0%, black 35%, transparent 100%);
-  }
-  .bg-night-stars {
-    background-image:
-      radial-gradient(color-mix(in srgb, var(--color-ink) 30%, transparent) 1px, transparent 1px),
-      radial-gradient(color-mix(in srgb, var(--color-lilac) 26%, transparent) 1.4px, transparent 1.4px);
-    background-size:
-      34px 34px,
-      89px 89px;
-    background-position:
-      0 0,
-      17px 29px;
-  }
-
   .text-balance {
     text-wrap: balance;
   }
@@ -389,11 +247,9 @@
 @media (prefers-reduced-motion: reduce) {
   .anim-rise,
   .anim-pop,
-  .anim-marquee,
   .anim-breathe,
   .anim-floaty,
   .anim-floaty-slow,
-  .anim-wiggle,
   .pulse-dot {
     animation: none;
   }

@@ -1,44 +1,95 @@
 import confetti from "canvas-confetti";
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { v4 as uuid } from "uuid";
-import type { SubtaskSuggestion, Task } from "./types";
+import type { Goal, SubtaskSuggestion, Task } from "./types";
 import { pickNext, rankTasks } from "./lib/engine";
 import { analyzeHeuristic } from "./lib/ai/heuristic";
 import { getProvider } from "./lib/ai";
 import { notify, registerServiceWorker, shouldNudge } from "./lib/notify";
-import { THEMES } from "./lib/themes";
 import { StoreProvider, useStore } from "./lib/store";
 import { Header } from "./components/Header";
 import { BudgetBar, NextAction, UpNext } from "./components/Focus";
 import { Capture } from "./components/Capture";
 import { Inbox } from "./components/Inbox";
-import { EngineCard, GoalsCard } from "./components/Rail";
+import { SettingsPage } from "./components/SettingsPage";
 import {
   AvoidanceModal,
   BreakdownModal,
-  GoalsModal,
   NotNowModal,
-  SettingsModal,
   type AvoidReason,
   type NotNowReason,
 } from "./components/Modals";
 import { Toasts } from "./components/ui";
-import { IconArrowDoodle, IconPostpone, IconSquiggle, IconStar4 } from "./components/icons";
+import { IconPostpone, IconPlus, IconStarFilled } from "./components/icons";
 
-type ModalState =
-  | { type: "notNow"; task: Task }
-  | { type: "avoidance"; task: Task }
-  | { type: "breakdown"; task: Task }
-  | { type: "goals" }
-  | null;
+const CONFETTI = ["#0BA36B", "#FF4B3A", "#2E4CFF", "#9C6BFF", "#0FA3BF", "#F7FBF8"];
 
+/* ---------------- tiny hash router ---------------- */
 
+type Route = "home" | "setup";
+function parseRoute(): Route {
+  return window.location.hash.startsWith("#/setup") ? "setup" : "home";
+}
+
+type ModalState = { type: "notNow" | "avoidance" | "breakdown"; task: Task } | null;
+
+/* ---------------- goal strip (compact, one line) ---------------- */
+
+function GoalStrip({
+  goals,
+  onPrimary,
+  onManage,
+}: {
+  goals: Goal[];
+  onPrimary: (id: string) => void;
+  onManage: () => void;
+}) {
+  const active = goals.filter((g) => g.active);
+  return (
+    <div className="anim-rise flex flex-wrap items-center gap-1.5" style={{ animationDelay: "30ms" }}>
+      <span className="label-mono mr-1 text-ink/45">aiming at</span>
+      {active.length === 0 && (
+        <button
+          onClick={onManage}
+          className="chip cursor-pointer border-dashed border-ink/35 bg-paper/60 text-ink/55 transition-colors hover:border-ink hover:text-ink"
+        >
+          no goal yet — set one <span aria-hidden>→</span>
+        </button>
+      )}
+      {active.map((g) => (
+        <button
+          key={g.id}
+          onClick={() => {
+            if (!g.isPrimary) onPrimary(g.id);
+          }}
+          title={g.isPrimary ? "Primary goal" : "Make primary"}
+          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border-2 px-2.5 py-1 text-xs font-bold transition-all duration-150 ${
+            g.isPrimary
+              ? "-rotate-1 border-ink bg-ink text-canvas shadow-[2px_2px_0_rgba(23,37,30,0.3)]"
+              : "border-ink/25 bg-paper text-ink/65 hover:-translate-y-0.5 hover:border-ink hover:text-ink"
+          }`}
+        >
+          {g.isPrimary && <IconStarFilled size={11} className="shrink-0 text-canvas" />}
+          <span className="truncate">{g.title}</span>
+        </button>
+      ))}
+      <button
+        onClick={onManage}
+        aria-label="Add a goal"
+        title="Add / manage goals"
+        className="grid h-6 w-6 cursor-pointer place-items-center rounded-full border-2 border-ink/25 bg-paper text-ink/50 transition-all hover:-translate-y-0.5 hover:border-ink hover:text-ink"
+      >
+        <IconPlus size={12} />
+      </button>
+    </div>
+  );
+}
 
 function Shell() {
   const { state, dispatch, toasts, dismissToast, pushToast } = useStore();
+  const [route, setRoute] = useState<Route>(parseRoute);
   const [modal, setModal] = useState<ModalState>(null);
-  const [settingsOpen, setSettingsOpen] = useState(false);
   const [breakdown, setBreakdown] = useState<{
     suggestions: SubtaskSuggestion[];
     busy: boolean;
@@ -46,7 +97,32 @@ function Shell() {
   }>({ suggestions: [], busy: false, selected: new Set() });
   const [, setTick] = useState(0);
 
-  /* re-rank on every relevant change; tick keeps "due in 3h" honest */
+  /* ---------- routing ---------- */
+  useEffect(() => {
+    const onHash = () => {
+      setRoute(parseRoute());
+      window.scrollTo({ top: 0 });
+    };
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, []);
+
+  const navigate = useCallback((r: Route) => {
+    const target = r === "setup" ? "#/setup" : "#/";
+    if (window.location.hash === target) {
+      setRoute(r);
+      window.scrollTo({ top: 0 });
+    } else {
+      window.location.hash = target;
+    }
+  }, []);
+
+  useEffect(() => {
+    document.title =
+      route === "setup" ? "Focal — Setup" : "Focal — What should I do next?";
+  }, [route]);
+
+  /* ---------- ranking ---------- */
   const ranked = useMemo(
     () => rankTasks(state.tasks, state.goals, state.budget),
     [state.tasks, state.goals, state.budget]
@@ -71,14 +147,6 @@ function Shell() {
   useEffect(() => {
     void registerServiceWorker();
   }, []);
-
-  /* ---------- theme: re-skin the whole app instantly ---------- */
-  useEffect(() => {
-    document.documentElement.setAttribute("data-theme", state.settings.theme);
-    document
-      .querySelector('meta[name="theme-color"]')
-      ?.setAttribute("content", THEMES[state.settings.theme].meta);
-  }, [state.settings.theme]);
 
   /* ---------- rule-based nudges (no AI, throttled) ---------- */
   useEffect(() => {
@@ -119,7 +187,7 @@ function Shell() {
       shouldNudge(`avoid:${avoided.task.id}`, 24 * 3600_000)
     ) {
       void notify(
-        "Stuck on something?",
+        "Stuck on something? ",
         `“${avoided.task.title}” got postponed ${avoided.task.postponeCount} times. Break it down or drop it.`,
         "focal-avoid"
       );
@@ -139,7 +207,7 @@ function Shell() {
         origin: r
           ? { x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height / 2) / window.innerHeight }
           : { y: 0.35 },
-        colors: THEMES[state.settings.theme].confetti,
+        colors: CONFETTI,
         scalar: 0.9,
         disableForReducedMotion: true,
       });
@@ -149,7 +217,7 @@ function Shell() {
         tone: "ok",
       });
     },
-    [dispatch, pushToast, state.tasks, state.settings.theme]
+    [dispatch, pushToast, state.tasks]
   );
 
   const handleNotNow = useCallback(
@@ -283,7 +351,7 @@ function Shell() {
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
-      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || modal || settingsOpen) return;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || modal || route === "setup") return;
       if (e.key === "/") {
         e.preventDefault();
         (document.querySelector('input[aria-label="New task"]') as HTMLInputElement | null)?.focus();
@@ -291,39 +359,47 @@ function Shell() {
       if (e.key.toLowerCase() === "c" && next && !next.task.blocked) {
         completeTask(next.task.id);
       }
+      if (e.key.toLowerCase() === "g") {
+        navigate("setup");
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [modal, settingsOpen, next, completeTask]);
+  }, [modal, route, next, completeTask, navigate]);
 
   return (
     <div className="min-h-dvh">
-      {/* ---------- ambient layer ---------- */}
+      {/* ---------- ambient layer: dots + one soft glow, nothing else ---------- */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className={`${THEMES[state.settings.theme].ambient} absolute inset-0 opacity-70 transition-opacity duration-500`} />
+        <div className="bg-dots absolute inset-0 opacity-60" />
         <div
-          className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full"
+          className="absolute -top-40 left-1/2 h-[520px] w-[860px] -translate-x-1/2 rounded-full"
           style={{ background: "radial-gradient(closest-side, var(--ambient-glow), transparent 70%)" }}
         />
-        <IconSquiggle size={170} className="anim-floaty absolute top-28 -left-8 hidden rotate-12 text-ink/12 md:block" />
-        <IconStar4 size={54} className="anim-floaty-slow absolute top-44 right-[8%] text-coral/40" style={{ "--fr": "12deg" } as CSSProperties} />
-        <IconArrowDoodle size={96} className="anim-floaty absolute bottom-24 left-[6%] hidden text-cobalt/30 md:block" />
-        <IconStar4 size={34} className="anim-floaty absolute bottom-40 right-[14%] text-mint/50" style={{ animationDelay: "1.2s" }} />
-        <span className="anim-floaty-slow absolute top-[62%] left-[3%] h-3 w-3 rounded-full border-2 border-ink bg-canvas" />
-        <span className="anim-floaty absolute top-[18%] left-[42%] h-2.5 w-2.5 rounded-full bg-coral/50" style={{ animationDelay: "0.6s" }} />
-        <span className="anim-floaty-slow absolute right-[4%] top-[70%] h-4 w-4 rounded-full border-2 border-ink bg-mint/60" />
       </div>
 
       <div className="relative z-10">
-        <Header onOpenSettings={() => setSettingsOpen(true)} />
+        <Header onSettings={() => navigate("setup")} />
 
-        <main className="mx-auto grid max-w-6xl items-start gap-6 px-4 py-6 sm:px-6 md:grid-cols-[minmax(0,1fr)_280px] lg:grid-cols-[minmax(0,1fr)_320px]">
-          {/* ---------- focus column ---------- */}
-          <div className="min-w-0">
-            <Capture />
+        {route === "setup" ? (
+          <SettingsPage onBack={() => navigate("home")} />
+        ) : (
+          <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+            <GoalStrip
+              goals={state.goals}
+              onPrimary={(id) => dispatch({ type: "SET_PRIMARY_GOAL", goalId: id })}
+              onManage={() => navigate("setup")}
+            />
+
+            <div className="mt-4">
+              <Capture />
+            </div>
 
             <div className="mt-5">
-              <BudgetBar budget={state.budget} onChange={(b) => dispatch({ type: "SET_BUDGET", budget: b })} />
+              <BudgetBar
+                budget={state.budget}
+                onChange={(b) => dispatch({ type: "SET_BUDGET", budget: b })}
+              />
             </div>
 
             <AnimatePresence>
@@ -367,37 +443,44 @@ function Shell() {
                   dispatch({ type: "PATCH_TASK", taskId: id, patch: { blocked: false, blockNote: undefined } });
                   pushToast({ title: "Unblocked — back in ranking", tone: "ok" });
                 }}
-                onAddGoal={() => setModal({ type: "goals" })}
+                onAddGoal={() => navigate("setup")}
               />
             </div>
 
-            <UpNext items={upNext} onComplete={completeTask} onNotNow={(id) => {
-              const t = state.tasks.find((x) => x.id === id);
-              if (t) setModal({ type: "notNow", task: t });
-            }} />
+            <UpNext
+              items={upNext}
+              onComplete={completeTask}
+              onNotNow={(id) => {
+                const t = state.tasks.find((x) => x.id === id);
+                if (t) setModal({ type: "notNow", task: t });
+              }}
+            />
 
-            <Inbox ranked={ranked} onComplete={completeTask} onNotNow={(id) => {
-              const t = state.tasks.find((x) => x.id === id);
-              if (t) setModal({ type: "notNow", task: t });
-            }} />
+            <Inbox
+              ranked={ranked}
+              onComplete={completeTask}
+              onNotNow={(id) => {
+                const t = state.tasks.find((x) => x.id === id);
+                if (t) setModal({ type: "notNow", task: t });
+              }}
+            />
 
             <footer className="mt-12 pb-8 text-center">
-              <p className="label-mono text-ink/40">
-                focal — dump tasks, we point at the one thing
-              </p>
+              <p className="label-mono text-ink/40">focal — dump tasks, we point at the one thing</p>
               <p className="mt-1 font-mono text-[10px] text-ink/30">
                 shortcuts: <kbd className="rounded border border-ink/30 bg-paper px-1">/</kbd> capture ·{" "}
-                <kbd className="rounded border border-ink/30 bg-paper px-1">c</kbd> complete #1
+                <kbd className="rounded border border-ink/30 bg-paper px-1">c</kbd> complete #1 ·{" "}
+                <kbd className="rounded border border-ink/30 bg-paper px-1">g</kbd> setup
               </p>
+              <button
+                onClick={() => navigate("setup")}
+                className="label-mono mt-3 cursor-pointer text-ink/50 underline decoration-2 decoration-canvas underline-offset-4 transition-colors hover:text-ink"
+              >
+                goals · AI key · signals · data →
+              </button>
             </footer>
-          </div>
-
-          {/* ---------- rail ---------- */}
-          <aside className="grid gap-5 lg:sticky lg:top-28">
-            <GoalsCard onOpenGoals={() => setModal({ type: "goals" })} />
-            <EngineCard onOpenSettings={() => setSettingsOpen(true)} />
-          </aside>
-        </main>
+          </main>
+        )}
       </div>
 
       {/* ---------- modals ---------- */}
@@ -426,8 +509,6 @@ function Shell() {
           onClose={() => setModal(null)}
         />
       )}
-      {modal?.type === "goals" && <GoalsModal onClose={() => setModal(null)} />}
-      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       <Toasts toasts={toasts} onDismiss={dismissToast} />
     </div>

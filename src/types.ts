@@ -84,7 +84,7 @@ export interface Task {
 }
 
 /** Visual identity of the whole app — colors, fonts, shadows, background. */
-export type ThemeId = "sticker" | "y2k" | "night";
+
 
 export interface Settings {
   /** Groq / OpenAI-compatible API key — never hardcoded, user-supplied only */
@@ -93,7 +93,6 @@ export interface Settings {
   notificationsEnabled: boolean;
   /** sample data has been seeded once */
   seeded: boolean;
-  theme: ThemeId;
 }
 
 export interface AppState {
