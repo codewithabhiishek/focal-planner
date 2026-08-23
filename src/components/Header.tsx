@@ -4,23 +4,17 @@ export function Header({ onSettings }: { onSettings: () => void }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-canvas/95 backdrop-blur-sm">
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
-        {/* Unified branding flex row */}
+        {/* Brand container */}
         <div className="flex items-center gap-2.5">
           <span className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-hard-faint">
             <IconReticle size={18} />
           </span>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 leading-none">
             <span className="font-display text-xl font-extrabold tracking-tight text-ink leading-none">
               Focal
             </span>
-            <span
-              aria-hidden="true"
-              className="hidden font-mono text-xs font-bold text-ink-faint select-none sm:inline-flex items-center leading-none"
-            >
-              ·
-            </span>
-            <span className="hidden font-mono text-[11px] font-medium tracking-wide text-ink-muted sm:inline-flex items-center leading-none">
-              one question, one answer
+            <span className="hidden font-mono text-[11px] font-medium tracking-wide text-ink-muted sm:inline-block leading-none">
+              · one question, one answer
             </span>
           </div>
         </div>
