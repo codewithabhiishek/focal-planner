@@ -6,14 +6,14 @@ export function Header({ onSettings }: { onSettings: () => void }) {
       <div className="mx-auto flex h-14 max-w-3xl items-center justify-between px-4 sm:px-6">
         {/* Brand container */}
         <div className="flex items-center gap-2.5">
-          <span className="flex h-8.5 w-8.5 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-hard-faint">
+          <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-hard-faint">
             <IconReticle size={18} />
           </span>
-          <div className="flex items-center gap-1.5 leading-none">
-            <span className="font-display text-xl font-extrabold tracking-tight text-ink leading-none">
+          <div className="flex items-baseline gap-2">
+            <span className="font-display text-xl font-extrabold tracking-tight text-ink">
               Focal
             </span>
-            <span className="hidden font-mono text-[11px] font-medium tracking-wide text-ink-muted sm:inline-block leading-none">
+            <span className="hidden font-mono text-[11px] font-medium text-ink-muted sm:inline-block">
               · one question, one answer
             </span>
           </div>
