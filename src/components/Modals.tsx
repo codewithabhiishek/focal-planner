@@ -2,6 +2,7 @@ import { useState, type ReactNode } from "react";
 import type { Goal, SubtaskSuggestion, Task } from "../types";
 import { useStore } from "../lib/store";
 import { enableNotifications, notificationsSupported, notify } from "../lib/notify";
+import { THEMES, THEME_IDS } from "../lib/themes";
 import { Modal, Switch } from "./ui";
 import {
   IconBlock,
@@ -41,7 +42,7 @@ function Option({
   return (
     <button
       onClick={onClick}
-      className="btn w-full justify-start gap-3 bg-paper px-3.5 py-3 text-left shadow-[3px_3px_0_rgba(26,23,18,0.18)] hover:-translate-y-0.5 hover:shadow-[4px_4px_0_rgba(26,23,18,0.22)]"
+      className="btn w-full justify-start gap-3 bg-paper px-3.5 py-3 text-left shadow-hard-faint hover:-translate-y-0.5 hover:shadow-hard-soft"
     >
       <span className={`sticker grid h-9 w-9 shrink-0 place-items-center ${cls}`}>{icon}</span>
       <span className="min-w-0">
@@ -214,7 +215,7 @@ export function BreakdownModal({
                   onClick={() => onToggle(i)}
                   className={`btn w-full justify-start gap-3 px-3.5 py-2.5 text-left ${
                     on
-                      ? "bg-canvas/60 shadow-[3px_3px_0_rgba(26,23,18,0.18)]"
+                      ? "bg-canvas/60 shadow-hard-faint"
                       : "border-ink/20 bg-paper/60 text-ink/40 shadow-none"
                   }`}
                 >
@@ -404,8 +405,54 @@ export function SettingsModal({ open, onClose }: { open: boolean; onClose: () =>
 
   return (
     <Modal open={open} onClose={onClose} kicker="under the hood" title="Settings" wide>
-      {/* AI provider */}
+      {/* Vibe — the whole app re-skins instantly */}
       <section>
+        <p className="label-mono text-ink/50">Vibe</p>
+        <div className="mt-2 grid gap-2 sm:grid-cols-3">
+          {THEME_IDS.map((id) => {
+            const t = THEMES[id];
+            const active = s.theme === id;
+            return (
+              <button
+                key={id}
+                aria-pressed={active}
+                onClick={() => {
+                  if (active) return;
+                  dispatch({ type: "PATCH_SETTINGS", patch: { theme: id } });
+                  pushToast({ title: `Vibe → ${t.label}`, body: t.tag, tone: "info" });
+                }}
+                className={`relative cursor-pointer rounded-xl border-2 p-3 text-left transition-all duration-150 ${
+                  active
+                    ? "-translate-y-0.5 border-ink bg-paper shadow-hard-soft"
+                    : "border-ink/15 bg-canvas/40 hover:-translate-y-0.5 hover:border-ink/50"
+                }`}
+              >
+                <span className="flex gap-1">
+                  {t.swatches.map((c) => (
+                    <span
+                      key={c}
+                      className="h-4 w-4 rounded-full border-2 border-ink/20"
+                      style={{ background: c }}
+                    />
+                  ))}
+                </span>
+                <span className="mt-2 block font-display text-sm font-bold">{t.label}</span>
+                <span className="mt-0.5 block font-mono text-[9px] tracking-wider text-ink/50 uppercase">
+                  {t.tag}
+                </span>
+                {active && (
+                  <span className="sticker absolute -top-2 -right-2 grid h-6 w-6 place-items-center bg-mint text-paper">
+                    <IconCheck size={12} />
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* AI provider */}
+      <section className="mt-6">
         <p className="label-mono text-ink/50">AI provider — optional</p>
         <p className="mt-1 text-xs leading-relaxed text-ink/60">
           Without a key, Focal runs on its built-in heuristic engine — fully functional. With a

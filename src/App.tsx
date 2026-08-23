@@ -7,6 +7,7 @@ import { pickNext, rankTasks } from "./lib/engine";
 import { analyzeHeuristic } from "./lib/ai/heuristic";
 import { getProvider } from "./lib/ai";
 import { notify, registerServiceWorker, shouldNudge } from "./lib/notify";
+import { THEMES } from "./lib/themes";
 import { StoreProvider, useStore } from "./lib/store";
 import { Header } from "./components/Header";
 import { BudgetBar, NextAction, UpNext } from "./components/Focus";
@@ -32,7 +33,7 @@ type ModalState =
   | { type: "goals" }
   | null;
 
-const CONFETTI_COLORS = ["#FFE45E", "#FF4B3A", "#0BBF6F", "#2E4CFF", "#9C6BFF", "#FFFDF6"];
+
 
 function Shell() {
   const { state, dispatch, toasts, dismissToast, pushToast } = useStore();
@@ -70,6 +71,14 @@ function Shell() {
   useEffect(() => {
     void registerServiceWorker();
   }, []);
+
+  /* ---------- theme: re-skin the whole app instantly ---------- */
+  useEffect(() => {
+    document.documentElement.setAttribute("data-theme", state.settings.theme);
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", THEMES[state.settings.theme].meta);
+  }, [state.settings.theme]);
 
   /* ---------- rule-based nudges (no AI, throttled) ---------- */
   useEffect(() => {
@@ -130,7 +139,7 @@ function Shell() {
         origin: r
           ? { x: (r.left + r.width / 2) / window.innerWidth, y: (r.top + r.height / 2) / window.innerHeight }
           : { y: 0.35 },
-        colors: CONFETTI_COLORS,
+        colors: THEMES[state.settings.theme].confetti,
         scalar: 0.9,
         disableForReducedMotion: true,
       });
@@ -140,7 +149,7 @@ function Shell() {
         tone: "ok",
       });
     },
-    [dispatch, pushToast, state.tasks]
+    [dispatch, pushToast, state.tasks, state.settings.theme]
   );
 
   const handleNotNow = useCallback(
@@ -291,10 +300,10 @@ function Shell() {
     <div className="min-h-dvh">
       {/* ---------- ambient layer ---------- */}
       <div aria-hidden className="pointer-events-none fixed inset-0 z-0 overflow-hidden">
-        <div className="bg-dots absolute inset-0 opacity-70" />
+        <div className={`${THEMES[state.settings.theme].ambient} absolute inset-0 opacity-70 transition-opacity duration-500`} />
         <div
           className="absolute -top-40 left-1/2 h-[560px] w-[900px] -translate-x-1/2 rounded-full"
-          style={{ background: "radial-gradient(closest-side, rgba(255,253,246,0.75), transparent 70%)" }}
+          style={{ background: "radial-gradient(closest-side, var(--ambient-glow), transparent 70%)" }}
         />
         <IconSquiggle size={170} className="anim-floaty absolute top-28 -left-8 hidden rotate-12 text-ink/12 md:block" />
         <IconStar4 size={54} className="anim-floaty-slow absolute top-44 right-[8%] text-coral/40" style={{ "--fr": "12deg" } as CSSProperties} />

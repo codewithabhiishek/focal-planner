@@ -51,8 +51,8 @@ export function BudgetBar({
               aria-pressed={active}
               className={`cursor-pointer rounded-full border-2 border-ink px-3.5 py-2 font-mono text-xs font-bold transition-all duration-150 sm:py-1 ${
                 active
-                  ? "bg-ink text-canvas shadow-[3px_3px_0_rgba(26,23,18,0.3)]"
-                  : "bg-paper text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-[3px_3px_0_rgba(26,23,18,0.16)]"
+                  ? "bg-ink text-canvas shadow-hard-soft"
+                  : "bg-paper text-ink/60 hover:-translate-y-0.5 hover:text-ink hover:shadow-hard-faint"
               }`}
             >
               {b.label}
@@ -319,7 +319,7 @@ export function UpNext({
               transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
               className={`group flex items-center gap-3 px-4 py-3 ${i > 0 ? "border-t-2 border-dashed border-line" : ""}`}
             >
-              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-ink bg-canvas font-mono text-xs font-bold shadow-[2px_2px_0_rgba(26,23,18,0.85)]">
+              <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg border-2 border-ink bg-canvas font-mono text-xs font-bold shadow-hard-xs">
                 {i + 2}
               </span>
               <div className="min-w-0 flex-1">

@@ -139,7 +139,7 @@ export function Modal({
           <motion.div
             role="dialog"
             aria-modal="true"
-            className={`card relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-b-none border-b-0 rounded-t-[24px] shadow-[0_-10px_0_rgba(26,23,18,0.18)] sm:max-h-[85vh] sm:rounded-[24px] sm:border-b-2 sm:shadow-[10px_10px_0_rgba(26,23,18,0.85)] ${
+            className={`card relative flex max-h-[88dvh] w-full flex-col overflow-hidden rounded-b-none border-b-0 rounded-t-[24px] shadow-[0_-10px_0_color-mix(in_srgb,var(--color-ink)_18%,transparent)] sm:max-h-[85vh] sm:rounded-[24px] sm:border-b-2 sm:shadow-[10px_10px_0_var(--color-ink)] ${
               wide ? "sm:max-w-lg" : "sm:max-w-md"
             }`}
             initial={{ y: 72, opacity: 0 }}
@@ -232,7 +232,7 @@ export function ScoreBar({
       <span className="label-mono w-24 shrink-0 text-fog-dim normal-case tracking-wider">
         {label}
       </span>
-      <div className="h-3 flex-1 overflow-hidden rounded-full border border-white/15 bg-white/8">
+      <div className="h-3 flex-1 overflow-hidden rounded-full border border-white/15 bg-white/10">
         <motion.div
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
