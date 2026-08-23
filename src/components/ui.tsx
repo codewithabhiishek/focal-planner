@@ -227,7 +227,9 @@ export function ScoreBar({
   delay?: number;
   color?: string;
 }) {
-  const pct = Math.min(100, Math.round((Math.abs(value) / max) * 100));
+  const rounded = Math.round(value);
+  const isNegative = negative || rounded < 0;
+  const pct = Math.min(100, Math.round((Math.abs(rounded) / max) * 100));
   return (
     <div className="flex items-center gap-3">
       <span className="label-mono w-24 shrink-0 text-ink-muted normal-case tracking-wider">
@@ -238,15 +240,15 @@ export function ScoreBar({
           initial={{ width: 0 }}
           animate={{ width: `${pct}%` }}
           transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
-          className={`h-full rounded-full ${negative ? "bg-danger" : color}`}
+          className={`h-full rounded-full ${isNegative ? "bg-danger" : color}`}
         />
       </div>
       <span
-        className={`w-11 shrink-0 text-right font-mono text-xs font-bold ${
-          negative ? "text-danger" : "text-ink"
+        className={`w-10 shrink-0 text-right font-mono text-xs font-bold whitespace-nowrap ${
+          isNegative ? "text-danger" : "text-ink"
         }`}
       >
-        {value > 0 ? `+${value}` : value}
+        {rounded > 0 ? `+${rounded}` : rounded}
       </span>
     </div>
   );
