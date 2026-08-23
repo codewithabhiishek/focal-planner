@@ -20,13 +20,6 @@ import {
   IconUndo,
 } from "./icons";
 
-const MODELS = [
-  "openai/gpt-oss-120b",
-  "openai/gpt-oss-20b",
-  "groq/compound-mini",
-  "qwen/qwen3.6-27b",
-];
-
 function Section({
   n,
   title,
@@ -308,54 +301,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           <p className="label-mono mt-2 text-ink-faint">★ the primary goal gets the biggest weight in every score</p>
         </Section>
 
-        {/* 3 — AI provider */}
-        <Section n={3} title="AI provider" icon={<IconSpark size={17} className="text-lilac" />} sub="secure backend proxy · meaning reading, not math">
-          <p className="text-xs leading-relaxed text-ink-secondary">
-            Focal routes AI queries through a secure backend proxy (<code className="rounded border border-line bg-surface px-1 py-0.5 font-mono text-[11px]">/api/groq</code>). Your API key is stored safely on the server in <code className="rounded border border-line bg-surface px-1 py-0.5 font-mono text-[11px]">.env</code> and is never exposed to the client or browser network logs.
-          </p>
-
-          <div className="mt-3 flex items-center gap-2.5 rounded-xl border border-line bg-surface-2/50 p-3">
-            <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${aiOn ? "bg-success" : "bg-ink-muted"}`} />
-            <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-ink">
-                {backendConfigured
-                  ? "Backend GROQ_API_KEY active (.env)"
-                  : s.aiKey.trim()
-                  ? "Custom client key active"
-                  : "Built-in offline heuristic engine"}
-              </p>
-              <p className="font-mono text-[10px] text-ink-muted">
-                {aiOn
-                  ? "Tasks receive deep contextual goal & impact analysis"
-                  : "Add GROQ_API_KEY to your .env file to enable Groq LLM"}
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-3">
-            <label className="label-mono mb-1.5 block text-ink-muted">
-              Model selector
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {MODELS.map((m) => (
-                <button
-                  key={m}
-                  onClick={() => dispatch({ type: "PATCH_SETTINGS", patch: { aiModel: m } })}
-                  className={`chip cursor-pointer transition-colors ${
-                    s.aiModel === m
-                      ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
-                      : "border-line bg-surface text-ink-secondary hover:border-ink/40 hover:text-ink"
-                  }`}
-                >
-                  {m}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Section>
-
-        {/* 4 — signals */}
-        <Section n={4} title="Signals" icon={<IconBell size={17} className="text-cobalt" />} sub="nudges, not noise">
+        {/* 3 — signals */}
+        <Section n={3} title="Signals" icon={<IconBell size={17} className="text-cobalt" />} sub="nudges, not noise">
           <div className="flex items-center gap-2">
             <span className="text-sm font-semibold">Browser nudges</span>
             <span className="ml-auto">
@@ -383,8 +330,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </div>
         </Section>
 
-        {/* 5 — scoring */}
-        <Section n={5} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="deterministic, inspectable, boring on purpose">
+        {/* 4 — scoring */}
+        <Section n={4} title="How the score works" icon={<IconInfo size={17} className="text-warning" />} sub="deterministic, inspectable, boring on purpose">
           <div className="space-y-1.5">
             {weights.map((w) => (
               <div key={w.k} className="flex items-center justify-between rounded-lg border border-line bg-surface-2/60 px-3 py-2">
@@ -399,8 +346,8 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
         </Section>
 
-        {/* 6 — data */}
-        <Section n={6} title="Data" icon={<IconTrash size={17} className="text-danger" />} sub="stored locally in this browser">
+        {/* 5 — data */}
+        <Section n={5} title="Data" icon={<IconTrash size={17} className="text-danger" />} sub="stored locally in this browser">
           <div className="flex flex-wrap gap-2">
             <button
               onClick={() => {
