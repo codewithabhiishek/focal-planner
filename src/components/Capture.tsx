@@ -47,7 +47,7 @@ export function Capture() {
           onChange={(e) => setTitle(e.target.value)}
           placeholder='Dump a task… e.g. "reply to recruiter before 5 pm"'
           aria-label="New task"
-          className="min-w-0 flex-1 bg-transparent text-[15px] font-normal text-ink outline-none placeholder:text-placeholder"
+          className="min-w-0 flex-1 bg-transparent text-[13.5px] sm:text-sm font-normal text-ink outline-none placeholder:text-[13px] sm:placeholder:text-[13.5px] placeholder:text-placeholder"
         />
         <div className="flex shrink-0 items-center gap-1 sm:gap-1.5">
           <button
