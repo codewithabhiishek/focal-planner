@@ -68,13 +68,13 @@ export function Inbox({
   };
 
   return (
-    <section className="mt-10">
+    <section className="mt-6 sm:mt-10">
       {/* Cohesive toolbar: title + filter pills */}
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2.5">
-        <h2 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight text-ink">
-          <IconInbox size={18} className="text-primary" /> Task inbox
+      <div className="flex flex-wrap items-center justify-between gap-x-3 gap-y-2 sm:gap-x-4 sm:gap-y-2.5">
+        <h2 className="flex items-center gap-2 font-display text-base sm:text-lg font-extrabold tracking-tight text-ink">
+          <IconInbox size={17} className="text-primary" /> Task inbox
         </h2>
-        <div className="flex flex-wrap items-center gap-1.5">
+        <div className="flex flex-wrap items-center gap-1 sm:gap-1.5">
           {FILTERS.map((f) => {
             const active = filter === f.id;
             const n = counts[f.id] ?? 0;
@@ -82,9 +82,9 @@ export function Inbox({
               <button
                 key={f.id}
                 onClick={() => setFilter(f.id)}
-                className={`cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold tracking-wider uppercase transition-all duration-150 ${
+                className={`cursor-pointer rounded-full border px-2 py-0.5 sm:px-2.5 sm:py-1 font-mono text-[9.5px] sm:text-[10px] font-bold tracking-wider uppercase transition-all duration-150 ${
                   active
-                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-105"
+                    ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-[1.03]"
                     : n === 0
                       ? "border-line bg-surface-2 text-ink-muted/80 hover:border-ink/40 hover:text-ink active:scale-95"
                       : "border-line bg-surface text-ink hover:-translate-y-0.5 hover:border-ink/40 active:scale-95"
@@ -98,9 +98,9 @@ export function Inbox({
       </div>
 
       {/* Task List Container */}
-      <div className="card mt-3 overflow-hidden">
+      <div className="card mt-2.5 sm:mt-3 overflow-hidden">
         {visible.length === 0 && (
-          <p className="px-4 py-10 text-center text-sm text-ink-muted">
+          <p className="px-4 py-8 sm:py-10 text-center text-sm text-ink-muted">
             Nothing here — the queue is quiet.
           </p>
         )}
@@ -113,7 +113,7 @@ export function Inbox({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0, x: -28 }}
               transition={{ duration: 0.25 }}
-              className={`group flex items-center justify-between gap-4 px-4 py-3 sm:px-5 ${
+              className={`group flex items-center justify-between gap-3 sm:gap-4 px-3 py-2.5 sm:px-5 sm:py-3 ${
                 i > 0 ? "border-t border-line" : ""
               } ${r.task.blocked ? "bg-warning/[0.04]" : "hover:bg-surface-2/40"} transition-colors`}
             >
@@ -243,7 +243,7 @@ export function Inbox({
             {closed.map((t, idx) => (
               <div
                 key={t.id}
-                className={`group flex items-center justify-between gap-4 px-4 py-2.5 sm:px-5 ${
+                className={`group flex items-center justify-between gap-3 sm:gap-4 px-3 py-2 sm:px-5 sm:py-2.5 ${
                   idx > 0 ? "border-t border-line" : ""
                 }`}
               >

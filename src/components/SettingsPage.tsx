@@ -40,20 +40,20 @@ function Section({
   children: ReactNode;
 }) {
   return (
-    <section className="card anim-rise p-4 sm:p-5" style={{ animationDelay: `${n * 60}ms` }}>
-      <div className="flex items-center gap-3">
-        <span className="sticker grid h-9 w-9 shrink-0 place-items-center bg-surface-2 font-display text-base font-extrabold text-ink">
+    <section className="card anim-rise p-3.5 sm:p-5" style={{ animationDelay: `${n * 60}ms` }}>
+      <div className="flex items-center gap-2.5 sm:gap-3">
+        <span className="sticker grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center bg-surface-2 font-display text-sm sm:text-base font-extrabold text-ink">
           {n}
         </span>
         <div className="min-w-0">
-          <h2 className="flex items-center gap-2 font-display text-lg font-extrabold tracking-tight">
+          <h2 className="flex items-center gap-2 font-display text-base sm:text-lg font-extrabold tracking-tight">
             {icon}
             {title}
           </h2>
           <p className="label-mono mt-0.5 text-ink-muted">{sub}</p>
         </div>
       </div>
-      <div className="mt-4">{children}</div>
+      <div className="mt-3 sm:mt-4">{children}</div>
     </section>
   );
 }
@@ -169,14 +169,14 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
   ];
 
   return (
-    <div className="mx-auto max-w-2xl px-4 py-6 sm:px-6">
+    <div className="mx-auto max-w-2xl px-3 py-4 sm:px-6 sm:py-6">
       {/* page header */}
-      <div className="anim-rise flex items-center gap-3">
-        <button onClick={onBack} className="btn-ghost px-3 py-2 text-sm">
-          <IconChevron size={15} className="rotate-180" /> Focus
+      <div className="anim-rise flex items-center gap-2.5 sm:gap-3">
+        <button onClick={onBack} className="btn-ghost px-2.5 py-1.5 sm:px-3 sm:py-2 text-xs sm:text-sm">
+          <IconChevron size={14} className="rotate-180" /> Focus
         </button>
         <div className="ml-1">
-          <h1 className="font-display text-2xl font-extrabold tracking-tight sm:text-3xl">Setup</h1>
+          <h1 className="font-display text-xl sm:text-3xl font-extrabold tracking-tight">Setup</h1>
           <p className="label-mono text-ink-muted">the engine room — nothing here is required</p>
         </div>
         <span
@@ -192,7 +192,7 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
         </span>
       </div>
 
-      <div className="mt-6 grid gap-5">
+      <div className="mt-4 sm:mt-6 grid gap-3.5 sm:gap-5">
         {/* 1 — appearance */}
         <Section n={1} title="Appearance" icon={<IconReticle size={17} className="text-primary" />} sub="light or dark — applied instantly, remembered">
           <div className="grid grid-cols-2 gap-3">

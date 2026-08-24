@@ -66,9 +66,9 @@ function GoalStrip({
             if (!g.isPrimary) onPrimary(g.id);
           }}
           title={g.isPrimary ? "Primary goal" : "Make primary"}
-          className={`inline-flex max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-xs font-bold transition-all duration-200 ${
+          className={`inline-flex max-w-[11rem] sm:max-w-[16rem] cursor-pointer items-center gap-1.5 truncate rounded-full border px-2.5 py-1 text-[11px] sm:text-xs font-bold transition-all duration-200 ${
             g.isPrimary
-              ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-105"
+              ? "border-primary bg-primary text-primary-foreground shadow-hard-faint scale-[1.02]"
               : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink active:scale-95"
           }`}
         >
@@ -437,18 +437,18 @@ function Shell() {
         {route === "setup" ? (
           <SettingsPage onBack={() => navigate("home")} />
         ) : (
-          <main className="mx-auto max-w-3xl px-4 py-6 sm:px-6">
+          <main className="mx-auto max-w-3xl px-3 py-3.5 sm:px-6 sm:py-6">
             <GoalStrip
               goals={state.goals}
               onPrimary={(id) => dispatch({ type: "SET_PRIMARY_GOAL", goalId: id })}
               onManage={() => navigate("setup")}
             />
 
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <Capture />
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <BudgetBar
                 budget={state.budget}
                 onChange={(b) => dispatch({ type: "SET_BUDGET", budget: b })}
@@ -464,10 +464,10 @@ function Shell() {
                   exit={{ opacity: 0, height: 0, marginTop: 0 }}
                   transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
                   onClick={() => setModal({ type: "avoidance", task: avoided.task })}
-                  className="card mt-5 flex w-full cursor-pointer items-center gap-3 border-danger/35 bg-danger/[0.07] px-4 py-3 text-left shadow-[0_10px_30px_-18px_rgba(192,91,80,0.5)] transition-transform hover:-translate-y-0.5"
+                  className="card mt-3 sm:mt-5 flex w-full cursor-pointer items-center gap-3 border-danger/35 bg-danger/[0.07] px-3.5 py-2.5 sm:px-4 sm:py-3 text-left shadow-[0_10px_30px_-18px_rgba(192,91,80,0.5)] transition-transform hover:-translate-y-0.5"
                 >
-                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[8px] bg-danger text-white">
-                    <IconPostpone size={17} />
+                  <span className="grid h-8 w-8 sm:h-9 sm:w-9 shrink-0 place-items-center rounded-[8px] bg-danger text-white">
+                    <IconPostpone size={16} />
                   </span>
                   <span className="min-w-0">
                     <span className="label-mono block text-coral">avoidance loop detected</span>
@@ -480,7 +480,7 @@ function Shell() {
               )}
             </AnimatePresence>
 
-            <div className="mt-4">
+            <div className="mt-3 sm:mt-4">
               <NextAction
                 next={next}
                 blockedTop={blockedTop}
@@ -518,7 +518,7 @@ function Shell() {
               }}
             />
 
-            <footer className="mt-12 pb-8 text-center">
+            <footer className="mt-8 sm:mt-12 pb-8 text-center">
               <p className="label-mono text-ink-muted">focal — add tasks, we point at the one thing</p>
               <p className="mt-1 font-mono text-[10px] text-ink-faint">
                 shortcuts: <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">/</kbd> capture ·{" "}

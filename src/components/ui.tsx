@@ -152,25 +152,26 @@ export function Modal({
             <button
               onClick={onClose}
               aria-label="Close"
-              className="absolute right-3 top-3 z-10 grid h-9 w-9 cursor-pointer place-items-center rounded-full border border-line bg-surface-2 text-ink-muted transition-colors hover:border-ink/30 hover:text-ink sm:h-8 sm:w-8"
+              className="absolute right-3 top-3 z-10 grid h-8 w-8 cursor-pointer place-items-center rounded-full border border-line bg-surface-2 text-ink-muted transition-colors hover:border-ink/30 hover:text-ink"
             >
-              <IconX size={15} />
+              <IconX size={14} className="sm:hidden" />
+              <IconX size={15} className="hidden sm:block" />
             </button>
             {(title || kicker) && (
-              <div className="shrink-0 px-5 pt-4 sm:pt-5">
+              <div className="shrink-0 px-4 pt-3.5 sm:px-5 sm:pt-5">
                 {kicker && (
                   <p className="label-mono pr-10 text-ink-muted">
                     {kicker}
                   </p>
                 )}
                 {title && (
-                  <h3 className="mt-1 pr-10 font-display text-2xl font-bold tracking-tight text-balance text-ink">
+                  <h3 className="mt-1 pr-10 font-display text-xl sm:text-2xl font-bold tracking-tight text-balance text-ink">
                     {title}
                   </h3>
                 )}
               </div>
             )}
-            <div className="overflow-y-auto p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] sm:pb-5">
+            <div className="overflow-y-auto p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:p-5 sm:pb-5">
               {children}
             </div>
           </motion.div>

@@ -38,9 +38,9 @@ export function BudgetBar({
   onChange: (b: TimeBudget) => void;
 }) {
   return (
-    <div className="anim-rise flex flex-wrap items-center gap-x-3 gap-y-2">
+    <div className="anim-rise flex flex-wrap items-center gap-x-2 gap-y-1 sm:gap-x-3 sm:gap-y-2">
       <span className="label-mono text-ink-muted">How much time do you have?</span>
-      <div className="flex flex-wrap gap-1.5">
+      <div className="flex flex-wrap gap-1 sm:gap-1.5">
         {BUDGETS.map((b) => {
           const active = budget === b.id;
           return (
@@ -48,9 +48,9 @@ export function BudgetBar({
               key={String(b.id)}
               onClick={() => onChange(b.id)}
               aria-pressed={active}
-              className={`cursor-pointer rounded-full border px-3.5 py-2 font-mono text-xs font-bold transition-all duration-200 sm:py-1 ${
+              className={`cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold transition-all duration-200 sm:px-3.5 sm:py-1 sm:text-xs ${
                 active
-                  ? "border-primary bg-primary text-primary-foreground shadow-hard-soft scale-105"
+                  ? "border-primary bg-primary text-primary-foreground shadow-hard-soft scale-[1.03]"
                   : "border-line bg-surface text-ink-secondary hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:shadow-hard-faint active:scale-95"
               }`}
             >
@@ -141,7 +141,7 @@ export function NextAction({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -14 }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-          className="card-hero relative p-4 sm:p-5"
+          className="card-hero relative p-3.5 sm:p-5"
         >
           <div className="flex items-center gap-2">
             <CategoryBadge category={r.category} />
@@ -157,7 +157,7 @@ export function NextAction({
             </span>
           </div>
 
-          <h1 className="mt-2.5 font-display text-xl leading-[1.15] font-extrabold tracking-tight text-balance break-words text-ink sm:text-[1.35rem]">
+          <h1 className="mt-2 sm:mt-2.5 font-display text-[1.1rem] leading-snug font-extrabold tracking-tight text-balance break-words text-ink sm:text-[1.35rem]">
             {task.title}
           </h1>
 
@@ -206,20 +206,20 @@ export function NextAction({
               : r.reason}
           </p>
 
-          <div className="mt-3.5 flex flex-wrap items-center gap-2">
+          <div className="mt-2.5 sm:mt-3.5 flex flex-wrap items-center gap-2">
             {isBlockedView ? (
-              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-4 py-2 text-[13px] font-bold">
+              <button onClick={() => onUnblock(task.id)} className="btn-yellow px-3.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-[13px] font-bold">
                 <IconBlock size={14} /> Unblock it
               </button>
             ) : (
               <button
                 onClick={(e) => onComplete(task.id, e.currentTarget)}
-                className="btn-yellow px-4 py-2 text-[13px] font-bold"
+                className="btn-yellow px-3.5 py-1.5 text-xs sm:px-4 sm:py-2 sm:text-[13px] font-bold"
               >
                 <IconCheck size={14} /> Complete
               </button>
             )}
-            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-3.5 py-2 text-[13px]">
+            <button onClick={() => onNotNow(task.id)} className="btn-outline-dark px-3 py-1.5 text-xs sm:px-3.5 sm:py-2 sm:text-[13px]">
               Not now
             </button>
             <button
@@ -311,12 +311,12 @@ export function UpNext({
 }) {
   if (items.length === 0) return null;
   return (
-    <section className="mt-7">
+    <section className="mt-4 sm:mt-7">
       <div className="flex items-baseline justify-between">
-        <h2 className="font-display text-lg font-extrabold tracking-tight text-ink">Up next</h2>
+        <h2 className="font-display text-base sm:text-lg font-extrabold tracking-tight text-ink">Up next</h2>
         <span className="label-mono text-ink-muted">same score · ranked live</span>
       </div>
-      <div className="card mt-2.5 overflow-hidden">
+      <div className="card mt-2 sm:mt-2.5 overflow-hidden">
         <AnimatePresence initial={false}>
           {items.map((r, i) => (
             <motion.div
@@ -326,7 +326,7 @@ export function UpNext({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, x: -36 }}
               transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
-              className={`group flex items-center justify-between gap-4 px-4 py-3 sm:px-5 ${
+              className={`group flex items-center justify-between gap-3 sm:gap-4 px-3.5 py-2.5 sm:px-5 sm:py-3 ${
                 i > 0 ? "border-t border-line" : ""
               } hover:bg-surface-2/40 transition-colors`}
             >
