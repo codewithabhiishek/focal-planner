@@ -8,6 +8,7 @@ import { analyzeHeuristic } from "./lib/ai/heuristic";
 import { getProvider } from "./lib/ai";
 import { notify, registerServiceWorker, shouldNudge } from "./lib/notify";
 import { StoreProvider, useStore } from "./lib/store";
+import { haptics } from "./lib/haptics";
 import { Header } from "./components/Header";
 import { BudgetBar, NextAction, UpNext } from "./components/Focus";
 import { Capture } from "./components/Capture";
@@ -210,6 +211,7 @@ function Shell() {
   const completeTask = useCallback(
     (taskId: string, el?: HTMLElement) => {
       const t = state.tasks.find((x) => x.id === taskId);
+      haptics.complete();
       dispatch({ type: "COMPLETE_TASK", taskId, at: Date.now() });
       const r = el?.getBoundingClientRect();
       confetti({
@@ -234,6 +236,7 @@ function Shell() {
   const handleNotNow = useCallback(
     (reason: NotNowReason) => {
       if (modal?.type !== "notNow") return;
+      haptics.postpone();
       const t = modal.task;
       setModal(null);
       const patch: Partial<Task> = {};
@@ -493,6 +496,7 @@ function Shell() {
                   if (t) setModal({ type: "notNow", task: t });
                 }}
                 onUnblock={(id) => {
+                  haptics.unblock();
                   dispatch({ type: "PATCH_TASK", taskId: id, patch: { blocked: false, blockNote: undefined } });
                   pushToast({ title: "Unblocked — back in ranking", tone: "ok" });
                 }}
@@ -518,19 +522,32 @@ function Shell() {
               }}
             />
 
-            <footer className="mt-8 sm:mt-12 pb-8 text-center">
+            <footer className="mt-8 sm:mt-12 pb-8 text-center space-y-2.5">
               <p className="label-mono text-ink-muted">focal — add tasks, we point at the one thing</p>
               <p className="mt-1 font-mono text-[10px] text-ink-faint">
                 shortcuts: <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">/</kbd> capture ·{" "}
                 <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">c</kbd> complete #1 ·{" "}
                 <kbd className="rounded border border-line bg-surface-2 px-1 text-ink-secondary">g</kbd> setup
               </p>
-              <button
-                onClick={() => navigate("setup")}
-                className="label-mono mt-3 cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
-              >
-                goals · signals · scoring · data →
-              </button>
+              <div className="pt-1">
+                <button
+                  onClick={() => navigate("setup")}
+                  className="label-mono cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink"
+                >
+                  goals · signals · scoring · data →
+                </button>
+              </div>
+              <p className="font-mono text-xs text-ink-muted pt-2">
+                Crafted by{" "}
+                <a
+                  href="https://abhiishek.is-a.dev/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-ink underline hover:text-primary transition-colors"
+                >
+                  Abhishek
+                </a>
+              </p>
             </footer>
           </main>
         )}

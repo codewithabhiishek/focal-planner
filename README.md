@@ -8,7 +8,8 @@
 [![Vite](https://img.shields.io/badge/Vite-6.x-646CFF?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Framer Motion](https://img.shields.io/badge/Framer_Motion-11.x-black?logo=framer&logoColor=white)](https://www.framer.com/motion/)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen?logo=checkmarx&logoColor=white)](npm%20test)
+[![Portfolio](https://img.shields.io/badge/Portfolio-abhiishek.is--a.dev-orange?logo=safari&logoColor=white)](https://abhiishek.is-a.dev/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
 <p align="center">
@@ -67,6 +68,14 @@ Most task managers are passive bucket lists that grow infinitely and cause decis
 - Calibrated typography powered by **Plus Jakarta Sans** and **JetBrains Mono**.
 - **Flawless Light & Dark Modes** with WCAG AA compliant semantic contrast tokens.
 - **Ambient Constellation Background**: Subtle canvas heuristic network with soft center-masking so UI cards stay crystal clear.
+
+### 7. 🛡️ Multi-User Profile Data Isolation
+- **Scoped Storage Keys**: State is isolated per user profile (`focal.state.v1:[userId]`) preventing any cross-session or multi-profile data collision.
+- **Seamless Profile Switcher**: Switch between "default", "work", "personal", or any custom namespace with zero data loss and automated legacy state migration.
+
+### 8. 📳 Tactile Mobile Haptic Feedback Engine
+- **Physical Feel**: Custom haptic patterns for task completion (`complete`), postponement (`postpone`), unblocking (`unblock`), toasts (`tap`/`error`), and budget filter clicks (`select`).
+- **SSR-Safe**: Gracefully detects `navigator.vibrate` and degrades silently on unsupported devices.
 
 ---
 
@@ -176,5 +185,5 @@ For full mathematical proofs, weight breakdowns, and decision thresholds, see [*
 Distributed under the MIT License. See `LICENSE` for more information.
 
 <div align="center">
-  <sub>Built with ❤️ by <a href="https://github.com/codewithabhiishek">Abhishek</a></sub>
+  <sub>Built with ❤️ by <a href="https://abhiishek.is-a.dev/" target="_blank" rel="noopener noreferrer">Abhishek</a></sub>
 </div>

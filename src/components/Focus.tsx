@@ -8,6 +8,7 @@ import {
   minutesLabel,
   type Ranked,
 } from "../lib/engine";
+import { haptics } from "../lib/haptics";
 import { CategoryBadge, ScoreBar } from "./ui";
 import {
   IconBlock,
@@ -46,7 +47,10 @@ export function BudgetBar({
           return (
             <button
               key={String(b.id)}
-              onClick={() => onChange(b.id)}
+              onClick={() => {
+                haptics.select();
+                onChange(b.id);
+              }}
               aria-pressed={active}
               className={`cursor-pointer rounded-full border px-2.5 py-1 font-mono text-[11px] font-bold transition-all duration-200 sm:px-3.5 sm:py-1 sm:text-xs ${
                 active

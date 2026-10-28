@@ -20,15 +20,27 @@ export function Header({ onSettings }: { onSettings: () => void }) {
           </div>
         </div>
 
-        <button
-          onClick={onSettings}
-          aria-label="Setup & settings"
-          title="Setup — goals, signals, scoring"
-          className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg sm:rounded-xl border border-line bg-surface text-ink-secondary shadow-hard-faint transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:rotate-45 active:scale-95"
-        >
-          <IconGear size={15} className="sm:hidden" />
-          <IconGear size={17} className="hidden sm:block" />
-        </button>
+        <div className="flex items-center gap-2.5 sm:gap-3.5">
+          <a
+            href="https://abhiishek.is-a.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 text-[11px] font-mono text-ink-muted hover:text-ink transition-colors"
+            title="Creator Portfolio"
+          >
+            by abhishek ↗
+          </a>
+
+          <button
+            onClick={onSettings}
+            aria-label="Setup & settings"
+            title="Setup — goals, signals, scoring"
+            className="flex h-8 w-8 sm:h-9 sm:w-9 shrink-0 cursor-pointer items-center justify-center rounded-lg sm:rounded-xl border border-line bg-surface text-ink-secondary shadow-hard-faint transition-all duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:text-ink hover:rotate-45 active:scale-95"
+          >
+            <IconGear size={15} className="sm:hidden" />
+            <IconGear size={17} className="hidden sm:block" />
+          </button>
+        </div>
       </div>
     </header>
   );

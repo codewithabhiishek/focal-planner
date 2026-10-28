@@ -1,6 +1,6 @@
 import { v4 as uuid } from "uuid";
-import type { Goal, Task } from "../types";
-import { analyzeHeuristic } from "./ai/heuristic";
+import type { Goal, Task } from "../types.ts";
+import { analyzeHeuristic } from "./ai/heuristic.ts";
 
 /**
  * First-run sample data, mirroring the product story:

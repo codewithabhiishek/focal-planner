@@ -59,9 +59,10 @@ function Section({
 }
 
 export function SettingsPage({ onBack }: { onBack: () => void }) {
-  const { state, dispatch, pushToast } = useStore();
+  const { state, dispatch, pushToast, activeUserId, switchUser } = useStore();
   const s = state.settings;
   const [backendConfigured, setBackendConfigured] = useState(false);
+  const [customProfile, setCustomProfile] = useState("");
 
   useEffect(() => {
     fetch("/api/groq")
@@ -384,50 +385,115 @@ export function SettingsPage({ onBack }: { onBack: () => void }) {
           </p>
         </Section>
 
-        {/* 5 — data */}
-        <Section n={5} title="Data" icon={<IconTrash size={17} className="text-danger" />} sub="stored locally in this browser">
-          <div className="flex flex-wrap gap-2">
-            <button
-              onClick={() => {
-                dispatch({ type: "LOAD_SAMPLE" });
-                pushToast({ title: "Sample loaded", body: "A realistic day, re-ranked live.", tone: "ok" });
-              }}
-              className="btn-yellow px-4 py-2 text-sm"
-            >
-              <IconUndo size={14} /> Load sample day
-            </button>
-            {confirmClear ? (
-              <span className="inline-flex items-center gap-1.5">
-                <button
-                  onClick={() => {
-                    dispatch({ type: "CLEAR_ALL" });
-                    setConfirmClear(false);
-                    pushToast({ title: "Fresh start", body: "Everything's wiped. The question remains.", tone: "warn" });
-                  }}
-                  className="btn-coral px-4 py-2 text-sm"
-                >
-                  Yes, wipe it
+        {/* 5 — data & profiles */}
+        <Section n={5} title="Data & Profiles" icon={<IconTrash size={17} className="text-danger" />} sub="multi-user isolated localStorage">
+          <div className="space-y-4">
+            <div>
+              <label className="label-mono block text-ink-secondary mb-1.5">
+                Active Profile (Isolated Data Scope)
+              </label>
+              <div className="flex flex-wrap items-center gap-2">
+                {["default", "work", "personal"].map((p) => (
+                  <button
+                    key={p}
+                    type="button"
+                    onClick={() => {
+                      if (activeUserId !== p) {
+                        switchUser(p);
+                        pushToast({ title: `Switched to profile: ${p}`, tone: "ok" });
+                      }
+                    }}
+                    className={`cursor-pointer rounded-full border px-3 py-1 font-mono text-xs font-bold transition-all ${
+                      activeUserId === p
+                        ? "border-primary bg-primary text-primary-foreground shadow-hard-faint"
+                        : "border-line bg-surface text-ink-secondary hover:text-ink hover:border-ink/40"
+                    }`}
+                  >
+                    {p}
+                  </button>
+                ))}
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (customProfile.trim()) {
+                    const nextId = customProfile.trim();
+                    switchUser(nextId);
+                    pushToast({ title: `Switched to profile: ${nextId}`, tone: "ok" });
+                    setCustomProfile("");
+                  }
+                }}
+                className="mt-2.5 flex items-center gap-2"
+              >
+                <input
+                  type="text"
+                  placeholder="Create or switch profile..."
+                  value={customProfile}
+                  onChange={(e) => setCustomProfile(e.target.value)}
+                  className="rounded-lg border border-line bg-surface px-2.5 py-1.5 font-mono text-xs text-ink placeholder:text-ink-faint focus:border-ink focus:outline-none max-w-xs"
+                />
+                <button type="submit" className="btn-ghost px-3 py-1.5 text-xs">
+                  Switch
                 </button>
-                <button onClick={() => setConfirmClear(false)} className="btn-ghost px-3 py-2 text-sm">
-                  Keep it
-                </button>
-              </span>
-            ) : (
-              <button onClick={() => setConfirmClear(true)} className="btn-ghost px-4 py-2 text-sm">
-                <IconTrash size={14} /> Clear everything
+              </form>
+            </div>
+
+            <div className="flex flex-wrap gap-2 pt-2 border-t border-line/60">
+              <button
+                onClick={() => {
+                  dispatch({ type: "LOAD_SAMPLE" });
+                  pushToast({ title: "Sample loaded", body: "A realistic day, re-ranked live.", tone: "ok" });
+                }}
+                className="btn-yellow px-4 py-2 text-sm"
+              >
+                <IconUndo size={14} /> Load sample day
               </button>
-            )}
+              {confirmClear ? (
+                <span className="inline-flex items-center gap-1.5">
+                  <button
+                    onClick={() => {
+                      dispatch({ type: "CLEAR_ALL" });
+                      setConfirmClear(false);
+                      pushToast({ title: "Fresh start", body: "Everything's wiped. The question remains.", tone: "warn" });
+                    }}
+                    className="btn-coral px-4 py-2 text-sm"
+                  >
+                    Yes, wipe it
+                  </button>
+                  <button onClick={() => setConfirmClear(false)} className="btn-ghost px-3 py-2 text-sm">
+                    Keep it
+                  </button>
+                </span>
+              ) : (
+                <button onClick={() => setConfirmClear(true)} className="btn-ghost px-4 py-2 text-sm">
+                  <IconTrash size={14} /> Clear profile data
+                </button>
+              )}
+            </div>
           </div>
           <p className="label-mono mt-3 text-ink-faint">
-            no account, no cloud — goals & tasks persist in localStorage only
+            isolated client-side storage — tasks and goals are scoped to profile "{activeUserId}"
           </p>
         </Section>
       </div>
 
-      <footer className="mt-10 pb-8 text-center">
-        <button onClick={onBack} className="label-mono cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink">
-          ← back to the one question
-        </button>
+      <footer className="mt-10 pb-8 text-center space-y-3">
+        <div>
+          <button onClick={onBack} className="label-mono cursor-pointer text-ink-muted underline decoration-line decoration-2 underline-offset-4 transition-colors hover:text-ink">
+            ← back to the one question
+          </button>
+        </div>
+        <p className="font-mono text-xs text-ink-muted">
+          Crafted by{" "}
+          <a
+            href="https://abhiishek.is-a.dev/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-bold text-ink underline hover:text-primary transition-colors"
+          >
+            Abhishek
+          </a>
+        </p>
       </footer>
     </div>
   );

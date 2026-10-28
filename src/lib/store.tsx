@@ -13,147 +13,40 @@ import { v4 as uuid } from "uuid";
 import type {
   AppState,
   Goal,
-  Settings,
   Task,
-  TaskAnalysis,
   TimeBudget,
 } from "../types";
 import { analyzeHeuristic, extractDeadline } from "./ai/heuristic";
 import { getProvider } from "./ai";
-import { buildSample } from "./sample";
+import { haptics } from "./haptics";
+import {
+  BASE_STORAGE_KEY,
+  ACTIVE_USER_KEY,
+  DEFAULT_USER_ID,
+  sanitizeUserId,
+  getScopedStorageKey,
+  getActiveUserId,
+  defaultSettings,
+  emptyState,
+  hydrateForUser,
+  reducer,
+  type Action,
+} from "./storage";
 
-const STORAGE_KEY = "focal.state.v1";
-
-/* ---------------- state ---------------- */
-
-const defaultSettings: Settings = {
-  aiKey: "",
-  aiModel: "openai/gpt-oss-120b",
-  notificationsEnabled: false,
-  seeded: false,
-  theme: "light",
+// Re-export storage constants and functions
+export {
+  BASE_STORAGE_KEY,
+  ACTIVE_USER_KEY,
+  DEFAULT_USER_ID,
+  sanitizeUserId,
+  getScopedStorageKey,
+  getActiveUserId,
+  defaultSettings,
+  emptyState,
+  hydrateForUser,
+  reducer,
+  type Action,
 };
-
-const emptyState: AppState = {
-  goals: [],
-  tasks: [],
-  budget: "any",
-  settings: { ...defaultSettings },
-};
-
-function hydrate(): AppState {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as AppState;
-      return {
-        ...emptyState,
-        ...parsed,
-        settings: { ...defaultSettings, ...parsed.settings },
-      };
-    }
-  } catch {
-    /* corrupted storage → fresh start */
-  }
-  // First run: seed the story so the product explains itself in 2 seconds.
-  const sample = buildSample();
-  return {
-    ...emptyState,
-    goals: sample.goals,
-    tasks: sample.tasks,
-    settings: { ...defaultSettings, seeded: true },
-  };
-}
-
-/* ---------------- actions ---------------- */
-
-type Action =
-  | { type: "ADD_TASK"; task: Task }
-  | { type: "PATCH_TASK"; taskId: string; patch: Partial<Task> }
-  | { type: "UPDATE_ANALYSIS"; taskId: string; analysis: TaskAnalysis }
-  | { type: "COMPLETE_TASK"; taskId: string; at: number }
-  | { type: "ADD_GOAL"; goal: Goal }
-  | { type: "PATCH_GOAL"; goalId: string; patch: Partial<Goal> }
-  | { type: "DELETE_GOAL"; goalId: string }
-  | { type: "SET_PRIMARY_GOAL"; goalId: string }
-  | { type: "SET_BUDGET"; budget: TimeBudget }
-  | { type: "PATCH_SETTINGS"; patch: Partial<Settings> }
-  | { type: "ADD_TASKS"; tasks: Task[] }
-  | { type: "LOAD_SAMPLE" }
-  | { type: "CLEAR_ALL" };
-
-function reducer(state: AppState, action: Action): AppState {
-  switch (action.type) {
-    case "ADD_TASK":
-      return { ...state, tasks: [action.task, ...state.tasks] };
-    case "ADD_TASKS":
-      return { ...state, tasks: [...action.tasks, ...state.tasks] };
-    case "PATCH_TASK":
-      return {
-        ...state,
-        tasks: state.tasks.map((t) =>
-          t.id === action.taskId ? { ...t, ...action.patch } : t
-        ),
-      };
-    case "UPDATE_ANALYSIS":
-      return {
-        ...state,
-        tasks: state.tasks.map((t) =>
-          t.id === action.taskId ? { ...t, analysis: action.analysis } : t
-        ),
-      };
-    case "COMPLETE_TASK":
-      return {
-        ...state,
-        tasks: state.tasks.map((t) =>
-          t.id === action.taskId
-            ? { ...t, status: "done", completedAt: action.at, blocked: false }
-            : t
-        ),
-      };
-    case "ADD_GOAL":
-      return { ...state, goals: [...state.goals, action.goal] };
-    case "PATCH_GOAL":
-      return {
-        ...state,
-        goals: state.goals.map((g) =>
-          g.id === action.goalId ? { ...g, ...action.patch } : g
-        ),
-      };
-    case "DELETE_GOAL":
-      return {
-        ...state,
-        goals: state.goals.filter((g) => g.id !== action.goalId),
-        tasks: state.tasks.map((t) =>
-          t.analysis.goalId === action.goalId
-            ? { ...t, analysis: { ...t.analysis, goalId: null } }
-            : t
-        ),
-      };
-    case "SET_PRIMARY_GOAL":
-      return {
-        ...state,
-        goals: state.goals.map((g) => ({ ...g, isPrimary: g.id === action.goalId })),
-      };
-    case "SET_BUDGET":
-      return { ...state, budget: action.budget };
-    case "PATCH_SETTINGS":
-      return { ...state, settings: { ...state.settings, ...action.patch } };
-    case "LOAD_SAMPLE": {
-      const sample = buildSample();
-      return {
-        ...state,
-        goals: sample.goals,
-        tasks: sample.tasks,
-        settings: { ...state.settings, seeded: true },
-      };
-    }
-    case "CLEAR_ALL":
-      return { ...emptyState, settings: { ...state.settings, seeded: true } };
-    default:
-      return state;
-  }
-}
 
 /* ---------------- toasts ---------------- */
 
@@ -166,7 +59,7 @@ export interface Toast {
 
 /* ---------------- context ---------------- */
 
-interface StoreValue {
+export interface StoreValue {
   state: AppState;
   dispatch: React.Dispatch<Action>;
   toasts: Toast[];
@@ -177,24 +70,40 @@ interface StoreValue {
     title: string,
     opts?: { deadline?: number | null; estMinutes?: number | null; notes?: string }
   ) => Task;
+  activeUserId: string;
+  switchUser: (userId: string) => void;
 }
 
 const StoreCtx = createContext<StoreValue | null>(null);
 
 let toastSeq = 1;
 
-export function StoreProvider({ children }: { children: ReactNode }) {
-  const [state, dispatch] = useReducer(reducer, undefined, hydrate);
+export function StoreProvider({
+  children,
+  initialUserId,
+}: {
+  children: ReactNode;
+  initialUserId?: string;
+}) {
+  const [activeUserId, setActiveUserId] = useState<string>(() =>
+    initialUserId ? sanitizeUserId(initialUserId) : getActiveUserId()
+  );
+
+  const [state, dispatch] = useReducer(reducer, activeUserId, hydrateForUser);
   const [toasts, setToasts] = useState<Toast[]>([]);
 
-  /* persist */
+  /* persist scoped to activeUserId */
   useEffect(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      if (typeof localStorage !== "undefined") {
+        const key = getScopedStorageKey(BASE_STORAGE_KEY, activeUserId);
+        localStorage.setItem(key, JSON.stringify(state));
+        localStorage.setItem(ACTIVE_USER_KEY, activeUserId);
+      }
     } catch {
       /* storage full / private mode — app still works in memory */
     }
-  }, [state]);
+  }, [state, activeUserId]);
 
   const dismissToast = useCallback((id: number) => {
     setToasts((ts) => ts.filter((t) => t.id !== id));
@@ -203,11 +112,35 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const pushToast = useCallback(
     (t: Omit<Toast, "id">) => {
       const id = toastSeq++;
+      // Haptic feedback triggered on toast notifications
+      if (t.tone === "warn") {
+        haptics.error();
+      } else {
+        haptics.tap();
+      }
       setToasts((ts) => [...ts.slice(-2), { ...t, id }]);
       window.setTimeout(() => dismissToast(id), 4200);
     },
     [dismissToast]
   );
+
+  const switchUser = useCallback((newUserId: string) => {
+    const cleanId = sanitizeUserId(newUserId);
+    setActiveUserId(cleanId);
+    try {
+      if (typeof localStorage !== "undefined") {
+        localStorage.setItem(ACTIVE_USER_KEY, cleanId);
+      }
+    } catch {
+      /* ignore */
+    }
+    const nextState = hydrateForUser(cleanId);
+    dispatch({ type: "RESET_STATE", state: nextState });
+  }, []);
+
+  /* keep a ref so stable callbacks read fresh state */
+  const stateRef = useRef(state);
+  stateRef.current = state;
 
   /* sync heuristic capture (instant) */
   const captureTask = useCallback<StoreValue["captureTask"]>(
@@ -240,16 +173,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       dispatch({ type: "ADD_TASK", task });
       return task;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
 
-  /* keep a ref so stable callbacks read fresh state */
-  const stateRef = useRef(state);
-  stateRef.current = state;
-
-  /* async AI refinement: when a key is configured, upgrade fresh tasks'
-     analysis to LLM scores; hard constraints stay in the engine. */
+  /* async AI refinement */
   const inflight = useRef(new Set<string>());
   const failed = useRef(new Set<string>());
   const lastKey = useRef(state.settings.aiKey);
@@ -290,8 +217,17 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   }, [state.tasks, state.settings]);
 
   const value = useMemo<StoreValue>(
-    () => ({ state, dispatch, toasts, pushToast, dismissToast, captureTask }),
-    [state, toasts, pushToast, dismissToast, captureTask]
+    () => ({
+      state,
+      dispatch,
+      toasts,
+      pushToast,
+      dismissToast,
+      captureTask,
+      activeUserId,
+      switchUser,
+    }),
+    [state, toasts, pushToast, dismissToast, captureTask, activeUserId, switchUser]
   );
 
   return <StoreCtx.Provider value={value}>{children}</StoreCtx.Provider>;
